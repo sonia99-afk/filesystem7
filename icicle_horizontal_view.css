@@ -10,7 +10,7 @@
     position: absolute;
     display: flex !important;
     
-    justify-content: center;
+    /* justify-content: center; */
   
     box-sizing: border-box;
     padding: 1 2px;
