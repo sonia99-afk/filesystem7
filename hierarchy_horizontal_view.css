@@ -18,13 +18,15 @@
   position: relative;
   display: flex;
   align-items: flex-start;
-  height: 22px;
+  min-height: 22px;
+  height: auto;
 }
 
 .hh-line-to-first {
   flex: 0 0 32px;
+  height: 0;
   border-top: 1px solid #000;
-  margin-top: 11px;
+  margin-top: 10px;
 }
 
 .hierarchy-horizontal-node {
@@ -33,7 +35,7 @@
   align-items: center;
 
   width: max-content;
-  max-width: 260px;
+  width: 120px;
   height: 20px !important;;
   line-height: 20px !important;
 
@@ -69,7 +71,7 @@
   content: "";
   position: absolute;
   left: 0;
-  top: -11px;
+  top: var(--hh-line-top, -11px);
   height: var(--hh-line-height, 0px);
   border-left: 1px solid #000;
 }

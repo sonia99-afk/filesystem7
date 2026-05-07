@@ -9,7 +9,7 @@
   .icicle-horizontal-node {
     position: absolute;
     display: flex !important;
-    align-items: center;
+    
     justify-content: center;
   
     box-sizing: border-box;
@@ -60,7 +60,7 @@
   .icicle-horizontal-main {
     display: flex;
     align-items: center;
-    justify-content: center;
+    /* justify-content: center; */
     max-width: 100%;
     min-width: 0;
   }
@@ -126,6 +126,10 @@
 
 .icicle-horizontal-node {
   border: 1px solid #000;
+}
+
+.row {
+  align-items: stretch !important;
 }
 
 /* .icicle-horizontal-main .edit,

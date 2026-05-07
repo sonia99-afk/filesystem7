@@ -78,10 +78,12 @@
     row.dataset.id = node.id;
     row.tabIndex = 0;
 
-    const num = document.createElement("span");
-    num.className = "leaf-index list-number";
-    num.textContent = ordinalPath.length ? ordinalPath.join(".") : "0";
-    row.appendChild(num);
+    if (showOrdinals) {
+      const num = document.createElement("span");
+      num.className = "list-number leaf-index";
+      num.textContent = ordinalPath.length ? ordinalPath.join(".") : "0";
+      row.appendChild(num);
+    }
 
     const label = document.createElement("span");
     label.className = "label leaf-label list-label";

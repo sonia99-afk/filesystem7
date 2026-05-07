@@ -1,15 +1,10 @@
 .leaf-page {
   min-height: 760px;
-  padding: 38px 40px 44px;
+ 
   box-sizing: border-box;
   font-family: "SF Pro Text", "Arial", sans-serif;
 }
 
-.leaf-wrap {
-  max-width: 720px;
-  margin: 0 auto;
-  padding: 10px 0;
-}
 
 .leaf-flow {
   text-align: justify;
@@ -18,7 +13,7 @@
   line-height: 1.54;
   letter-spacing: -0.01em;
   word-spacing: 0.01em;
-  max-width: 270px;
+  
 }
 
 .leaf-item {
@@ -33,7 +28,7 @@
 .leaf-node {
   display: inline-flex !important;
   align-items: baseline;
-  max-width: 100%;
+ 
   padding: 0;
   background: transparent;
   white-space: nowrap;
@@ -163,4 +158,14 @@
 .leaf-notes .caption {
   font-size: inherit !important;
   line-height: inherit !important;
+}
+
+.leaf-page .leaf-flow .leaf-node.row {
+  max-width: none !important;
+}
+
+.leaf-notes .caption-multiline {
+  white-space: pre-wrap !important;
+  overflow: visible;
+  text-overflow: clip;
 }
