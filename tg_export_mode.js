@@ -1,10 +1,32 @@
 // tg_export_mode.js
 // Режим Telegram: экспорт ASCII + ручное редактирование + импорт обратно в дерево.
-// Подписи экспортируются БЕЗ "-" и при импорте возвращаются в node.captions.
+// Автосохранение при выходе из текстового режима.
 
 (function () {
   let tgMode = false;
   let lastAscii = '';
+
+  function exportTreeFromRoot() {
+    function plainName(node) {
+      if (node.nameHtml) {
+        const tmp = document.createElement("div");
+        tmp.innerHTML = node.nameHtml;
+        return (tmp.textContent || "").trim();
+      }
+  
+      return (node.name || "").trim();
+    }
+  
+    function walk(node) {
+      return {
+        label: plainName(node),
+        captions: (node.captions || []).map(c => c.text || ""),
+        children: (node.children || []).map(walk)
+      };
+    }
+  
+    return walk(root);
+  }
 
   function getCopyBtn() {
     return document.getElementById('tgCopy');
@@ -16,7 +38,7 @@
       if (ta) return ta.value;
     }
 
-    const tree = buildTreeFromDom();
+    const tree = exportTreeFromRoot();
     return tree ? asciiFromTree(tree) : '```\n(дерево не найдено)\n```';
   }
 
@@ -37,8 +59,10 @@
 
   function getNodeLabelFromRow(row) {
     const clone = row.cloneNode(true);
+
     const act = clone.querySelector('.act');
     if (act) act.remove();
+
     return (clone.textContent || '').trim();
   }
 
@@ -66,8 +90,12 @@
       };
 
       const caps = li.querySelector(':scope > .captions');
+
       if (caps) {
-        const capEls = Array.from(caps.querySelectorAll(':scope > .caption'));
+        const capEls = Array.from(
+          caps.querySelectorAll(':scope > .caption')
+        );
+
         for (const capEl of capEls) {
           const txt = getCaptionText(capEl);
           if (txt) node.captions.push(txt);
@@ -75,8 +103,11 @@
       }
 
       const childUl = li.querySelector(':scope > ul');
+
       if (childUl) {
-        const childLis = Array.from(childUl.children).filter(el => el.tagName === 'LI');
+        const childLis = Array.from(childUl.children)
+          .filter(el => el.tagName === 'LI');
+
         for (const chLi of childLis) {
           const chNode = walkLi(chLi);
           if (chNode) node.children.push(chNode);
@@ -86,7 +117,10 @@
       return node;
     }
 
-    const topLi = ul.querySelector(':scope > li') || ul.querySelector('li');
+    const topLi =
+      ul.querySelector(':scope > li') ||
+      ul.querySelector('li');
+
     if (!topLi) return null;
 
     return walkLi(topLi);
@@ -99,50 +133,56 @@
 
   function asciiFromTree(tree) {
     const lines = [];
-  
+
     function rec(node, depth) {
       lines.push(dashByLevel(depth) + node.label);
-  
+
       const caps = node.captions || [];
+
       for (const cap of caps) {
         const parts = String(cap || '')
           .replace(/\r/g, '')
           .split('\n');
-  
+
         parts.forEach((part, index) => {
           if (index === 0) lines.push('* ' + part);
           else lines.push(part);
         });
       }
-  
+
       (node.children || []).forEach(ch => rec(ch, depth + 1));
     }
-  
+
     rec(tree, 0);
+
     return '```\n' + lines.join('\n') + '\n```';
   }
 
   function stripCodeFences(s) {
     const t = String(s || '').trim();
+
     if (t.startsWith('```') && t.endsWith('```')) {
-      return t.replace(/^```[\s\r\n]*/, '').replace(/[\s\r\n]*```$/, '');
+      return t
+        .replace(/^```[\s\r\n]*/, '')
+        .replace(/[\s\r\n]*```$/, '');
     }
+
     return t;
   }
 
   function treeFromAscii(text) {
     const clean = stripCodeFences(text);
-  
+
     const lines = clean
       .split('\n')
       .map(l => l.replace(/\r/g, '').trimEnd());
-  
+
     const stack = [];
     let newRoot = null;
     let lastNode = null;
-  
+
     let captionBuffer = null;
-  
+
     function makeParsedNode(level, name) {
       return {
         id: Math.random().toString(36).slice(2),
@@ -153,123 +193,256 @@
         children: []
       };
     }
-  
+
     function flushCaptionBuffer() {
       if (!lastNode || !captionBuffer) {
         captionBuffer = null;
         return;
       }
-  
+
       const text = captionBuffer.join('\n').trim();
       captionBuffer = null;
-  
+
       if (!text) return;
-  
-      if (!Array.isArray(lastNode.captions)) lastNode.captions = [];
+
+      if (!Array.isArray(lastNode.captions)) {
+        lastNode.captions = [];
+      }
+
       lastNode.captions.push({
         id: Math.random().toString(36).slice(2),
         text,
         textHtml: ""
       });
     }
-  
+
     for (const rawLine of lines) {
       const line = rawLine.trimEnd();
       const trimmed = line.trim();
-  
+
       if (!trimmed) {
         if (captionBuffer) {
           captionBuffer.push('');
         }
         continue;
       }
-  
-      // первая строка без "-" и без "*" = root
-      if (!newRoot && !/^\s*-/.test(line) && !/^\s*\*/.test(line)) {
+
+      // root
+      if (
+        !newRoot &&
+        !/^\s*-/.test(line) &&
+        !/^\s*\*/.test(line)
+      ) {
         flushCaptionBuffer();
-  
+
         const rootName = trimmed;
         if (!rootName) continue;
-  
+
         const rootNode = makeParsedNode(0, rootName);
+
         newRoot = rootNode;
         stack.length = 0;
         stack.push(rootNode);
+
         lastNode = rootNode;
         continue;
       }
-  
-      // новая подпись
+
+      // caption
       const captionMatch = line.match(/^\s*\*\s?(.*)$/);
+
       if (captionMatch) {
         flushCaptionBuffer();
-  
+
         if (!lastNode) continue;
+
         captionBuffer = [captionMatch[1] || ''];
         continue;
       }
-  
-      // обычный узел
+
+      // node
       const nodeMatch = line.match(/^((?:-\s*)+)\s*(.+)$/);
+
       if (nodeMatch) {
         flushCaptionBuffer();
-  
-        const level = (nodeMatch[1].match(/-/g) || []).length;
+
+        const level =
+          (nodeMatch[1].match(/-/g) || []).length;
+
         const name = (nodeMatch[2] || '').trim();
+
         if (!name) continue;
-  
-        const desiredLevel = Math.max(1, Math.min(LEVEL.STEP, level));
+
+        const desiredLevel = Math.max(
+          1,
+          Math.min(LEVEL.STEP, level)
+        );
+
         const node = makeParsedNode(desiredLevel, name);
-  
+
         if (!newRoot) {
-          const rootNode = makeParsedNode(0, DEFAULT_NAME?.[0] || 'Уровень 0');
+          const rootNode = makeParsedNode(
+            0,
+            DEFAULT_NAME?.[0] || 'Уровень 0'
+          );
+
           newRoot = rootNode;
           stack.length = 0;
           stack.push(rootNode);
+
           lastNode = rootNode;
         }
-  
-        while (stack.length > node.level) stack.pop();
-  
+
+        while (stack.length > node.level) {
+          stack.pop();
+        }
+
         while (stack.length < node.level) {
           const placeholderLevel = stack.length;
+
           const placeholder = makeParsedNode(
             placeholderLevel,
-            (typeof DEFAULT_NAME !== "undefined" && DEFAULT_NAME[placeholderLevel] != null)
-              ? DEFAULT_NAME[placeholderLevel]
-              : `Уровень ${placeholderLevel}`
+            DEFAULT_NAME?.[placeholderLevel] ||
+            `Уровень ${placeholderLevel}`
           );
-  
+
           const p = stack[stack.length - 1];
+
           if (!p) break;
+
           p.children.push(placeholder);
           stack.push(placeholder);
         }
-  
+
         const parent = stack[stack.length - 1];
         if (!parent) continue;
-  
+
         parent.children.push(node);
+
         stack.push(node);
         lastNode = node;
+
         continue;
       }
-  
-      // продолжение текущей подписи
+
+      // continuation
       if (captionBuffer) {
         captionBuffer.push(trimmed);
         continue;
       }
-  
-      // если это просто строка без префиксов после узла, считаем началом подписи
+
       if (lastNode) {
         captionBuffer = [trimmed];
       }
     }
-  
+
     flushCaptionBuffer();
-  
+
     return newRoot;
+  }
+
+  function plainFromHtml(html) {
+    const tmp = document.createElement("div");
+    tmp.innerHTML = html || "";
+    return (tmp.textContent || "").trim();
+  }
+  
+  function nodePlainName(node) {
+    return (node.name || plainFromHtml(node.nameHtml) || "").trim();
+  }
+  
+  function captionPlainText(cap) {
+    return (cap.text || plainFromHtml(cap.textHtml) || "").trim();
+  }
+  
+  function mergeFormattingFromOldTree(oldNode, newNode) {
+    if (!oldNode || !newNode) return;
+  
+    const oldName = nodePlainName(oldNode);
+    const newName = nodePlainName(newNode);
+  
+    // если название не менялось — сохраняем id и html-форматирование
+    if (oldName === newName) {
+      newNode.id = oldNode.id;
+      newNode.nameHtml = oldNode.nameHtml || "";
+    }
+  
+    // подписи: если текст подписи не менялся — сохраняем html
+    const oldCaps = Array.isArray(oldNode.captions) ? oldNode.captions : [];
+    const newCaps = Array.isArray(newNode.captions) ? newNode.captions : [];
+  
+    newCaps.forEach((newCap, index) => {
+      const oldCap = oldCaps[index];
+      if (!oldCap) return;
+  
+      if (captionPlainText(oldCap) === captionPlainText(newCap)) {
+        newCap.id = oldCap.id;
+        newCap.textHtml = oldCap.textHtml || "";
+      }
+    });
+  
+    // дети: сначала пробуем сопоставить по позиции
+    const oldChildren = Array.isArray(oldNode.children) ? oldNode.children : [];
+    const newChildren = Array.isArray(newNode.children) ? newNode.children : [];
+  
+    const usedOld = new Set();
+  
+    newChildren.forEach((newChild, index) => {
+      let oldChild = oldChildren[index];
+  
+      if (
+        oldChild &&
+        nodePlainName(oldChild) === nodePlainName(newChild)
+      ) {
+        usedOld.add(index);
+        mergeFormattingFromOldTree(oldChild, newChild);
+        return;
+      }
+  
+      // fallback: если вставили новый элемент и индексы съехали —
+      // ищем старый элемент с таким же названием среди соседей
+      const foundIndex = oldChildren.findIndex((candidate, i) => {
+        if (usedOld.has(i)) return false;
+        return nodePlainName(candidate) === nodePlainName(newChild);
+      });
+  
+      if (foundIndex >= 0) {
+        usedOld.add(foundIndex);
+        mergeFormattingFromOldTree(oldChildren[foundIndex], newChild);
+      }
+    });
+  }
+
+  function saveTelegramTextIfNeeded() {
+    if (!tgMode) return true;
+
+    const ta = document.querySelector("textarea.tg-export");
+    if (!ta) return true;
+
+    const newTree = treeFromAscii(ta.value);
+
+    if (!newTree) {
+      alert("Не удалось распознать дерево. Проверь формат.");
+      return false;
+    }
+
+    mergeFormattingFromOldTree(root, newTree);
+
+    if (typeof pushHistory === "function") {
+      pushHistory();
+    }
+
+    root.id = newTree.id;
+    root.level = newTree.level;
+    root.name = newTree.name;
+    root.nameHtml = newTree.nameHtml || "";
+    root.captions = newTree.captions || [];
+    root.children = newTree.children || [];
+
+    selectedId = root.id;
+    treeHasFocus = true;
+
+    return true;
   }
 
   function renderTelegramView() {
@@ -277,63 +450,31 @@
     if (!host) return;
 
     const copyBtn = getCopyBtn();
+
     if (copyBtn) {
       copyBtn.style.display = 'inline-block';
     }
 
-    const tree = buildTreeFromDom();
-    lastAscii = tree ? asciiFromTree(tree) : '```\n(дерево не найдено)\n```';
+    const tree = exportTreeFromRoot();
+
+    lastAscii = tree
+      ? asciiFromTree(tree)
+      : '```\n(дерево не найдено)\n```';
 
     host.innerHTML = '';
 
-    const bar = document.createElement('div');
-    bar.className = 'tgbar';
-
-    const backBtn = document.createElement('button');
-    backBtn.textContent = 'Сохранить';
-    backBtn.className = 'btnn';
-
     const ta = document.createElement('textarea');
+
     ta.className = 'tg-export';
     ta.value = lastAscii;
 
     const stop = (e) => e.stopPropagation();
 
-    bar.addEventListener('pointerdown', stop);
-    bar.addEventListener('mousedown', stop);
-    bar.addEventListener('click', stop);
-
     ta.addEventListener('pointerdown', stop);
     ta.addEventListener('mousedown', stop);
     ta.addEventListener('click', stop);
 
-    backBtn.onclick = () => {
-      const newTree = treeFromAscii(ta.value);
-      if (!newTree) {
-        alert('Не удалось распознать дерево. Проверь формат.');
-        return;
-      }
-
-      if (typeof pushHistory === "function") pushHistory();
-
-      root.id = newTree.id;
-      root.level = newTree.level;
-      root.name = newTree.name;
-      root.nameHtml = newTree.nameHtml || "";
-      root.captions = newTree.captions || [];
-      root.children = newTree.children || [];
-
-      selectedId = root.id;
-      treeHasFocus = true;
-
-      if (typeof render === 'function') render();
-    };
-
-    bar.append(backBtn);
-
     host.append(ta);
-    bar.style.marginTop = '16px';
-    host.append(bar);
   }
 
   function patchRender() {
@@ -368,12 +509,25 @@
     }
 
     const b = document.getElementById('tgToggle');
+
     if (!b) return;
-    b.textContent = tgMode ? 'Стандартный режим' : 'Текстовый режим';
+
+    b.textContent = tgMode
+      ? 'Стандартный режим'
+      : 'Текстовый режим';
   }
 
   window.setTelegramMode = function (on) {
-    tgMode = !!on;
+    const nextMode = !!on;
+
+    // выход из текстового режима
+    if (tgMode && !nextMode) {
+      const ok = saveTelegramTextIfNeeded();
+      if (!ok) return;
+    }
+
+    tgMode = nextMode;
+
     updateToggleBtn();
     window.render();
   };
@@ -384,12 +538,19 @@
 
   function installTelegramEventTrap() {
     const host = document.getElementById('tree');
+
     if (!host || host.__tgTrapInstalled) return;
+
     host.__tgTrapInstalled = true;
 
     function isTextareaTarget(e) {
       const t = e.target;
-      return !!(t && t.closest && t.closest('textarea.tg-export'));
+
+      return !!(
+        t &&
+        t.closest &&
+        t.closest('textarea.tg-export')
+      );
     }
 
     function trapKey(e) {
@@ -406,4 +567,5 @@
   installTelegramEventTrap();
   installCopyHandler();
   patchRender();
+
 })();

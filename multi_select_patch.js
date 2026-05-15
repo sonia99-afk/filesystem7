@@ -20,11 +20,16 @@
     const st = document.createElement("style");
     st.id = id;
     st.textContent = `
-      .row.multi{
-        background:#bfe3ff !important;
-        border-radius:2px;
-      }
-    `;
+  .row.multi{
+    background:#bfe3ff !important;
+    border-radius:2px;
+  }
+
+  .row.multi-anchor{
+  
+  box-shadow: inset 0 0 0 1px #0b4f9c;
+}
+`;
     document.head.appendChild(st);
   })();
 
@@ -140,17 +145,22 @@
   function applyClasses() {
     const h = host();
     if (!h) return;
-
+  
     h.querySelectorAll('.row[data-multi-owner="level"]').forEach((el) => {
       el.classList.remove("multi");
+      el.classList.remove("multi-anchor");
       el.removeAttribute("data-multi-owner");
     });
-
+  
     for (const id of state.ids) {
       const r = rowById(id);
       if (r) {
         r.classList.add("multi");
         r.setAttribute("data-multi-owner", "level");
+  
+        if (id === state.anchorId) {
+          r.classList.add("multi-anchor");
+        }
       }
     }
   }
@@ -221,32 +231,67 @@
   function handleRangeKey(dir) {
     const cur = selectedRow();
     if (!cur) return;
-
+  
     const ctx = contextKeyForRow(cur);
-
+    if (!ctx) return;
+  
+    const sibs = siblingRows(cur);
+    const idx = sibs.indexOf(cur);
+    if (idx < 0) return;
+  
+    const next = sibs[idx + dir];
+    if (!next) return;
+  
     if (!state.anchorId || state.contextKey !== ctx) {
       state.anchorId = cur.dataset.id;
       state.contextKey = ctx;
-      state.ids = new Set([cur.dataset.id]);
+  
+      const ok = setRange(cur, next);
+  
+      if (!ok) {
+        state.ids = new Set([cur.dataset.id, next.dataset.id]);
+      }
+  
+      selectedId = state.anchorId;
+      treeHasFocus = true;
+      rowById(state.anchorId)?.focus?.({ preventScroll: true });
+  
       applyClasses();
       return;
     }
-
-    const sibs = siblingRows(cur);
-    const idx = sibs.indexOf(cur);
-    const next = sibs[idx + dir];
-    if (!next) return;
-
+  
     const anchor = rowById(state.anchorId) || cur;
-
-    const ok = setRange(anchor, next);
+    const anchorIndex = sibs.indexOf(anchor);
+  
+    if (anchorIndex < 0) return;
+  
+    const selectedIds = Array.from(state.ids);
+    const selectedRows = selectedIds
+      .map((id) => rowById(id))
+      .filter(Boolean);
+  
+    const selectedIndexes = selectedRows
+      .map((r) => sibs.indexOf(r))
+      .filter((i) => i >= 0);
+  
+    const currentEdgeIndex =
+      dir > 0
+        ? Math.max(...selectedIndexes)
+        : Math.min(...selectedIndexes);
+  
+    const nextEdge = sibs[currentEdgeIndex + dir];
+    if (!nextEdge) return;
+  
+    const ok = setRange(anchor, nextEdge);
+  
     if (!ok) {
-      state.anchorId = next.dataset.id;
-      state.contextKey = contextKeyForRow(next);
-      state.ids = new Set([next.dataset.id]);
+      state.ids = new Set([state.anchorId, nextEdge.dataset.id]);
     }
-
-    clickRow(next);
+  
+    selectedId = state.anchorId;
+    treeHasFocus = true;
+    rowById(state.anchorId)?.focus?.({ preventScroll: true });
+  
     applyClasses();
   }
 

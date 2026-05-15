@@ -212,40 +212,56 @@
   
     function doPaste() {
       if (!clipboard.items?.length) return false;
-  
-      const parentFound = clipboard.sourceParentId
-        ? findWithParent(root, clipboard.sourceParentId)
-        : null;
-  
-      const parentNode = parentFound?.node || root;
-      parentNode.children ||= [];
-  
-      let insertIndex = parentNode.children.findIndex((x) => x.id === clipboard.insertAfterId);
-      if (insertIndex < 0) insertIndex = parentNode.children.length - 1;
-  
+    
+      const targetId = selectedId;
+      if (!targetId) return false;
+    
+      const targetFound = findWithParent(root, targetId);
+      if (!targetFound) return false;
+    
+      let parentNode;
+      let insertIndex;
+    
+      // Если выбран root — вставляем первым дочерним элементом root
+      if (targetId === root.id) {
+        parentNode = root;
+        parentNode.children ||= [];
+        insertIndex = -1;
+      } else {
+        // Обычный случай: вставляем после выбранного серого элемента
+        parentNode = targetFound.parent;
+        if (!parentNode) return false;
+    
+        parentNode.children ||= [];
+        insertIndex = parentNode.children.findIndex((x) => x.id === targetId);
+    
+        if (insertIndex < 0) {
+          insertIndex = parentNode.children.length - 1;
+        }
+      }
+    
       const clones = clipboard.items.map((item) => {
         const newIdMap = new Map();
         const nodeClone = cloneNodeDeepWithNewIds(item.node, newIdMap);
         copySideMapsFromStoredItem(item, newIdMap);
         return nodeClone;
       });
-  
+    
       if (!clones.length) return false;
-  
+    
       pushHistory();
+    
       parentNode.children.splice(insertIndex + 1, 0, ...clones);
-  
+    
       selectedId = clones[0]?.id || selectedId;
       treeHasFocus = true;
       clearMultiSelectionIfPossible();
       render();
-  
+    
       if (clipboard.mode === "cut") {
         clearClipboard();
-      } else {
-        clipboard.insertAfterId = clones[clones.length - 1]?.id || clipboard.insertAfterId;
       }
-  
+    
       return true;
     }
 

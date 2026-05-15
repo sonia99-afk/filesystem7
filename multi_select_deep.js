@@ -3,8 +3,12 @@
 // - deepUp / deepDown
 // - deepClick мышью: может быть и Click, и DblClick
 //
-// Визуальная подсветка: .row[data-multi-owner="deep"].multi
-// Экспорт API: window.multiSelectDeep = { getIds, clear, size, has, debug, handleDeepRangeKey }
+// Визуальная подсветка:
+// .row[data-multi-owner="deep"].multi
+// .row[data-multi-owner="deep"].multi-anchor
+//
+// Экспорт API:
+// window.multiSelectDeep = { getIds, clear, size, has, debug, handleDeepRangeKey }
 
 (function () {
   if (typeof window === "undefined") return;
@@ -14,7 +18,7 @@
 
   // ---- style ----
   (function injectStyle() {
-    const id = "multi-select-style";
+    const id = "multi-select-deep-style";
     if (document.getElementById(id)) return;
 
     const st = document.createElement("style");
@@ -23,6 +27,11 @@
 .row[data-multi-owner="deep"].multi{
   background:#bfe3ff !important;
   border-radius:2px;
+}
+
+.row[data-multi-owner="deep"].multi-anchor{
+  
+  box-shadow: inset 0 0 0 1px #0b4f9c;
 }
     `;
     document.head.appendChild(st);
@@ -126,21 +135,22 @@
   function selectAllRows() {
     const h = host();
     if (!h) return;
-  
+
     const rows = Array.from(h.querySelectorAll(".row[data-id]"));
     if (!rows.length) return;
-  
+
     state.ids = new Set(rows.map((r) => r.dataset.id));
-    state.anchorId = rows[0].dataset.id;
-    state.blockKey = "ROOT";
-  
-    // оставляем текущий selectedId, если он уже есть,
-    // иначе ставим на первый элемент
-    if (!selectedId || !state.ids.has(selectedId)) {
-      selectedId = rows[0].dataset.id;
+
+    if (selectedId && state.ids.has(selectedId)) {
+      state.anchorId = selectedId;
+    } else {
+      state.anchorId = rows[0].dataset.id;
+      selectedId = state.anchorId;
     }
-  
+
+    state.blockKey = "ROOT";
     treeHasFocus = true;
+
     applyClasses();
     render();
   }
@@ -151,16 +161,31 @@
 
     h.querySelectorAll('.row[data-multi-owner="deep"]').forEach((el) => {
       el.classList.remove("multi");
+      el.classList.remove("multi-anchor");
       el.removeAttribute("data-multi-owner");
     });
 
     for (const id of state.ids) {
       const r = rowById(id);
-      if (r) {
-        r.classList.add("multi");
-        r.setAttribute("data-multi-owner", "deep");
+      if (!r) continue;
+
+      r.classList.add("multi");
+      r.setAttribute("data-multi-owner", "deep");
+
+      if (id === state.anchorId) {
+        r.classList.add("multi-anchor");
       }
     }
+  }
+
+  function focusAnchor() {
+    if (!state.anchorId) return;
+
+    selectedId = state.anchorId;
+    treeHasFocus = true;
+
+    const anchorRow = rowById(state.anchorId);
+    anchorRow?.focus?.({ preventScroll: true });
   }
 
   function clickRow(row) {
@@ -187,13 +212,13 @@
   }
 
   // ---- keep highlight after render() ----
-  if (typeof window.render === "function" && !window.render.__multiDeepPatchedV2) {
+  if (typeof window.render === "function" && !window.render.__multiDeepPatchedV3) {
     const _render = window.render;
     window.render = function patchedRenderDeep() {
       _render();
       applyClasses();
     };
-    window.render.__multiDeepPatchedV2 = true;
+    window.render.__multiDeepPatchedV3 = true;
   }
 
   // ---- deepUp / deepDown ----
@@ -206,29 +231,57 @@
     if (!state.anchorId || state.blockKey !== bk) {
       state.blockKey = bk;
       state.anchorId = cur.dataset.id;
-      state.ids = new Set([cur.dataset.id]);
+
+      const list = rowsInBlock(state.blockKey);
+      const idx = list.indexOf(cur);
+      if (idx < 0) return;
+
+      const next = list[idx + dir];
+      if (!next) return;
+
+      const ia = list.indexOf(cur);
+      const ib = list.indexOf(next);
+      const from = Math.min(ia, ib);
+      const to = Math.max(ia, ib);
+
+      state.ids = new Set(list.slice(from, to + 1).map((r) => r.dataset.id));
+
+      focusAnchor();
       applyClasses();
       return;
     }
 
     const list = rowsInBlock(state.blockKey);
-    const idx = list.indexOf(cur);
-    if (idx < 0) return;
-
-    const next = list[idx + dir];
-    if (!next) return;
-
     const anchor = rowById(state.anchorId) || cur;
-    const ia = list.indexOf(anchor);
-    const ib = list.indexOf(next);
-    if (ia < 0 || ib < 0) return;
+    const anchorIndex = list.indexOf(anchor);
 
-    const from = Math.min(ia, ib);
-    const to = Math.max(ia, ib);
+    if (anchorIndex < 0) return;
+
+    const selectedRows = Array.from(state.ids)
+      .map((id) => rowById(id))
+      .filter(Boolean);
+
+    const selectedIndexes = selectedRows
+      .map((r) => list.indexOf(r))
+      .filter((i) => i >= 0);
+
+    if (!selectedIndexes.length) return;
+
+    const currentEdgeIndex =
+      dir > 0
+        ? Math.max(...selectedIndexes)
+        : Math.min(...selectedIndexes);
+
+    const nextEdge = list[currentEdgeIndex + dir];
+    if (!nextEdge) return;
+
+    const edgeIndex = list.indexOf(nextEdge);
+    const from = Math.min(anchorIndex, edgeIndex);
+    const to = Math.max(anchorIndex, edgeIndex);
 
     state.ids = new Set(list.slice(from, to + 1).map((r) => r.dataset.id));
 
-    clickRow(next);
+    focusAnchor();
     applyClasses();
   }
 
@@ -243,8 +296,11 @@
         e.preventDefault();
         e.stopPropagation();
         if (e.stopImmediatePropagation) e.stopImmediatePropagation();
-      
-        try { window.multiSelect?.clear?.(); } catch (_) {}
+
+        try {
+          window.multiSelect?.clear?.();
+        } catch (_) {}
+
         selectAllRows();
         return;
       }
@@ -276,6 +332,7 @@
       state.blockKey = bk;
       state.anchorId = clicked.dataset.id;
       state.ids = new Set([clicked.dataset.id]);
+
       clickRow(clicked);
       applyClasses();
       return;
@@ -285,6 +342,7 @@
 
     if (state.ids.has(id)) {
       state.ids.delete(id);
+
       if (state.anchorId === id) {
         state.anchorId = state.ids.values().next().value || null;
       }
@@ -338,8 +396,9 @@
   function installPointerHandlers() {
     const h = host();
     if (!h) return;
-    if (h.__multiDeepClickInstalledV3) return;
-    h.__multiDeepClickInstalledV3 = true;
+    if (h.__multiDeepClickInstalledV4) return;
+
+    h.__multiDeepClickInstalledV4 = true;
 
     h.addEventListener(
       "click",
@@ -347,6 +406,7 @@
         if (synth) return;
 
         clearPendingSingle();
+
         pendingSingleTimer = setTimeout(() => {
           pendingSingleTimer = null;
           handleDeepPointer(e, "Click");
@@ -374,16 +434,20 @@
     getIds() {
       return Array.from(state.ids);
     },
+
     clear() {
       reset();
       applyClasses();
     },
+
     size() {
       return state.ids.size;
     },
+
     has(id) {
       return state.ids.has(id);
     },
+
     debug() {
       return {
         blockKey: state.blockKey,
@@ -391,8 +455,9 @@
         ids: Array.from(state.ids),
       };
     },
+
     handleDeepRangeKey,
-    selectAll: selectAllRows
+    selectAll: selectAllRows,
   };
 
   // Сброс deep-выделения при обычной навигации стрелками
@@ -402,12 +467,15 @@
       if (isEditingNow()) return;
 
       const noMods = !e.shiftKey && !e.altKey && !e.ctrlKey && !e.metaKey;
+
       if (
         noMods &&
-        (e.key === "ArrowUp" ||
+        (
+          e.key === "ArrowUp" ||
           e.key === "ArrowDown" ||
           e.key === "ArrowLeft" ||
-          e.key === "ArrowRight")
+          e.key === "ArrowRight"
+        )
       ) {
         reset();
         applyClasses();

@@ -448,9 +448,28 @@ function addCaption(nodeId) {
   const r = findWithParent(root, nodeId);
   if (!r) return;
 
-  pushHistory();
+  if (!Array.isArray(r.node.captions)) {
+    r.node.captions = [];
+  }
 
-  if (!Array.isArray(r.node.captions)) r.node.captions = [];
+  selectedId = nodeId;
+  treeHasFocus = true;
+
+  // если подпись уже есть — просто редактируем первую
+  if (r.node.captions.length > 0) {
+    const cap = r.node.captions[0];
+
+    render();
+
+    setTimeout(() => {
+      startCaptionEdit(nodeId, cap.id);
+    }, 0);
+
+    return;
+  }
+
+  // если подписи нет — создаём одну
+  pushHistory();
 
   const cap = {
     id: uid(),
@@ -458,13 +477,13 @@ function addCaption(nodeId) {
     textHtml: ""
   };
 
-  r.node.captions.push(cap);
+  r.node.captions = [cap];
 
-  selectedId = nodeId;
-  treeHasFocus = true;
   render();
 
-  setTimeout(() => startCaptionEdit(nodeId, cap.id, { isNew: true }), 0);
+  setTimeout(() => {
+    startCaptionEdit(nodeId, cap.id, { isNew: true });
+  }, 0);
 }
 
 function addSibling(targetId) {
@@ -925,6 +944,7 @@ function renderSchemaView() {
 // }
 
 function render() {
+  updateDirectionButtons();
   if (currentView === VIEW.HIERARCHY) {
     if (viewOrientation === VIEW_ORIENTATION.HORIZONTAL) {
       window.renderHierarchyHorizontalView?.();
@@ -1729,3 +1749,16 @@ if (new URLSearchParams(location.search).get('test') === '1') {
   runTests();
 }
 
+function updateDirectionButtons() {
+  const horizontalBtn = document.getElementById("hierarchyHorizontalBtn");
+  const verticalBtn = document.getElementById("hierarchyVerticalBtn");
+
+  if (!horizontalBtn || !verticalBtn) return;
+
+  const enabled =
+    currentView === VIEW.HIERARCHY ||
+    currentView === VIEW.AICYCLE;
+
+  horizontalBtn.disabled = !enabled;
+  verticalBtn.disabled = !enabled;
+}

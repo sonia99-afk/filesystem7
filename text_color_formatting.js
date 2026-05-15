@@ -500,24 +500,25 @@ const nextHtml = applyColorToWholeHtmlPreservingFmt(
       const sel = getSelectionOffsetsInEditor(ed);
       if (!sel) return false;
       if (sel.start === sel.end) return false;
-  
+    
       const normalized = normalizeRichHtmlKeepingColor(ed.innerHTML || "");
       ed.innerHTML = normalized || ed.innerHTML || "";
-  
+    
       const nodes = textNodesIn(ed);
       let pos = 0;
-  
+    
       for (const node of nodes) {
         const len = (node.nodeValue || "").length;
         const from = Math.max(pos, sel.start);
         const to = Math.min(pos + len, sel.end);
-  
+    
         if (from < to) {
           const localStart = from - pos;
           const localEnd = to - pos;
-  
+    
           wrapRangeInTextNode(node, localStart, localEnd, () => {
             const span = document.createElement("span");
+    
             if (kind === "text") {
               span.className = "rt-color";
               if (color) span.style.setProperty("--rt-color", color);
@@ -525,15 +526,17 @@ const nextHtml = applyColorToWholeHtmlPreservingFmt(
               span.className = "rt-bg";
               if (color) span.style.setProperty("--rt-bg", color);
             }
+    
             return span;
           });
         }
-  
+    
         pos += len;
       }
-  
+    
       ed.innerHTML = normalizeRichHtmlKeepingColor(ed.innerHTML || "");
       setSelectionOffsetsInEditor(ed, sel.start, sel.end);
+    
       return true;
     }
   

@@ -148,7 +148,8 @@
   function setCellTextIfChanged(cell, text) {
     if (!cell) return;
     const t = String(text ?? "");
-    if (cell.textContent !== t) cell.textContent = t;
+    cell.querySelector(".hk-clear")?.remove();
+if (cell.textContent !== t) cell.textContent = t;
   }
 
   function updateConflicts() {
@@ -238,14 +239,20 @@
       if (isEditingNow()) return;
 
       if (window.hotkeysMode !== "custom") {
-        alert("Включите кастомный режим хоткеев, чтобы переназначать клавиши.");
-        return;
+        window.enterHotkeysEditMode?.();
       }
+      
+      if (window.hotkeysMode !== "custom") return;
 
       if (editingCell) clearEditing(true);
 
       editingCell = cell;
-      editingCell.dataset.prevText = editingCell.textContent;
+
+const prevAction = editingCell.dataset.action;
+const prevValue = window.hotkeys?.get?.(prevAction) || "";
+editingCell.dataset.prevText = prettyHotkey(prevValue);
+
+editingCell.querySelector(".hk-clear")?.remove();
 
       const action = editingCell.dataset.action;
       const isMouseAction = MOUSE_ACTIONS.has(action);

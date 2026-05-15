@@ -258,10 +258,21 @@ function startRename(id) {
   function isAllowedTarget(e) {
     const t = e.target;
     if (!t || !t.closest) return false;
-
+  
     if (t.closest(".edit")) return true;
+  
     if (t.closest("#fmtBold,#fmtItalic,#fmtUnderline,#fmtStrike")) return true;
-
+  
+    // разрешаем палитру цветов во время переименования
+    if (t.closest("#colorTools")) return true;
+    if (t.closest("#textColorBtn,#bgColorBtn,#blockBgBtn")) return true;
+    if (t.closest("#textColorSwatches,#bgColorSwatches,#blockBgSwatches")) return true;
+    if (t.closest(".color-dot")) return true;
+    if (t.closest(".custom-color-chip")) return true;
+    if (t.closest(".custom-color-add")) return true;
+    if (t.closest(".custom-color-input")) return true;
+    if (t.closest(".color-delete-menu")) return true;
+  
     return false;
   }
 
@@ -403,10 +414,36 @@ function startCaptionEdit(nodeId, captionId, opts = {}) {
           }
 
           if (tag === "span") {
-            const ok = ["rt-b", "rt-i", "rt-u", "rt-s"].some(c => ch.classList.contains(c));
+            const ok = [
+              "rt-b",
+              "rt-i",
+              "rt-u",
+              "rt-s",
+              "rt-color",
+              "rt-bg"
+            ].some(c => ch.classList.contains(c));
+          
             if (!ok) {
               ch.replaceWith(...Array.from(ch.childNodes));
               continue;
+            }
+          
+            const styleParts = [];
+          
+            if (ch.classList.contains("rt-color")) {
+              const color = ch.style.getPropertyValue("--rt-color") || "";
+              if (color) styleParts.push(`--rt-color:${color}`);
+            }
+          
+            if (ch.classList.contains("rt-bg")) {
+              const bg = ch.style.getPropertyValue("--rt-bg") || "";
+              if (bg) styleParts.push(`--rt-bg:${bg}`);
+            }
+          
+            if (styleParts.length) {
+              ch.setAttribute("style", styleParts.join(";"));
+            } else {
+              ch.removeAttribute("style");
             }
           } else {
             ch.replaceWith(...Array.from(ch.childNodes));

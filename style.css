@@ -988,6 +988,7 @@ body.hotkeys-edit-mode #tree li::before{
     line-height: 1.3;
     white-space: pre-wrap;
     cursor: text;
+    text-align: left;
   }
   
   .captions{
@@ -1016,8 +1017,7 @@ body.hotkeys-edit-mode #tree li::before{
   
   .custom-colors-title{
     grid-column: 1 / -1;
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 12px;
+    
     color: #222;
   }
   
@@ -1036,7 +1036,7 @@ body.hotkeys-edit-mode #tree li::before{
   .custom-color-add{
     width: 20px;
     height: 20px;
-    border: 1px dashed #8d8d8d;
+    border: 1px dashed #b5b5b5;
     border-radius: 3px;
     background: #fff;
     color: #666;
@@ -1083,7 +1083,7 @@ body.hotkeys-edit-mode #tree li::before{
 .color-tools{
   display:inline-flex;
   align-items:center;
-  gap:11px;
+  gap:10px;
   margin-left:21px;
 }
 
@@ -1182,9 +1182,14 @@ body.hotkeys-edit-mode #tree li::before{
 }
 
 .color-dot{
+  --bg: transparent;
+
   width:20px;
   height:20px;
-  border: 1px solid #cfcfcf;
+
+  background: var(--bg);
+  border: 1px solid color-mix(in srgb, var(--bg) 90%, black);
+
   border-radius: 3px;
   padding:0;
   margin:0;
@@ -1195,20 +1200,34 @@ body.hotkeys-edit-mode #tree li::before{
 }
 
 .color-dot[data-color="default"]{
-  background:#111;
+  --bg:#111;
 }
 
-.color-dot[data-color="#000000"]{ background:#000000; }
-.color-dot[data-color="#606060"]{ background:#606060; }
-.color-dot[data-color="#677FAE"]{ background:#677FAE; }
-.color-dot[data-color="#8267AE"]{ background:#8267AE; }
-.color-dot[data-color="#BF4FAD"]{ background:#BF4FAD; }
-.color-dot[data-color="#E95959"]{ background:#E95959; }
-.color-dot[data-color="#D77323"]{ background:#D77323; }
-.color-dot[data-color="#CAA23A"]{ background:#CAA23A; }
-.color-dot[data-color="#5E8347"]{ background:#5E8347; }
-.color-dot[data-color="#478378"]{ background:#478378; }
-.color-dot[data-color="#378CA7"]{ background:#378CA7; }
+.color-dot[data-color="#000000"]{ --bg:#000000; }
+.color-dot[data-color="#606060"]{ --bg:#606060; }
+.color-dot[data-color="#677FAE"]{ --bg:#677FAE; }
+.color-dot[data-color="#8267AE"]{ --bg:#8267AE; }
+.color-dot[data-color="#BF4FAD"]{ --bg:#BF4FAD; }
+.color-dot[data-color="#E95959"]{ --bg:#E95959; }
+.color-dot[data-color="#D77323"]{ --bg:#D77323; }
+.color-dot[data-color="#CAA23A"]{ --bg:#CAA23A; }
+.color-dot[data-color="#5E8347"]{ --bg:#5E8347; }
+.color-dot[data-color="#478378"]{ --bg:#478378; }
+.color-dot[data-color="#378CA7"]{ --bg:#378CA7; }
+
+.color-dot[data-color="#FFFFFF"]{ --bg:#FFFFFF; }
+.color-dot[data-color="#F0F0F0"]{ --bg:#F0F0F0; }
+.color-dot[data-color="#E8ECF8"]{ --bg:#E8ECF8; }
+.color-dot[data-color="#F2EBF8"]{ --bg:#F2EBF8; }
+.color-dot[data-color="#F9E8F1"]{ --bg:#F9E8F1; }
+.color-dot[data-color="#FDEBEC"]{ --bg:#FDEBEC; }
+.color-dot[data-color="#FBECDE"]{ --bg:#FBECDE; }
+.color-dot[data-color="#FBF3DC"]{ --bg:#FBF3DC; }
+.color-dot[data-color="#EDF3EC"]{ --bg:#EDF3EC; }
+.color-dot[data-color="#E8F8F5"]{ --bg:#E8F8F5; }
+.color-dot[data-color="#E5F7FD"]{ --bg:#E5F7FD; }
+
+
 
 .color-dot[data-color="transparent"]{
   background: white;
@@ -1218,7 +1237,7 @@ body.hotkeys-edit-mode #tree li::before{
 .color-dot.is-active:not([data-color="default"]):not([data-color="#000000"]):not([data-color="#6E6E6E"]):not([data-color="#1E06C7"])::before,
 
 .color-dot.is-active {
-outline: 2px solid #000;
+outline: 1px solid #000;
 outline-offset: -1px;
 }
 
@@ -1320,4 +1339,56 @@ button *,
 .hierarchy-orientation-switcher .btnn:last-child {
   border-radius: 0 2px 2px 0;
   margin-left: -1px;
+}
+
+.copy {
+  width: 14px;
+  height: 14px;
+}
+
+.copybtnn {
+  padding: 2px 4px;
+}
+
+
+
+
+.hk-exit-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hk-exit-modal {
+  width: 390px;
+  padding: 18px;
+  box-sizing: border-box;
+  background: #fff;
+  border: 1px solid #d0d0d0;
+  border-radius: 6px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.16);
+}
+
+.hk-exit-modal-title {
+  font-weight: 700;
+  margin-bottom: 14px;
+}
+
+.hk-exit-modal-text {
+  font-size: 13px;
+  line-height: 1.35;
+  margin-bottom: 18px;
+}
+
+.hk-exit-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.hk-stay {
+  margin-right: 21px;
 }
