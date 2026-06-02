@@ -128,9 +128,9 @@
   border: 1px solid #000;
 }
 
-.row {
+/* .row {
   align-items: stretch !important;
-}
+} */
 
 /* .icicle-horizontal-main .edit,
 .icicle-vertical-main .edit,
@@ -156,4 +156,11 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.hierarchy-node + .captions,
+.row.hierarchy-node ~ .captions {
+  width: max-content;
+  max-width: 132px;
+  box-sizing: border-box;
 }

@@ -21,7 +21,7 @@
     st.id = id;
     st.textContent = `
   .row.multi{
-    background:#bfe3ff !important;
+    background:#eaeaea !important;
     border-radius:2px;
   }
 
@@ -324,31 +324,33 @@
   function processRangeRow(row) {
     const clicked = row;
     const ctxClicked = contextKeyForRow(clicked);
-
-    if (!state.contextKey || state.contextKey !== ctxClicked) {
+    const id = clicked.dataset.id;
+  
+    if (!state.contextKey || state.contextKey !== ctxClicked || !state.anchorId) {
       state.contextKey = ctxClicked;
-      state.anchorId = clicked.dataset.id;
-      state.ids = new Set([clicked.dataset.id]);
-      clickRow(clicked);
+      state.anchorId = id;
+      state.ids = new Set([id]);
+  
+      selectedId = state.anchorId;
+      treeHasFocus = true;
+      rowById(state.anchorId)?.focus?.({ preventScroll: true });
+  
       applyClasses();
       return;
     }
-
-    const id = clicked.dataset.id;
-
+  
     if (state.ids.has(id)) {
-      state.ids.delete(id);
-
-      if (state.anchorId === id) {
-        const next = state.ids.values().next().value || null;
-        state.anchorId = next;
+      if (id !== state.anchorId) {
+        state.ids.delete(id);
       }
     } else {
       state.ids.add(id);
-      if (!state.anchorId) state.anchorId = id;
     }
-
-    clickRow(clicked);
+  
+    selectedId = state.anchorId;
+    treeHasFocus = true;
+    rowById(state.anchorId)?.focus?.({ preventScroll: true });
+  
     applyClasses();
   }
 

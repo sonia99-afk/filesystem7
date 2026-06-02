@@ -101,6 +101,7 @@ function makeNode(level, name) {
     level,
     name: (name || DEFAULT_NAME[level]),
     nameHtml: "",
+    captionsBgColor: "",
     captions: [],
     children: []
   };
@@ -140,6 +141,7 @@ function restore(state) {
   root.id = data.root.id;
   root.level = data.root.level;
   root.name = data.root.name;
+  root.captionsBgColor = data.root.captionsBgColor || "";
   root.nameHtml = data.root.nameHtml || "";
   root.captions = data.root.captions || [];
   root.children = data.root.children || [];
@@ -264,16 +266,16 @@ function isHotkey(e, action) {
   const have = normalize ? normalize(haveRaw) : haveRaw;
 
   // special-case: rename aliases by platform
-if (action === "rename") {
-  const isMac = !!window.hotkeys?.getPlatformInfo?.().isMac;
+// if (action === "rename") {
+//   const isMac = !!window.hotkeys?.getPlatformInfo?.().isMac;
 
-  const allowed = isMac
-    ? new Set(["Ё", "ё", "\\"])
-    : new Set(["Ё", "ё", "`"]);
+//   const allowed = isMac
+//     ? new Set(["Ё", "ё", "\\"])
+//     : new Set(["Ё", "ё", "`"]);
 
-  const key = String(e.key || "");
-  if (allowed.has(key)) return true;
-}
+//   const key = String(e.key || "");
+//   if (allowed.has(key)) return true;
+// }
 
   return have === want;
 }
@@ -911,16 +913,59 @@ function initProjectsSidebar() {
 
 function renderSchemaView() {
   syncProjectsSidebar();
+
   const host = document.getElementById('tree');
   host.innerHTML = '';
 
+  const displayRoot =
+    window.objectFocus?.getFocusedRootNode?.() || root;
+
+  const displayRootOrdinalPath =
+    window.objectFocus?.getFocusedRootOrdinalPath?.() || [];
+
   const ul = document.createElement('ul');
-  ul.dataset.level = String(root.level);
-  ul.appendChild(renderNode(root, []));
-  host.appendChild(ul);
+  ul.dataset.level = String(displayRoot.level);
+
+  ul.appendChild(
+    renderNode(displayRoot, displayRootOrdinalPath, {
+      suppressOwnOrdinal: displayRoot.id !== root.id,
+      forceRootClass: displayRoot.id !== root.id,
+    })
+  );
+
+  const levelHeadersBlock =
+    window.levelHeaders?.buildHeaderRowForSchema?.()
+    || window.levelHeaders?.buildHeaderCascadeForSchema?.();
+
+    const levelHeadersColumn =
+    window.levelHeaders?.buildColumnStackForSchema?.()
+    || window.levelHeaders?.buildColumnCascadeForSchema?.();
+
+  if (levelHeadersBlock) {
+    host.appendChild(levelHeadersBlock);
+  }
+
+  if (levelHeadersColumn) {
+    const contentWrap = document.createElement("div");
+    contentWrap.className = "schema-with-level-column";
+
+    contentWrap.appendChild(levelHeadersColumn);
+    contentWrap.appendChild(ul);
+
+    host.appendChild(contentWrap);
+  } else {
+    host.appendChild(ul);
+  }
 
   applyCaptionOrdinalOffsets();
   layoutTrunks();
+
+  requestAnimationFrame(() => {
+    window.levelHeaders?.alignHeaderRowForSchema?.();
+    window.levelHeaders?.layoutColumnCascadeLines?.();
+  });
+
+  window.objectFocus?.renderBreadcrumbs?.();
 
   if (treeHasFocus) focusSelectedRow();
 
@@ -1126,6 +1171,10 @@ function renderCaptions(node, li) {
   const caps = document.createElement("div");
   caps.className = "captions";
 
+  if (node.captionsBgColor) {
+    caps.style.backgroundColor = node.captionsBgColor;
+  }
+
   for (const c of node.captions) {
     const cap = document.createElement("div");
 
@@ -1153,9 +1202,12 @@ function renderCaptions(node, li) {
   li.appendChild(caps);
 }
 
-function renderNode(n, ordinalPath = []) {
+function renderNode(n, ordinalPath = [], options = {}) {
   const li = document.createElement('li');
-  if (n.id === root.id) li.classList.add('root');
+
+  if (n.id === root.id || options.forceRootClass) {
+    li.classList.add('root');
+  }
 
   const anchor = document.createElement('span');
   anchor.className = 'anchor';
@@ -1172,7 +1224,7 @@ function renderNode(n, ordinalPath = []) {
 label.className = 'label';
 
 // ← добавили индекс
-if (showOrdinals) {
+if (showOrdinals && !options.suppressOwnOrdinal) {
   const ordinalBadge = buildOrdinalBadge(ordinalPath);
   if (ordinalBadge) {
     row.appendChild(ordinalBadge);
@@ -1336,8 +1388,18 @@ row.appendChild(label);
 
     if (isHotkey(e, "addSibling")) {
       e.preventDefault();
+    
+      const focusedRootId = window.objectFocus?.getFocusedRootId?.();
+      const isFocusedRoot = !!focusedRootId && focusedRootId === n.id;
+    
       selectedId = n.id;
-      addSibling(n.id);
+    
+      if (isFocusedRoot) {
+        addChild(n.id);
+      } else {
+        addSibling(n.id);
+      }
+    
       return;
     }
 
@@ -1409,10 +1471,26 @@ function layoutTrunks() {
     const parentAnchor = li.querySelector(':scope > .anchor');
     if (!parentAnchor) continue;
 
-    const items = Array.from(childUl.children).filter(el => el.tagName === 'LI');
-    if (items.length === 0) continue;
+    // const items = Array.from(childUl.children).filter(el => el.tagName === 'LI');
+    // if (items.length === 0) continue;
 
-    const firstChildAnchor = items[0].querySelector(':scope > .anchor');
+    // const firstChildAnchor = items[0].querySelector(':scope > .anchor');
+    const visibleChildren = Array.from(childUl.children)
+  .filter(el =>
+    el.tagName === 'LI' &&
+    !el.classList.contains('mark-hidden-object')
+  );
+
+if (visibleChildren.length === 0) {
+  continue;
+}
+
+const firstChildAnchor =
+  visibleChildren[0].querySelector(':scope > .anchor');
+
+
+
+
     if (!firstChildAnchor) continue;
 
     const liBox = li.getBoundingClientRect();
@@ -1426,24 +1504,22 @@ function layoutTrunks() {
     const x = (ulBox.left - liBox.left) + trunkX + shift;
 
     // 👇 ВОТ ГЛАВНОЕ
-let startY;
+const parentStartY = (pBox.top - liBox.top) + 12;
 
-if (document.body.classList.contains("ordinals-on")) {
-  // ✅ НОВОЕ ПОВЕДЕНИЕ (с нумерацией)
-  startY = (pBox.top - liBox.top) + 12;
+const caps = li.querySelector(':scope > .captions');
+
+if (caps && li.classList.contains("root")) {
+  const capsBox = caps.getBoundingClientRect();
+  const capsBottomY = capsBox.bottom - liBox.top;
+
+  startY = Math.max(parentStartY, capsBottomY);
+} else if (!document.body.classList.contains("ordinals-on") && caps) {
+  const capsBox = caps.getBoundingClientRect();
+  const capsBottomY = capsBox.bottom - liBox.top;
+
+  startY = Math.max(parentStartY, capsBottomY);
 } else {
-  // ✅ СТАРОЕ ПОВЕДЕНИЕ (без нумерации)
-  const parentStartY = (pBox.top - liBox.top) + 12;
-
-  const caps = li.querySelector(':scope > .captions');
-
-  if (caps) {
-    const capsBox = caps.getBoundingClientRect();
-    const capsBottomY = capsBox.bottom - liBox.top;
-    startY = Math.max(parentStartY, capsBottomY);
-  } else {
-    startY = parentStartY;
-  }
+  startY = parentStartY;
 }
 
 // конец линии как был
@@ -1453,12 +1529,16 @@ const endY = cBox.top - liBox.top;
     plink.className = 'plink';
     plink.style.left = x + 'px';
 
-    if (endY >= startY) {
-      plink.style.top = startY + 'px';
-      plink.style.height = Math.max(0, endY - startY) + 'px';
-    } else {
-      plink.style.top = endY + 'px';
-      plink.style.height = Math.max(0, startY - endY) + 'px';
+    if (endY >= startY) { 
+      plink.style.top = startY + 'px'; 
+      plink.style.height = Math.max(0, endY - startY + 1) + 'px'; 
+    } else { 
+        plink.style.top = endY + 'px'; 
+        plink.style.height = Math.max(0, startY - endY + 1) + 'px'; 
+      }
+
+      if (!visibleChildren.length) {
+        plink.style.display = 'none';
     }
 
     li.prepend(plink);
@@ -1577,7 +1657,17 @@ window.addEventListener('keydown', (e) => {
 
   if (isHotkey(e, "addSibling")) {
     e.preventDefault();
-    addSibling(selectedId);
+  
+    const focusedRootId = window.objectFocus?.getFocusedRootId?.();
+    const isFocusedRoot =
+      !!focusedRootId && focusedRootId === selectedId;
+  
+    if (isFocusedRoot) {
+      addChild(selectedId);
+    } else {
+      addSibling(selectedId);
+    }
+  
     return;
   }
 });

@@ -92,3 +92,15 @@
     white-space: nowrap;
     text-overflow: ellipsis;
   }
+
+
+  .structure-table td.table-mark-cell {
+    width: 70px;
+    min-width: 70px;
+    text-align: center;
+    vertical-align: middle;
+  }
+  
+  .table-mark-cell .mark-dot {
+    margin: 0 auto;
+  }

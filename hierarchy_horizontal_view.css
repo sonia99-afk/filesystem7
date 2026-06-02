@@ -124,3 +124,26 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+.hh-head {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  flex: 0 0 auto;
+}
+
+.hh-head > .captions {
+  margin-top: 3px;
+  margin-left: 0;
+  max-width: 132px;
+  width: max-content;
+  font-size: 12px;
+  line-height: 1.05;
+  box-sizing: border-box;
+}
+
+.hh-head > .captions .caption {
+  white-space: pre-wrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

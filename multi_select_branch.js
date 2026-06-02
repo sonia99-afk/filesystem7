@@ -20,7 +20,7 @@
     st.id = id;
     st.textContent = `
 .row[data-multi-owner="branch"].multi{
-  background:#bfe3ff !important;
+  background:#eaeaea !important;
   border-radius:2px;
 }
 

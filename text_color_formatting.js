@@ -56,7 +56,11 @@
   
     function activeRichEditor() {
       const ae = document.activeElement;
-      if (ae && ae.classList?.contains("edit-rich") && ae.isContentEditable) return ae;
+      if (!ae) return null;
+    
+      if (ae.classList?.contains("edit-rich") && ae.isContentEditable) return ae;
+      if (ae.classList?.contains("edit-caption") && ae.isContentEditable) return ae;
+    
       return null;
     }
   
@@ -625,6 +629,34 @@ const nextHtml = applyColorToWholeHtmlPreservingFmt(
           applyColorToTargets("text", v);
           return;
         }
+
+        if (detail.kind === "block") {
+          const ed = activeRichEditor();
+        
+          if (ed && ed.classList.contains("edit-caption")) {
+            const v = detail.value === "transparent" ? "" : detail.value || "";
+        
+            const nodeId =
+              ed.closest(".caption")?.dataset?.nodeId ||
+              ed.parentElement?.closest(".caption")?.dataset?.nodeId;
+        
+            const node = getNodeById(nodeId);
+        
+            if (node) {
+              node.captionsBgColor = v;
+        
+              const caps = ed.closest(".captions");
+              if (caps) {
+                caps.style.backgroundColor = v;
+              }
+            }
+        
+            syncToolbarFromContext();
+            return;
+          }
+        
+          return;
+        }
   
         if (detail.kind === "bg") {
           const v = detail.value === "transparent" ? "" : detail.value || "";
@@ -633,9 +665,43 @@ const nextHtml = applyColorToWholeHtmlPreservingFmt(
       });
     }
   
+    function getColorFromSwatches(selector, index) {
+      const dots = Array.from(document.querySelectorAll(selector));
+      const dot = dots[index];
+      return dot?.dataset?.color || "";
+    }
+    
+    function colorIndexFromAction(action, prefix) {
+      const key = action.slice(prefix.length);
+      if (key === "0") return 9;
+      const n = Number(key);
+      if (!Number.isFinite(n) || n < 1) return -1;
+      return n - 1;
+    }
+    
     function colorByAction(action) {
-      if (Object.prototype.hasOwnProperty.call(TEXT_PRESETS, action)) return { kind: "text", color: TEXT_PRESETS[action] };
-      if (Object.prototype.hasOwnProperty.call(BG_PRESETS, action)) return { kind: "bg", color: BG_PRESETS[action] };
+      if (Object.prototype.hasOwnProperty.call(TEXT_PRESETS, action)) {
+        const index = colorIndexFromAction(action, "textColor");
+        return {
+          kind: "text",
+          color: getColorFromSwatches(
+            '#textColorSwatches .color-dot[data-kind="text"]',
+            index
+          )
+        };
+      }
+    
+      if (Object.prototype.hasOwnProperty.call(BG_PRESETS, action)) {
+        const index = colorIndexFromAction(action, "bgColor");
+        return {
+          kind: "block",
+          color: getColorFromSwatches(
+            '#blockBgSwatches .color-dot[data-kind="block"]',
+            index
+          )
+        };
+      }
+    
       return null;
     }
   
@@ -679,6 +745,8 @@ const nextHtml = applyColorToWholeHtmlPreservingFmt(
   
         if (matched.kind === "text") {
           window.colorToolsUI?.setTextColor?.(matched.color || "default", true);
+        } else if (matched.kind === "block") {
+          window.colorToolsUI?.setBlockColor?.(matched.color || "transparent", true);
         } else {
           window.colorToolsUI?.setBgColor?.(matched.color || "transparent", true);
         }

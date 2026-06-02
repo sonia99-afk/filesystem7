@@ -18,7 +18,13 @@
     const flow = document.createElement("div");
     flow.className = "leaf-flow";
 
-    const rows = flattenListRows(root);
+    const displayRoot =
+  window.objectFocus?.getFocusedRootNode?.() || root;
+
+const displayRootOrdinalPath =
+  window.objectFocus?.getFocusedRootOrdinalPath?.() || [];
+
+const rows = flattenListRows(displayRoot, displayRootOrdinalPath);
 
     rows.forEach((item, index) => {
       flow.appendChild(
@@ -78,12 +84,15 @@
     row.dataset.id = node.id;
     row.tabIndex = 0;
 
-    if (showOrdinals) {
-      const num = document.createElement("span");
-      num.className = "list-number leaf-index";
-      num.textContent = ordinalPath.length ? ordinalPath.join(".") : "0";
-      row.appendChild(num);
-    }
+    const focusedRootId = window.objectFocus?.getFocusedRootId?.();
+const isFocusedRoot = !!focusedRootId && focusedRootId === node.id;
+
+if (showOrdinals && !isFocusedRoot) {
+  const num = document.createElement("span");
+  num.className = "list-number leaf-index";
+  num.textContent = ordinalPath.length ? ordinalPath.join(".") : "0";
+  row.appendChild(num);
+}
 
     const label = document.createElement("span");
     label.className = "label leaf-label list-label";
@@ -248,8 +257,18 @@
 
       if (isHotkey(e, "addSibling")) {
         e.preventDefault();
+      
+        const focusedRootId = window.objectFocus?.getFocusedRootId?.();
+        const isFocusedRoot = !!focusedRootId && focusedRootId === node.id;
+      
         selectedId = node.id;
-        addSibling(node.id);
+      
+        if (isFocusedRoot) {
+          addChild(node.id);
+        } else {
+          addSibling(node.id);
+        }
+      
         return;
       }
 

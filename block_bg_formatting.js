@@ -101,7 +101,17 @@
     window.addEventListener("color-tools-change", (e) => {
       const detail = e.detail || {};
       if (detail.kind !== "block") return;
-  
+    
+      const ae = document.activeElement;
+    
+      if (
+        ae &&
+        ae.classList?.contains("edit-caption") &&
+        ae.isContentEditable
+      ) {
+        return;
+      }
+    
       applyBlockBgToSelected(detail.value || "");
     });
   

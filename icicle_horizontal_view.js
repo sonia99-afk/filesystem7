@@ -17,15 +17,28 @@
     const wrap = document.createElement("div");
     wrap.className = "icicle-horizontal-view";
 
-    const depth = getMaxDepth(root);
-    const totalHeight = countHeight(root);
+    const displayRoot =
+      window.objectFocus?.getFocusedRootNode?.() || root;
+
+    const displayRootOrdinalPath =
+      window.objectFocus?.getFocusedRootOrdinalPath?.() || [];
+
+    const depth = getMaxDepth(displayRoot) - displayRoot.level;
+    const totalHeight = countHeight(displayRoot);
 
     const canvas = document.createElement("div");
     canvas.className = "icicle-horizontal-canvas";
     canvas.style.width = `${(depth + 1) * COL_WIDTH}px`;
     canvas.style.height = `${Math.max(BASE_HEIGHT, totalHeight)}px`;
 
-    layoutNode(root, [], 0, 0, Math.max(BASE_HEIGHT, totalHeight), canvas);
+    layoutNode(
+      displayRoot,
+      displayRootOrdinalPath,
+      0,
+      0,
+      Math.max(BASE_HEIGHT, totalHeight),
+      canvas
+    );
 
     wrap.appendChild(canvas);
     host.appendChild(wrap);
@@ -102,12 +115,21 @@
 
     canvas.appendChild(block);
 
-    if (!node.children || !node.children.length) return;
+    const children = node.children || [];
+    if (!children.length) return;
+
+    const naturalHeights = children.map((child) => countHeight(child));
+    const naturalTotal = naturalHeights.reduce((sum, h) => sum + h, 0);
+
+    const availableHeight = Math.max(heightSpan, naturalTotal);
+
+    const extra = Math.max(0, availableHeight - naturalTotal);
+    const extraPerChild = children.length ? extra / children.length : 0;
 
     let cursor = startY;
 
-    node.children.forEach((child, index) => {
-      const childHeight = countHeight(child);
+    children.forEach((child, index) => {
+      const childHeight = naturalHeights[index] + extraPerChild;
 
       layoutNode(
         child,
@@ -135,7 +157,10 @@
     const main = document.createElement("div");
     main.className = "icicle-horizontal-main";
 
-    if (showOrdinals) {
+    const focusedRootId = window.objectFocus?.getFocusedRootId?.();
+    const isFocusedRoot = !!focusedRootId && focusedRootId === node.id;
+
+    if (showOrdinals && !isFocusedRoot) {
       const badge = buildOrdinalBadge(ordinalPath);
       if (badge) main.appendChild(badge);
     }
@@ -240,8 +265,15 @@
       if (isHotkey(e, "addSibling")) {
         e.preventDefault();
         e.stopPropagation();
+
         selectedId = node.id;
-        addSibling(node.id);
+
+        if (isFocusedRoot) {
+          addChild(node.id);
+        } else {
+          addSibling(node.id);
+        }
+
         return;
       }
     });

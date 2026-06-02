@@ -17,16 +17,22 @@
     const wrap = document.createElement("div");
     wrap.className = "icicle-vertical-view";
 
-    const leafCount = Math.max(1, countLeaves(root));
-    const depth = getTreeDepth(root);
-    const rowHeights = buildRowHeights(root, depth);
+    const displayRoot =
+      window.objectFocus?.getFocusedRootNode?.() || root;
+
+    const displayRootOrdinalPath =
+      window.objectFocus?.getFocusedRootOrdinalPath?.() || [];
+
+    const leafCount = Math.max(1, countLeaves(displayRoot));
+    const depth = getTreeDepth(displayRoot);
+    const rowHeights = buildRowHeights(displayRoot, depth);
 
     const canvas = document.createElement("div");
     canvas.className = "icicle-vertical-canvas";
     canvas.style.width = `${leafCount * UNIT_WIDTH + 1}px`;
     canvas.style.height = `${sum(rowHeights)}px`;
 
-    layoutNode(root, [], 0, 0, leafCount, canvas, rowHeights);
+    layoutNode(displayRoot, displayRootOrdinalPath, 0, 0, leafCount, canvas, rowHeights);
 
     wrap.appendChild(canvas);
     host.appendChild(wrap);
@@ -134,15 +140,17 @@
 
     block.style.left = `${startLeaf * UNIT_WIDTH}px`;
     block.style.top = `${topForDepth(rowHeights, depthIndex)}px`;
+
     if (depthIndex === 0 && node.children?.length) {
       const childrenWidth = node.children.reduce((sum, child) => {
         return sum + (countLeaves(child) * UNIT_WIDTH - GAP);
       }, 0);
-    
+
       block.style.width = `${childrenWidth + 2}px`;
     } else {
       block.style.width = `${leafSpan * UNIT_WIDTH - GAP}px`;
     }
+
     block.style.height = `${(rowHeights[depthIndex] || BASE_HEIGHT) - GAP}px`;
 
     canvas.appendChild(block);
@@ -185,7 +193,10 @@
     const main = document.createElement("div");
     main.className = "icicle-vertical-main";
 
-    if (showOrdinals) {
+    const focusedRootId = window.objectFocus?.getFocusedRootId?.();
+    const isFocusedRoot = !!focusedRootId && focusedRootId === node.id;
+
+    if (showOrdinals && !isFocusedRoot) {
       const badge = buildOrdinalBadge(ordinalPath);
       if (badge) main.appendChild(badge);
     }
@@ -198,49 +209,6 @@
 
     main.appendChild(label);
     row.appendChild(main);
-
-    // const act = document.createElement("span");
-    // act.className = "act";
-
-    // {
-    //   const plus = makeBtn("+", (e) => {
-    //     e.stopPropagation();
-    //     selectedId = node.id;
-    //     addSibling(node.id);
-    //   });
-    //   act.appendChild(plus);
-    // }
-
-    // {
-    //   const rename = makeBtn("..", (e) => {
-    //     e.stopPropagation();
-    //     selectedId = node.id;
-    //     treeHasFocus = true;
-    //     render();
-    //     startRename(node.id);
-    //   });
-    //   act.appendChild(rename);
-    // }
-
-    // if (canHaveChild(node)) {
-    //   const child = makeBtn(">", (e) => {
-    //     e.stopPropagation();
-    //     selectedId = node.id;
-    //     addChild(node.id);
-    //   });
-    //   act.appendChild(child);
-    // }
-
-    // if (node.id !== root.id) {
-    //   const del = makeBtn("x", (e) => {
-    //     e.stopPropagation();
-    //     selectedId = node.id;
-    //     removeSelected();
-    //   });
-    //   act.appendChild(del);
-    // }
-
-    // row.appendChild(act);
 
     renderCaptions(node, row);
 
@@ -376,8 +344,15 @@
       if (isHotkey(e, "addSibling")) {
         e.preventDefault();
         e.stopPropagation();
+
         selectedId = node.id;
-        addSibling(node.id);
+
+        if (isFocusedRoot) {
+          addChild(node.id);
+        } else {
+          addSibling(node.id);
+        }
+
         return;
       }
 

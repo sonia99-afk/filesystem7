@@ -62,6 +62,60 @@
         </div>
         <button id="toggleOrdinals" class="btnn margin">Нумерация</button>
         <button id="toggleCaptions" class="btnn">Подписи</button>
+
+        <span class="mark-tools" id="markTools">
+          <button id="toggleMarks" class="btnn" type="button" style="margin-right: 10px;">Отметка</button>
+          <button id="markSettingsBtn" class="btnn" type="button" style="padding-left: 5px; padding-right: 5px;"><img src="icons/rol.png" class="color-icon-bg-img" /></button>
+        
+          <div id="markSettingsMenu" class="mark-settings-menu" aria-hidden="true">
+            <div class="mark-settings-title">Отмеченные объекты:</div>
+        
+            <button class="mark-settings-item" type="button" data-mark-mode="hide">
+              <span class="mark-settings-icon"><img src="icons/Показать.png" class="color-icon-bg-img" /></span>
+              <span class="mark-settings-text">Скрыть</span>
+            </button>
+        
+            <button class="mark-settings-item" type="button" data-mark-mode="strike">
+              <span class="mark-settings-icon"><img src="icons/Зачеркнутный.png" class="color-icon-bg-img" /></span>
+              <span class="mark-settings-text">Зачеркнуть</span>
+            </button>
+          </div>
+        </span>
+
+        <span id="levelHeadersTools" class="level-headers-tools">
+          <button id="toggleLevelHeaders" class="btnn" type="button" style="margin-right: 10px;"> Заголовок уровней </button>
+        
+          <button id="levelHeadersSettingsBtn" class="btnn" type="button" disabled>
+            <img src="icons/rol.png" class="color-icon-bg-img" />
+          </button>
+        
+          <div id="levelHeadersMenu" class="level-headers-settings-menu" aria-hidden="true">
+            <div class="level-headers-settings-title">В шапке:</div>
+        
+            <button type="button" class="level-headers-settings-item" data-level-header-mode="header-row">
+              <span class="level-headers-settings-icon"></span>
+              <span>Строкой</span>
+            </button>
+        
+            <button type="button" class="level-headers-settings-item" data-level-header-mode="header-cascade">
+              <span class="level-headers-settings-icon"></span>
+              <span>Каскадом</span>
+            </button>
+        
+            <div class="level-headers-settings-title">В колонке:</div>
+        
+            <button type="button" class="level-headers-settings-item" data-level-header-mode="column-stack">
+              <span class="level-headers-settings-icon"></span>
+              <span>Столбцом</span>
+            </button>
+        
+            <button type="button" class="level-headers-settings-item" data-level-header-mode="column-cascade">
+              <span class="level-headers-settings-icon"></span>
+              <span>Каскадом</span>
+            </button>
+          </div>
+        </span>
+
         <div class="color-tools" id="colorTools">
           <div class="color-group color-group-text">
             <button id="textColorBtn" class="btnn color-main-btn btnn" type="button">
@@ -158,9 +212,15 @@
           </div>
         </div>
       </div>
-    
 
-    
+      <div class="object-breadcrumbs" id="objectBreadcrumbs">
+        <button type="button" class="object-breadcrumb-item">Путь</button>
+        <span class="object-breadcrumb-separator">›</span>
+        <button type="button" class="object-breadcrumb-item is-current">Путь</button>
+        <span class="object-breadcrumb-separator">›</span>
+        <button type="button" class="object-breadcrumb-item">Путь</button>
+      </div> 
+
       <div class="main">
         <div class="tree-scroll">
           <div id="tree"></div>
@@ -175,7 +235,10 @@
         <table class="hotkeys">
           <thead>
             <tr>
-              <th>Функция</th>
+              <th></th>
+              <th></th>
+              <th colspan="2">Функция</th>
+              <th>Описание</th>
               <th>Клавиатура</th>
               <th>Мышь</th>
               <th>Интерфейс</th>
@@ -183,192 +246,15 @@
           </thead>
         
           <tbody>
-            <!-- Добавления -->
+            <!-- Общее -->
             <tr>
-              <td>Добавить рядом</td>
-              <td data-action="addSibling">Enter</td>
-              <td data-action="addSiblingClick"> </td>
-              <td>[+]</td>
-            </tr>
-        
-            <tr>
-              <td>Добавить вложение</td>
-              <td data-action="addChild">Shift+Enter</td>
-              <td data-action="addChildClick"></td>
-              <td>[>]</td>
-            </tr>
-
-            <tr>
-              <td>Добавить/редактировать описание</td>
-              <td data-action="addCaption">Ctrl/Cmd+Enter</td>
-              <td>-</td>
-              <td style="background-color: #FAEEC6;">нет, добавить позже</td>
-            </tr>
-
-            <tr>
-              <td>Перенос строки в подписи</td>
-              <td data-action="addCaptionLineBreak">Shift+Enter</td>
-              <td>-</td>
-              <td>Во время редактирования подписи</td>
-            </tr>
-        
-            <!-- Навигация -->
-            <tr>
-              <td rowspan="4">Навигация по дереву</td>
-              <td data-action="navUp">ArrowUp</td>
-              <td rowspan="4" data-action="navClick">Click</td>
-              <td rowspan="4">-</td>
-            </tr>
-            <tr>
-              <td data-action="navDown">ArrowDown</td>
-            </tr>
-            <tr>
-              <!-- <td data-action="navLeft">ArrowLeft</td> -->
-            </tr>
-            <tr>
-              <!-- <td data-action="navRight">ArrowRight</td> -->
-            </tr>
-        
-            <!-- Перемещение внутри уровня -->
-            <tr>
-              <td>Переместить вверх</td>
-              <td data-action="moveUp">Shift+ArrowUp</td>
-              <td rowspan="2" style="background-color: #f3f3f3;">Перетаскивание мышкой</td>
-              <td>-</td>
-            </tr>
-            <tr>
-              <td>Переместить вниз</td>
-              <td data-action="moveDown">Shift+ArrowDown</td>
-              <td>-</td>
-            </tr>
-
-            <tr>
-              <td rowspan="2">Навигация по уровню</td>
-              <td data-action="levelNavUp"></td>
-              <td rowspan="2">-</td>
-              <td rowspan="2">Переход к предыдущему/следующему объекту того же уровня</td>
-            </tr>
-            <tr>
-              <td data-action="levelNavDown"></td>
-            </tr>
-
-            <tr>
-              <td rowspan="2">Навигация по ветке</td>
-              <td data-action="branchNavLeft"></td>
-              <td rowspan="2">-</td>
-              <td rowspan="2">Переход к родителю / первому ребёнку в текущей ветке</td>
-            </tr>
-            <tr>
-              <td data-action="branchNavRight"></td>
-            </tr>
-
-            <tr>
-              <td rowspan="2">Перемещение по уровню</td>
-              <td data-action="levelMoveUp"></td>
-              <td rowspan="2">-</td>
-              <td rowspan="2">Перемещение к предыдущему/следующему объекту того же уровня</td>
-            </tr>
-            <tr>
-              <td data-action="levelMoveDown"></td>
-            </tr>
-
-            <tr>
-              <td rowspan="2">Перемещение по ветке</td>
-              <td data-action="branchMoveLeft"></td>
-              <td rowspan="2">-</td>
-              <td rowspan="2">Перемещение к родителю / вложение в первого ребёнка текущей ветки</td>
-            </tr>
-            <tr>
-              <td data-action="branchMoveRight"></td>
-            </tr>
-        
-            <!-- Диапазон (один уровень) -->
-            <tr>
-              <td rowspan="2">Диапазон (только один уровень)</td>
-              <td data-action="rangeUp">Shift+Alt+Ctrl/Cmd+ArrowUp</td>
-              <td rowspan="2" data-action="rangeClick">Primary+Alt+Shift+Click</td>
-              <td rowspan="2"></td>
-            </tr>
-            <tr>
-              <td data-action="rangeDown">Shift+Alt+Ctrl/Cmd+ArrowDown</td>
-            </tr>
-
-            <tr>
-              <td rowspan="2">Выделение по ветке</td>
-              <td data-action="branchRangeLeft"></td>
-              <td rowspan="2">-</td>
-              <td rowspan="2">Расширение выделения к родителю / первому ребёнку по одной branch-цепочке</td>
-            </tr>
-            <tr>
-              <td data-action="branchRangeRight"></td>
-            </tr>
-        
-            <!-- Глубокое выделение (ветка) -->
-            <tr>
-              <td rowspan="2">Глубокое выделение (в ветке)</td>
-              <td data-action="deepUp">Ctrl/Cmd+ArrowUp</td>
-              <td rowspan="2" data-action="deepClick">Primary+Click</td>
-              <td rowspan="2">-</td>
-            </tr>
-            <tr>
-              <td data-action="deepDown">Shift+Ctrl/Cmd+ArrowDown</td>
-            </tr>
-        
-            <!-- Переименовать / удалить -->
-            <tr>
-              <td>Переименовать</td>
-              <td data-action="rename">ё</td>
-              <td data-action="renameClick">DblClick</td>
-              <td>[..]</td>
-            </tr>
-        
-            <tr>
-              <td>Удалить</td>
-              <td data-action="delete">Ctrl/Cmd+Backspace</td>
-              <td data-action="deleteClick"></td>
-              <td>[х]</td>
-            </tr>
-
-            <tr>
-              <td>Копировать</td>
-              <td data-action="copy">Ctrl/Cmd+C</td>
-              <td>-</td>
-              <td>-</td>
-            </tr>
-            
-            <tr>
-              <td>Вырезать</td>
-              <td data-action="cut">Ctrl/Cmd+X</td>
-              <td>-</td>
-              <td>-</td>
-            </tr>
-            
-            <tr>
-              <td>Вставить</td>
-              <td data-action="paste">Ctrl/Cmd+V</td>
-              <td>-</td>
-              <td>-</td>
-            </tr>
-
-            <tr>
-              <td>Дублировать</td>
-              <td data-action="duplicate">Ctrl/Cmd+D</td>
-              <td>-</td>
-              <td>-</td>
-            </tr>
-
-            <tr>
-              <td>Выделить всё</td>
-              <td data-action="selectAll"></td>
-              <td>-</td>
-              <td>-</td>
-            </tr>
-
-            <tr>
-              <td>Отменить действие</td>
+              <td rowspan="3">Общее</td>
+              <td rowspan="3"></td>
+              <td colspan="2">Отменить действие</td>
+              <td></td>
               <td data-action="undo">Ctrl/Cmd+Z</td>
-              <td data-action="undoClick"></td>
-              <td class="ui-icon" title="Undo">
+              <td style="color: gray;">нет, не нужно</td>
+              <td class="ui-icon">
                 <svg class="ui-btn-icon" viewBox="0 0 24 24" aria-hidden="true">
                   <path d="M9 14L4 9l5-5"/>
                   <path d="M4 9h9a7 7 0 1 1 0 14h-1"/>
@@ -377,10 +263,11 @@
             </tr>
             
             <tr>
-              <td>Вернуть действие</td>
+              <td colspan="2">Вернуть действие</td>
+              <td></td>
               <td data-action="redo">Ctrl/Cmd+Shift+Z</td>
-              <td data-action="redoClick"></td>
-              <td class="ui-icon" title="Redo">
+              <td style="color: gray;">нет, не нужно</td>
+              <td class="ui-icon">
                 <svg class="ui-btn-icon" viewBox="0 0 24 24" aria-hidden="true">
                   <path d="M15 14l5-5-5-5"/>
                   <path d="M20 9h-9a7 7 0 1 0 0 14h1"/>
@@ -389,9 +276,10 @@
             </tr>
 
             <tr>
-              <td>Переключение режимов просмотра</td>
-              <td>-</td>
-              <td>-</td>
+              <td colspan="2">Переключение режимов просмотра</td>
+              <td></td>
+              <td style="color: gray;">нет, не нужно</td>
+              <td style="color: gray;">нет, не нужно</td>
               <td> Тумблер режимов
                 <!-- <span class="table-toggle-demo">
                   <button id="modeStd" class="btnn addmargin is-active">Схема</button>
@@ -400,65 +288,410 @@
               </td>
             </tr>
 
+            <!-- Работа с объектами -->
             <tr>
-              <td>Полужирный</td>
+              <td rowspan="37">Работа с объектами</td>
+              <td rowspan="11">Редактирование</td>
+
+              <td colspan="2">Создать на следующей ветке</td>
+              <td></td>
+              <td data-action="addSibling">Enter</td>
+              <!-- <td data-action="addSiblingClick"></td> -->
+              <td style="background-color: #FAEEC6;">нет, добавить позже</td>
+              <td>[+]</td>
+            </tr>
+        
+            <tr>
+              <td colspan="2">Создать на вложенныом уровене</td>
+              <td></td>
+              <td data-action="addChild">Shift+Enter</td>
+              <!-- <td data-action="addChildClick"></td> -->
+              <td style="background-color: #FAEEC6;">нет, добавить позже</td>
+              <td>[>]</td>
+            </tr>
+
+            <tr>
+              <td colspan="2">Дублировать с вложенными уровнями</td>
+              <td></td>
+              <td data-action="duplicate">Ctrl/Cmd+D</td>
+              <td style="background-color: #FAEEC6;">нет, добавить позже</td>
+              <td>-</td>
+            </tr>
+
+            <tr>
+              <td colspan="2">Дублировать без вложенных уровней</td>
+              <td>Включая своства объекта</td>
+              <td style="background-color: #FAEEC6;">нет, добавить позже</td>
+              <td style="background-color: #FAEEC6;">нет, добавить позже</td>
+              <td>-</td>
+            </tr>
+
+            <tr>
+              <td colspan="2">Редактировать название</td>
+              <td></td>
+              <td data-action="rename">ё</td>
+              <td data-action="renameClick">DblClick</td>
+              <td>[..]</td>
+            </tr>
+
+            <tr>
+              <td colspan="2">Добавить / Редактировать описание</td>
+              <td></td>
+              <td data-action="addCaption">Ctrl/Cmd+Enter</td>
+              <td style="background-color: #FAEEC6;">нет, добавить позже</td>
+              <td>-</td>
+            </tr>
+
+            <tr>
+              <td colspan="2">Копировать с вложенностями</td>
+              <td>Со всеми уровнями вложеннности и их своства</td>
+              <td data-action="copy">Ctrl/Cmd+C</td>
+              <td style="background-color: #FAEEC6;">нет, добавить позже</td>
+              <td style="color: gray;">нет, не нужно</td>
+            </tr>
+
+            <tr>
+              <td colspan="2">Копировать без вложенностей</td>
+              <td>Копирует свойства объекта, но не копируем объекты вложенные в него </td>
+              <td style="background-color: #FAEEC6;">нет, добавить позже</td>
+              <td style="background-color: #FAEEC6;">нет, добавить позже</td>
+              <td style="color: gray;">нет, не нужно</td>
+            </tr>
+
+            <tr>
+              <td colspan="2">Вырезать</td>
+              <td></td>
+              <td data-action="cut">Ctrl/Cmd+X</td>
+              <td style="background-color: #FAEEC6;">нет, добавить позже</td>
+              <td style="color: gray;">нет, не нужно</td>
+            </tr>
+            
+            <tr>
+              <td colspan="2">Вставить</td>
+              <td></td>
+              <td data-action="paste">Ctrl/Cmd+V</td>
+              <td style="background-color: #FAEEC6;">нет, добавить позже</td>
+              <td style="color: gray;">нет, не нужно</td>
+            </tr>
+
+            <tr>
+              <td colspan="2">Удалить</td>
+              <td></td>
+              <td data-action="delete">Ctrl/Cmd+Backspace</td>
+              <!-- <td data-action="deleteClick"></td> -->
+              <td style="background-color: #FAEEC6;">нет, добавить позже</td>
+              <td>[х]</td>
+            </tr>
+
+            <!-- Навигация -->
+
+              <tr>
+                
+                <td rowspan="8">Выбор</td>
+                <td rowspan="4">По дереву</td>
+                <td>Вверх</td>
+                <td rowspan="2"></td>
+                <td data-action="navUp">ArrowUp</td>
+                <td rowspan="8" data-action="navClick">Click</td>
+                <td rowspan="8" style="color: gray;">нет, не нужно</td>
+              </tr>
+              <tr>
+                <td>Вниз</td><td data-action="navDown">ArrowDown</td>
+              </tr>
+              <tr>
+                <!-- <td data-action="navLeft">ArrowLeft</td> -->
+              </tr>
+              <tr>
+                <!-- <td data-action="navRight">ArrowRight</td> -->
+              </tr>
+
+              <tr>
+                <td rowspan="2">По уровню</td>
+                <td>Вверх</td>
+                <td rowspan="2">Переход к предыдущему/следующему объекту того же уровня</td>
+                <td data-action="levelNavUp"></td>
+                
+              </tr>
+              <tr>
+                <td>Вниз</td><td data-action="levelNavDown"></td>
+              </tr>
+  
+              <tr>
+                <td rowspan="2">По ветке</td>
+                <td>Влево</td>
+                <td rowspan="2">Переход к родителю / первому ребёнку в текущей ветке</td>
+                <td data-action="branchNavLeft"></td>
+              </tr>
+              <tr>
+                <td>Вправо</td><td data-action="branchNavRight"></td>
+              </tr>
+
+              <!-- Мультивыбор -->
+              <tr>
+                
+                <td rowspan="7">Мультивыбор</td>
+                <td rowspan="2">По дереву</td>
+                <td>Вверх</td>
+                <td rowspan="2"></td>
+                <td data-action="deepUp">Ctrl/Cmd+ArrowUp</td>
+                <td rowspan="2" data-action="deepClick">Primary+Click</td>
+                <td rowspan="7" style="color: gray;">нет, не нужно</td>
+              </tr>
+              <tr>
+                <td>Вниз</td><td data-action="deepDown">Shift+Ctrl/Cmd+ArrowDown</td>
+              </tr>
+
+              <tr>
+                <td rowspan="2">По уровню</td>
+                <td>Вверх</td>
+                <td rowspan="2"></td>
+                <td data-action="rangeUp">Shift+Alt+Ctrl/Cmd+ArrowUp</td>
+                <td rowspan="2" data-action="rangeClick">Primary+Alt+Shift+Click</td>
+                
+              </tr>
+              <tr>
+                <td>Вниз</td><td data-action="rangeDown">Shift+Alt+Ctrl/Cmd+ArrowDown</td>
+              </tr>
+  
+              <tr>
+                <td rowspan="2">По ветке</td>
+                <td>Влево</td>
+                <td rowspan="2">Расширение выделения к родителю / первому ребёнку по одной branch-цепочке</td>
+                <td data-action="branchRangeLeft"></td>
+                <td rowspan="2">-</td>
+                
+              </tr>
+              <tr>
+                <td>Вправо</td><td data-action="branchRangeRight"></td>
+              </tr>
+            
+              <tr>
+                <td colspan="2">Выделить всё</td>
+                <td></td>
+                <td data-action="selectAll"></td>
+                <td style="color: gray;">нет, не нужно</td>
+              </tr>
+
+              <!-- Перемещение -->
+
+              <tr>
+                
+                <td rowspan="8">Перемещение</td>
+                <td rowspan="2">По дереву</td>
+                <td>Вверх</td>
+                <td></td>
+                <td data-action="moveUp">Shift+ArrowUp</td>
+                <td rowspan="6" style="background-color: #f3f3f3;">Зажать ЛКМ > Переместить</td>
+                <td rowspan="6" style="color: gray;">нет, не нужно</td>
+              </tr>
+
+              <tr>
+                
+                <td>Вниз</td>
+                <td data-action="moveDown">Shift+ArrowDown</td>
+              </tr>
+
+              <tr>
+                <td rowspan="2">По уровню</td>
+                <td>Вверх</td>
+                <td rowspan="2">Перемещение к предыдущему/следующему объекту того же уровня</td>
+                <td data-action="levelMoveUp"></td>
+              </tr>
+              <tr>
+                <td>Вниз</td><td data-action="levelMoveDown"></td>
+              </tr>
+  
+              <tr>
+                <td rowspan="2">По ветке</td>
+                <td>Влево</td>
+                <td rowspan="2">Перемещение к родителю / вложение в первого ребёнка текущей ветки</td>
+                <td data-action="branchMoveLeft"></td>
+              </tr>
+              <tr>
+                <td>Вправо</td><td data-action="branchMoveRight"></td>
+              </tr>
+
+              <tr>
+                <td style="background-color: #FAEEC6;" colspan="2">Открыть карточку объекта</td>
+                <td style="background-color: #FAEEC6;"></td>
+                <td style="background-color: #FAEEC6;">Space</td>
+                <td style="background-color: #FAEEC6;">нет, добавить позже</td>
+                <td style="background-color: #FAEEC6;">нет, добавить позже</td>
+              </tr>
+
+              <tr>
+                <td style="background-color: #FAEEC6;" colspan="2">Проволится в объект</td>
+                <td style="background-color: #FAEEC6;"></td>
+                <td style="background-color: #FAEEC6;" >Shift+Space</td>
+                <td style="background-color: #FAEEC6;">нет, добавить позже</td>
+                <td style="background-color: #FAEEC6;">нет, добавить позже</td>
+              </tr>
+
+              <tr>
+                <td rowspan="3">Свойства</td>
+                <td style="background-color: #FAEEC6;" colspan="2">Добавить свойство</td>
+                <td style="background-color: #FAEEC6;"></td>
+                <td style="color: gray;"> нет, не нужно</td>
+                <td style="background-color: #FAEEC6;">нет, добавить позже</td>
+                <td style="background-color: #FAEEC6;">нет, добавить позже</td>
+              </tr>
+
+              <tr>
+                <td style="background-color: #FAEEC6;" colspan="2">Скрыть свойство</td>
+                <td style="background-color: #FAEEC6;">Все кроме "Описания"</td>
+                <td style="color: gray;"> нет, не нужно</td>
+                <td style="background-color: #FAEEC6;">нет, добавить позже</td>
+                <td>Нумирация</td>
+              </tr>
+
+              <tr>
+                <td style="background-color: #FAEEC6;" colspan="2">Удалить свойство</td>
+                <td style="background-color: #FAEEC6;"></td>
+                <td style="color: gray;"> нет, не нужно</td>
+                <td style="background-color: #FAEEC6;">нет, добавить позже</td>
+                <td style="background-color: #FAEEC6;">нет, добавить позже</td>
+              </tr>
+
+              <!-- Работа с текстом -->
+
+              <tr>
+                <td rowspan="26">Работа с текстом</td>
+                <td rowspan="7">Содержание</td>
+                <td colspan="2">Перенос строки</td>
+                <td>Во время редактирования названия и подписи </td>
+                <td data-action="addCaptionLineBreak">Shift+Enter</td>
+                <td style="color: gray;">нет, не нужно</td>
+                <td style="color: gray;">нет, не нужно</td>
+              </tr>
+
+              <tr>
+                <td style="background-color: #FAEEC6;" colspan="2">Сохранить, выйти из редактирования</td>
+                <td style="background-color: #FAEEC6;"></td>
+                <td style="background-color: #FAEEC6;">Enter</td>
+                <td style="background-color: #FAEEC6;">-</td>
+                <td style="background-color: #FAEEC6;">-</td>
+              </tr>
+
+              <tr>
+                <td colspan="2">Выделить всё</td>
+                <td></td>
+                <td>Cmd+A</td>
+                <td  style="background-color: #FAEEC6;">ПКМ > Выделить всё</td>
+                <td style="color: gray;">нет, не нужно</td>
+              </tr>
+
+              <tr>
+                <td colspan="2">Копировать</td>
+                <td></td>
+                <td>Cmd+C</td>
+                <td  style="background-color: #FAEEC6;">ПКМ > Копировать</td>
+                <td style="color: gray;">нет, не нужно</td>
+              </tr>
+
+              <tr>
+                <td colspan="2">Выделить</td>
+                <td></td>
+                <td>Cmd+X</td>
+                <td  style="background-color: #FAEEC6;">ПКМ > Вырезать</td>
+                <td style="color: gray;">нет, не нужно</td>
+              </tr>
+
+              <tr>
+                <td colspan="2">Вставить</td>
+                <td></td>
+                <td>Cmd+V</td>
+                <td  style="background-color: #FAEEC6;">ПКМ > Вставить</td>
+                <td style="color: gray;">нет, не нужно</td>
+              </tr>
+
+              <tr>
+                <td colspan="2">Удалить</td>
+                <td></td>
+                <td>Backspace</td>
+                <td style="color: gray;">нет, не нужно</td>
+                <td style="color: gray;">нет, не нужно</td>
+              </tr>
+
+              <!-- Работа с форматом текста -->
+            <tr>
+              
+                <td rowspan="4">Стиль</td>
+              <td colspan="2">Полужирный</td>
+              <td></td>
               <td data-action="bold">Ctrl/Cmd+B</td>
               <td>-</td>
               <td><b>B</b></td>
             </tr>
             
             <tr>
-              <td>Курсив</td>
+              <td colspan="2">Курсив</td>
+              <td></td>
               <td data-action="italic">Ctrl/Cmd+I</td>
               <td>-</td>
               <td><i>I</i></td>
             </tr>
             
             <tr>
-              <td>Зачёркнутый</td>
+              <td colspan="2">Зачёркнутый</td>
+              <td></td>
               <td data-action="strike">Ctrl/Cmd+Shift+X</td>
               <td>-</td>
               <td><s>S</s></td>
             </tr>
             
             <tr>
-              <td>Подчёркнутый</td>
+              <td colspan="2">Подчёркнутый</td>
+              <td></td>
               <td data-action="underline">Ctrl/Cmd+U</td>
               <td>-</td>
               <td><u>U</u></td>
             </tr>
 
+            <!-- Цвет текста -->
+
             <tr>
-              <td rowspan="10">Цвет текста</td>
-              <td data-action="textColor1">Ctrl/Cmd+1</td>
-              <td rowspan="10">-</td>
-              <td rowspan="10">Палитра “Текст” в верхнем баре</td>
-            </tr>
-            <tr><td data-action="textColor2">Ctrl/Cmd+2</td></tr>
-            <tr><td data-action="textColor3">Ctrl/Cmd+3</td></tr>
-            <tr><td data-action="textColor4">Ctrl/Cmd+4</td></tr>
-            <tr><td data-action="textColor5">Ctrl/Cmd+5</td></tr>
-            <tr><td data-action="textColor6">Ctrl/Cmd+6</td></tr>
-            <tr><td data-action="textColor7">Ctrl/Cmd+7</td></tr>
-            <tr><td data-action="textColor8">Ctrl/Cmd+8</td></tr>
-            <tr><td data-action="textColor9">Ctrl/Cmd+9</td></tr>
-            <tr><td data-action="textColor0">Ctrl/Cmd+0</td></tr>
-            
-            <tr>
-              <td rowspan="10">Цвет подложки</td>
+
+
+              <td rowspan="20">Цвет</td>
+
+              <td rowspan="6">Фона</td>
+              <td>Цвет 1</td>
+              <td rowspan="6"></td>
               <td data-action="bgColor1">Alt+1</td>
-              <td rowspan="10">-</td>
-              <td rowspan="10">Палитра “Подложка” в верхнем баре</td>
+              <td rowspan="6" style="background-color: #FAEEC6;">нет, добавить позже: ПКМ > "Заливка"</td>
+              <td rowspan="6"><img src="icons/Vector.png" class="color-icon-bg-img" /></td>
             </tr>
-            <tr><td data-action="bgColor2">Alt+2</td></tr>
-            <tr><td data-action="bgColor3">Alt+3</td></tr>
-            <tr><td data-action="bgColor4">Alt+4</td></tr>
-            <tr><td data-action="bgColor5">Alt+5</td></tr>
-            <tr><td data-action="bgColor6">Alt+6</td></tr>
-            <tr><td data-action="bgColor7">Alt+7</td></tr>
-            <tr><td data-action="bgColor8">Alt+8</td></tr>
-            <tr><td data-action="bgColor9">Alt+9</td></tr>
-            <tr><td data-action="bgColor0">Alt+0</td></tr>
+            <tr><td>Цвет 2</td><td data-action="bgColor2">Alt+2</td></tr>
+            <tr><td>Цвет 3</td><td data-action="bgColor3">Alt+3</td></tr>
+            <tr><td>Цвет 4</td><td data-action="bgColor4">Alt+4</td></tr>
+            <tr><td>Цвет 5</td><td data-action="bgColor5">Alt+5</td></tr>
+            <tr><td>Цвет 6-11, и Пользововательские</td><td data-action="bgColor6">нет</td></tr>
+
+            <tr>
+
+              <td rowspan="6">Текста</td>
+              <td>Цвет 1</td>
+              <td rowspan="6"></td>
+              <td data-action="textColor1">Ctrl/Cmd+1</td>
+              <td rowspan="6" style="background-color: #FAEEC6;">нет, добавить позже: ПКМ > "Цвет Текста"</td>
+              <td rowspan="6"><img src="icons/Vector3.png" class="color-icon-bg-img" /></td>
+            </tr>
+            <tr><td>Цвет 2</td><td data-action="textColor2">Ctrl/Cmd+2</td></tr>
+            <tr><td>Цвет 3</td><td data-action="textColor3">Ctrl/Cmd+3</td></tr>
+            <tr><td>Цвет 4</td><td data-action="textColor4">Ctrl/Cmd+4</td></tr>
+            <tr><td>Цвет 5</td><td data-action="textColor5">Ctrl/Cmd+5</td></tr>
+            <tr><td>Цвет 6-11, и Пользововательские</td><td data-action="textColor6">Ctrl/Cmd+6-11</td></tr>
+            
+            
+
+            <tr>
+              <td>Выделение</td>
+              <td>Цвет 1-11, и Пользововательские</td>
+              <td></td>
+              <td style="color: gray;">нет, не нужно</td>
+              <td style="background-color: #FAEEC6;">нет, добавить позже: ПКМ > "Выделение"</td>
+              <td><img src="icons/Vector2.png" class="color-icon-bg-img" /></td>
+            </tr>
           </tbody>
         </table>
 
@@ -510,5 +743,8 @@
   <script src="panel_toggle.js"></script>
   <script src="branch_move.js"></script>
   <script src="multi_select_branch.js"></script>
+  <script src="mark_property.js"></script>
+  <script src="object_focus_mode.js"></script>
+  <script src="level_headers.js"></script>
 </body>
 </html>

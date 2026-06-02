@@ -262,8 +262,6 @@ function startRename(id) {
     if (t.closest(".edit")) return true;
   
     if (t.closest("#fmtBold,#fmtItalic,#fmtUnderline,#fmtStrike")) return true;
-  
-    // разрешаем палитру цветов во время переименования
     if (t.closest("#colorTools")) return true;
     if (t.closest("#textColorBtn,#bgColorBtn,#blockBgBtn")) return true;
     if (t.closest("#textColorSwatches,#bgColorSwatches,#blockBgSwatches")) return true;
@@ -277,6 +275,11 @@ function startRename(id) {
   }
 
   function trap(e) {
+    const passiveLike =
+  e.type === "wheel" ||
+  e.type === "touchstart" ||
+  e.type === "touchend";
+
     if (!isRenamingActive()) return;
 
     const inp = activeEditInput();
@@ -285,7 +288,9 @@ function startRename(id) {
 
     if (isPointer && inp && !isAllowedTarget(e)) {
       inp.blur();
-      e.preventDefault();
+      if (!passiveLike) {
+        e.preventDefault();
+      }
       e.stopPropagation();
       e.stopImmediatePropagation?.();
       return;
@@ -293,7 +298,9 @@ function startRename(id) {
 
     if (isAllowedTarget(e)) return;
 
-    e.preventDefault();
+    if (!passiveLike) {
+      e.preventDefault();
+    }
     e.stopPropagation();
     e.stopImmediatePropagation?.();
   }
@@ -461,7 +468,14 @@ function startCaptionEdit(nodeId, captionId, opts = {}) {
       tmp.removeChild(tmp.lastChild);
     }
 
-    const hasFmt = !!tmp.querySelector("span.rt-b,span.rt-i,span.rt-u,span.rt-s");
+    const hasFmt = !!tmp.querySelector(`
+      span.rt-b,
+      span.rt-i,
+      span.rt-u,
+      span.rt-s,
+      span.rt-color,
+      span.rt-bg
+    `);
     return {
       html: hasFmt ? tmp.innerHTML : "",
       text: (tmp.textContent || "").trim()

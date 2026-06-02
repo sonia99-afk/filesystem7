@@ -20,7 +20,13 @@
     const wrap = document.createElement("div");
     wrap.className = "hierarchy-horizontal-view";
 
-    wrap.appendChild(renderHHNode(root, []));
+    const displayRoot =
+      window.objectFocus?.getFocusedRootNode?.() || root;
+
+    const displayRootOrdinalPath =
+      window.objectFocus?.getFocusedRootOrdinalPath?.() || [];
+
+    wrap.appendChild(renderHHNode(displayRoot, displayRootOrdinalPath));
     host.appendChild(wrap);
 
     scheduleHHLineUpdate();
@@ -39,8 +45,15 @@
     const main = document.createElement("div");
     main.className = "hh-main";
 
+    const head = document.createElement("div");
+    head.className = "hh-head";
+
     const row = makeHHRow(node, ordinalPath);
-    main.appendChild(row);
+    head.appendChild(row);
+
+    renderCaptions(node, head);
+
+    main.appendChild(head);
 
     const children = node.children || [];
     const firstChild = children[0] || null;
@@ -54,8 +67,6 @@
     }
 
     item.appendChild(main);
-
-    renderCaptions(node, item);
 
     if (restChildren.length) {
       const rest = document.createElement("div");
@@ -83,13 +94,17 @@
     row.dataset.id = node.id;
     row.tabIndex = 0;
 
-    if (showOrdinals) {
+    const focusedRootId = window.objectFocus?.getFocusedRootId?.();
+    const isFocusedRoot = !!focusedRootId && focusedRootId === node.id;
+
+    if (showOrdinals && !isFocusedRoot) {
       const badge = buildOrdinalBadge(ordinalPath);
       if (badge) row.appendChild(badge);
     }
 
     const label = document.createElement("span");
     label.className = "label";
+
     if (node.nameHtml) label.innerHTML = node.nameHtml;
     else label.textContent = node.name || "";
 
@@ -97,27 +112,27 @@
 
     row.addEventListener("click", (e) => {
       e.stopPropagation();
-    
+
       const wasSelected = selectedId === node.id;
-    
+
       selectedId = node.id;
       treeHasFocus = true;
       row.focus({ preventScroll: true });
-    
+
       if (wasSelected) return;
-    
+
       render();
     });
-    
+
     row.addEventListener("dblclick", (e) => {
       e.preventDefault();
       e.stopPropagation();
-    
+
       selectedId = node.id;
       treeHasFocus = true;
-    
+
       render();
-    
+
       setTimeout(() => {
         startRename(node.id);
       }, 0);
@@ -219,8 +234,15 @@
 
       if (isHotkey(e, "addSibling")) {
         e.preventDefault();
+
         selectedId = node.id;
-        addSibling(node.id);
+
+        if (isFocusedRoot) {
+          addChild(node.id);
+        } else {
+          addSibling(node.id);
+        }
+
         return;
       }
 
@@ -253,7 +275,9 @@
     });
 
     rootEl
-      .querySelectorAll(".hh-item, .hh-main, .hh-rest, .captions, .caption, .edit, .hierarchy-horizontal-node")
+      .querySelectorAll(
+        ".hh-item, .hh-main, .hh-head, .hh-rest, .captions, .caption, .edit, .hierarchy-horizontal-node"
+      )
       .forEach((el) => {
         hhResizeObserver.observe(el);
       });
@@ -270,11 +294,11 @@
       const parentItem = rest.closest(".hh-item");
 
       const parentRow = parentItem?.querySelector(
-        ":scope > .hh-main > .hierarchy-horizontal-node.row"
+        ":scope > .hh-main > .hh-head > .hierarchy-horizontal-node.row"
       );
 
       const lastRow = branches[branches.length - 1]?.querySelector(
-        ":scope > .hh-item > .hh-main > .hierarchy-horizontal-node.row"
+        ":scope > .hh-item > .hh-main > .hh-head > .hierarchy-horizontal-node.row"
       );
 
       if (!parentRow || !lastRow) return;

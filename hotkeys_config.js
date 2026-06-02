@@ -18,8 +18,8 @@
 
   const DEFAULTS = {
     // Добавления
-    addSibling: "Enter",
-    addChild: "Shift+Enter",
+    addSibling: "Shift+Enter",
+    addChild: "Primary+Enter",
 
     addSiblingClick: "",
     addChildClick: "",
@@ -62,7 +62,7 @@ branchRangeRight: "Primary+Alt+Shift+ArrowRight",
     deepClick: "Primary+Shift+Click",
 
     // Прочее
-    rename: "Ё",
+    rename: "Enter",
     renameClick: "DblClick",
     delete: "Primary+Backspace",
     deleteClick: "",
@@ -85,7 +85,7 @@ branchRangeRight: "Primary+Alt+Shift+ArrowRight",
     undoClick: "",
     redoClick: "",
 
-    addCaption: "Primary+Enter",
+    addCaption: "Alt+Enter",
 addCaptionLineBreak: "Shift+Enter",
 
         // Цвет текста

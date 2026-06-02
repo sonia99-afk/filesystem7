@@ -26,6 +26,10 @@
     );
   }
 
+  function isMacPlatform() {
+    return !!window.hotkeys?.getPlatformInfo?.().isMac;
+  }
+
   function stop() {
     heldCode = null;
     heldAction = null;
@@ -48,12 +52,7 @@
     return true;
   }
 
-  function step(action) {
-    if (!heldCode || !downKeys.has(heldCode)) {
-      stop();
-      return;
-    }
-
+  function runAction(action) {
     if (!canRunNow()) {
       stop();
       return;
@@ -120,6 +119,15 @@
       case "branchRangeRight":
         return window.multiSelectBranch?.handleBranchRangeKey?.(+1);
     }
+  }
+
+  function step(action) {
+    if (!heldCode || !downKeys.has(heldCode)) {
+      stop();
+      return;
+    }
+
+    runAction(action);
   }
 
   function startRepeat(action, code) {
@@ -191,14 +199,31 @@
     (e) => {
       if (isTypingTarget(e.target)) return;
 
+      const action = resolveArrowActionFromEvent(e);
+      if (!action) return;
+      if (!canRunNow()) return;
+
+      // macOS + Cmd/Meta + стрелки:
+      // не запускаем свой setInterval, потому что на Mac keyup иногда теряется
+      // и кастомный repeat может "залипнуть".
+      // Используем только реальные repeat-события браузера.
+      if (isMacPlatform() && e.metaKey) {
+        stop();
+
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation?.();
+
+        if (e.repeat) {
+          runAction(action);
+        }
+
+        return;
+      }
+
       if (e.code) downKeys.add(e.code);
 
       if (e.repeat) return;
-
-      const action = resolveArrowActionFromEvent(e);
-      if (!action) return;
-
-      if (!canRunNow()) return;
 
       startRepeat(action, e.code);
     },

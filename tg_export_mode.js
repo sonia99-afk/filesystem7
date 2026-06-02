@@ -365,6 +365,7 @@
     if (oldName === newName) {
       newNode.id = oldNode.id;
       newNode.nameHtml = oldNode.nameHtml || "";
+      newNode.captionsBgColor = oldNode.captionsBgColor || "";
     }
   
     // подписи: если текст подписи не менялся — сохраняем html

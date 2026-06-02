@@ -25,7 +25,7 @@
     st.id = id;
     st.textContent = `
 .row[data-multi-owner="deep"].multi{
-  background:#bfe3ff !important;
+  background:#eaeaea !important;
   border-radius:2px;
 }
 
@@ -327,31 +327,33 @@
   function processDeepRow(row) {
     const clicked = row;
     const bk = blockKeyForRow(clicked);
-
-    if (!state.blockKey || state.blockKey !== bk) {
+    const id = clicked.dataset.id;
+  
+    if (!state.blockKey || state.blockKey !== bk || !state.anchorId) {
       state.blockKey = bk;
-      state.anchorId = clicked.dataset.id;
-      state.ids = new Set([clicked.dataset.id]);
-
-      clickRow(clicked);
+      state.anchorId = id;
+      state.ids = new Set([id]);
+  
+      selectedId = state.anchorId;
+      treeHasFocus = true;
+      rowById(state.anchorId)?.focus?.({ preventScroll: true });
+  
       applyClasses();
       return;
     }
-
-    const id = clicked.dataset.id;
-
+  
     if (state.ids.has(id)) {
-      state.ids.delete(id);
-
-      if (state.anchorId === id) {
-        state.anchorId = state.ids.values().next().value || null;
+      if (id !== state.anchorId) {
+        state.ids.delete(id);
       }
     } else {
       state.ids.add(id);
-      if (!state.anchorId) state.anchorId = id;
     }
-
-    clickRow(clicked);
+  
+    selectedId = state.anchorId;
+    treeHasFocus = true;
+    rowById(state.anchorId)?.focus?.({ preventScroll: true });
+  
     applyClasses();
   }
 

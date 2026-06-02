@@ -19,6 +19,7 @@
         <thead>
           <tr>
             <th>ID</th>
+            <th>Отметка</th>
             <th>Нумерация</th>
             <th>Уровень</th>
             <th>Название</th>
@@ -28,7 +29,13 @@
       `;
   
       const tbody = document.createElement("tbody");
-      const rows = flattenTableRows(root);
+      const displayRoot =
+  window.objectFocus?.getFocusedRootNode?.() || root;
+
+const displayRootOrdinalPath =
+  window.objectFocus?.getFocusedRootOrdinalPath?.() || [];
+
+const rows = flattenTableRows(displayRoot, displayRootOrdinalPath);
   
       rows.forEach((item) => {
         tbody.appendChild(renderTableRow(item.node, item.ordinalPath));
@@ -60,9 +67,21 @@
   
       const idTd = document.createElement("td");
       idTd.textContent = "";
+
+      const markTd = document.createElement("td");
+      markTd.className = "table-mark-cell";
+
+      if (window.markProperty?.buildMarkDot) {
+        markTd.appendChild(window.markProperty.buildMarkDot(node.id));
+      }
   
       const ordTd = document.createElement("td");
-      ordTd.textContent = ordinalPath.length ? ordinalPath.join(".") : "0";
+      const isFocusedRoot =
+  window.objectFocus?.getFocusedRootId?.() === node.id;
+
+ordTd.textContent = isFocusedRoot
+  ? ""
+  : (ordinalPath.length ? ordinalPath.join(".") : "0");
   
       const levelTd = document.createElement("td");
       levelTd.textContent = DEFAULT_NAME[node.level] || `Уровень ${node.level}`;
@@ -237,8 +256,18 @@
   
         if (isHotkey(e, "addSibling")) {
           e.preventDefault();
+        
+          const focusedRootId = window.objectFocus?.getFocusedRootId?.();
+          const isFocusedRoot = !!focusedRootId && focusedRootId === node.id;
+        
           selectedId = node.id;
-          addSibling(node.id);
+        
+          if (isFocusedRoot) {
+            addChild(node.id);
+          } else {
+            addSibling(node.id);
+          }
+        
           return;
         }
   
@@ -260,7 +289,7 @@
         notesTd.textContent = "--";
       }
   
-      tr.append(idTd, ordTd, levelTd, nameTd, notesTd);
+      tr.append(idTd, markTd, ordTd, levelTd, nameTd, notesTd);
   
       return tr;
     }
