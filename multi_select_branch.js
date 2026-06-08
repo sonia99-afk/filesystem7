@@ -12,26 +12,6 @@
 
   const HOST_ID = "tree";
 
-  (function injectStyle() {
-    const id = "multi-select-branch-style";
-    if (document.getElementById(id)) return;
-
-    const st = document.createElement("style");
-    st.id = id;
-    st.textContent = `
-.row[data-multi-owner="branch"].multi{
-  background:#eaeaea !important;
-  border-radius:2px;
-}
-
-.row[data-multi-owner="branch"].multi-anchor{
-  
-  box-shadow: inset 0 0 0 1px #0b4f9c;
-}
-    `;
-    document.head.appendChild(st);
-  })();
-
   const state = {
     ids: new Set(),
     anchorId: null,

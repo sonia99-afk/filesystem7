@@ -15,28 +15,6 @@
 
   const HOST_ID = "tree";
   const SINGLE_CLICK_DELAY = 230;
-
-  // ---- style ----
-  (function injectStyle() {
-    const id = "multi-select-deep-style";
-    if (document.getElementById(id)) return;
-
-    const st = document.createElement("style");
-    st.id = id;
-    st.textContent = `
-.row[data-multi-owner="deep"].multi{
-  background:#eaeaea !important;
-  border-radius:2px;
-}
-
-.row[data-multi-owner="deep"].multi-anchor{
-  
-  box-shadow: inset 0 0 0 1px #0b4f9c;
-}
-    `;
-    document.head.appendChild(st);
-  })();
-
   // ---- internal state ----
   const state = {
     ids: new Set(),

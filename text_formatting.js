@@ -1263,33 +1263,6 @@
     }
   }
 
-  (function injectStyle() {
-    const id = "text-formatting-style";
-    if (document.getElementById(id)) return;
-
-    const st = document.createElement("style");
-    st.id = id;
-    st.textContent = `
-      .row .label { display:inline; }
-      .row.fmt-b .label { font-weight:700; }
-      .row.fmt-i .label { font-style:italic; }
-      .row.fmt-u .label { text-decoration:underline; }
-      .row.fmt-s .label { text-decoration:line-through; }
-      .row.fmt-u.fmt-s .label { text-decoration: underline line-through; }
-
-      .rt-b { font-weight:700; }
-      .rt-i { font-style:italic; }
-      .rt-u { text-decoration:underline; }
-      .rt-s { text-decoration:line-through; }
-      .rt-u.rt-s, .rt-s.rt-u { text-decoration: underline line-through; }
-
-      .fmt-btn.active {
-        outline: 1px solid #000 !important;
-      }
-    `;
-    document.head.appendChild(st);
-  })();
-
   bindButton("fmtBold", "b");
   bindButton("fmtItalic", "i");
   bindButton("fmtUnderline", "u");

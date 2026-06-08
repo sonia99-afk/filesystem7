@@ -13,26 +13,6 @@
 
   const HOST_ID = "tree";
 
-  (function injectStyle() {
-    const id = "multi-select-style";
-    if (document.getElementById(id)) return;
-
-    const st = document.createElement("style");
-    st.id = id;
-    st.textContent = `
-  .row.multi{
-    background:#eaeaea !important;
-    border-radius:2px;
-  }
-
-  .row.multi-anchor{
-  
-  box-shadow: inset 0 0 0 1px #0b4f9c;
-}
-`;
-    document.head.appendChild(st);
-  })();
-
   const state = {
     anchorId: null,
     contextKey: null,
@@ -63,44 +43,6 @@
     if (!h) return null;
     return h.querySelector(".row.sel");
   }
-
-  // function contextKeyForRow(row) {
-  //   if (!row) return null;
-
-  //   const li = row.closest("li");
-  //   if (!li) return null;
-
-  //   const ul = li.parentElement;
-  //   if (!ul || ul.tagName !== "UL") return null;
-
-  //   const level = ul.dataset?.level ? String(ul.dataset.level) : "";
-
-  //   const parentLi = ul.closest("li");
-  //   const parentRow = parentLi ? parentLi.querySelector(":scope > .row") : null;
-  //   const parentId = parentRow ? parentRow.dataset.id : "ROOT";
-
-  //   return `${parentId}::${level}`;
-  // }
-
-  // function siblingRows(row) {
-  //   if (!row) return [];
-
-  //   const li = row.closest("li");
-  //   if (!li) return [];
-
-  //   const ul = li.parentElement;
-  //   if (!ul || ul.tagName !== "UL") return [];
-
-  //   const lis = Array.from(ul.children).filter((x) => x.tagName === "LI");
-  //   const out = [];
-
-  //   for (const li2 of lis) {
-  //     const r = li2.querySelector(":scope > .row");
-  //     if (r) out.push(r);
-  //   }
-
-  //   return out;
-  // }
 
   function contextKeyForRow(row) {
     if (!row) return null;

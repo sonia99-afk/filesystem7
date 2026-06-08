@@ -62,22 +62,6 @@
     white-space: pre-wrap;
   }
 
-  /* .structure-table td.table-notes-cell {
-    max-width: 220px;
-    width: 220px;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-  }
-  
-  .structure-table td.table-notes-cell .captions,
-  .structure-table td.table-notes-cell .caption {
-    display: block;
-    max-width: 100%;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-  } */
 
   .structure-table td.table-notes-cell {
     max-width: 220px;

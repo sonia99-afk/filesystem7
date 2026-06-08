@@ -265,18 +265,6 @@ function isHotkey(e, action) {
   const want = normalize ? normalize(wantRaw) : wantRaw;
   const have = normalize ? normalize(haveRaw) : haveRaw;
 
-  // special-case: rename aliases by platform
-// if (action === "rename") {
-//   const isMac = !!window.hotkeys?.getPlatformInfo?.().isMac;
-
-//   const allowed = isMac
-//     ? new Set(["Ё", "ё", "\\"])
-//     : new Set(["Ё", "ё", "`"]);
-
-//   const key = String(e.key || "");
-//   if (allowed.has(key)) return true;
-// }
-
   return have === want;
 }
 
@@ -341,15 +329,15 @@ function buildOrdinalBadge(path) {
 
   const left = document.createElement("span");
   left.textContent = "[";
-  left.style.color = "#000";
+  left.className = "ordinal-bracket";
 
   const num = document.createElement("span");
   num.textContent = s;
-  num.style.color = "#1E06C7";
+  num.className = "ordinal-number";
 
   const right = document.createElement("span");
   right.textContent = "]";
-  right.style.color = "#000";
+  right.className = "ordinal-bracket";
 
   wrap.appendChild(left);
   wrap.appendChild(num);
@@ -357,24 +345,6 @@ function buildOrdinalBadge(path) {
 
   return wrap;
 }
-
-(function injectOrdinalStyle() {
-  const id = "ordinal-style";
-  if (document.getElementById(id)) return;
-
-  const st = document.createElement("style");
-  st.id = id;
-  st.textContent = `
-    .ordinal-badge{
-      display:inline-block;
-      margin-right:6px;
-      color:#1E06C7;
-      white-space:nowrap;
-      flex:0 0 auto;
-    }
-  `;
-  document.head.appendChild(st);
-})();
 
 function findWithParent(node, id, parent = null) {
   if (node.id === id) return { node, parent };
