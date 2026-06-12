@@ -187,19 +187,23 @@
 }
 
 .level-header-mini-item{
-    display:inline-flex;
-    align-items:center;
+  display:inline-flex;
+  align-items:center;
   color:#777;
   
   height:20px;
-    line-height:20px;
+  line-height:20px;
 
-  white-space:nowrap;
+  min-width:20px;
+  padding:0 4px;
+  box-sizing:border-box;
+
+  white-space:pre;
   overflow:hidden;
   text-overflow:ellipsis;
 
   cursor:text;
-  margin-left: 5px;
+  margin-left:5px;
   font:inherit;
 }
 
@@ -232,9 +236,7 @@
 
 .level-header-column-item{
   display:block;
-  
-  padding-bottom: 2px;
-  height:18px;
+  height:21px;
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
@@ -352,3 +354,67 @@
 .level-headers-cascade > .level-header-mini-tree::before{
   display:none;
 }
+
+
+/* =========================
+   Level headers: table view
+   ========================= */
+
+   .level-headers-row-table {
+    position: relative;
+    margin-bottom: 8px;
+    width: max-content;
+    min-width: 100%;
+    overflow: visible;
+  }
+  
+  .level-headers-row-table .level-header-item {
+    position: static;
+    display: inline-flex;
+    align-items: center;
+    width: 120px;
+    height: 24px;
+    padding: 2px 6px;
+  }
+  
+  .level-headers-cascade-table {
+    width: max-content;
+    margin-bottom: 8px;
+  }
+  
+  .level-headers-column-table {
+    margin-top: 20px;
+  }
+  
+  .table-with-level-headers {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .level-header-na {
+    cursor: default;
+    opacity: 0.7;
+  }
+
+  .level-headers-cascade-table {
+    padding: 6px 10px;
+  }
+  
+  .level-headers-cascade-table .level-header-mini-tree {
+    padding-left: 0 !important;
+  }
+  
+  .level-headers-cascade-table .level-header-mini-li {
+    min-height: 20px;
+    padding-left: 0;
+  }
+  
+  .level-headers-cascade-table .level-header-mini-li::before,
+  .level-headers-cascade-table .level-header-mini-tree::before {
+    display: none !important;
+  }
+  
+  .level-headers-cascade-table .level-header-mini-item {
+    margin-left: 0;
+  }

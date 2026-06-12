@@ -225,6 +225,9 @@ function normalizeBaseKeyFromEvent(e) {
   if (k === "Esc") return "Escape";
   if (k === "+") return "Plus";
 
+  if (code === "BracketLeft") return "BracketLeft";
+if (code === "BracketRight") return "BracketRight";
+
   if (k.length === 1) return k.toUpperCase();
   return k;
 }
@@ -811,11 +814,27 @@ function getMaxLevelInSubtree(node) {
 /* ======== Navigation ======== */
 
 function moveSelection(dir) {
-  const flat = flatten();
-  const idx = flat.indexOf(selectedId);
-  if (idx < 0) return;
-  const next = flat[idx + dir];
+  const displayRoot =
+    window.objectFocus?.getFocusedRootNode?.() || root;
+
+  const out = [];
+
+  (function walk(n) {
+    out.push(n.id);
+    for (const ch of (n.children || [])) walk(ch);
+  })(displayRoot);
+
+  const idx = out.indexOf(selectedId);
+  if (idx < 0) {
+    selectedId = displayRoot.id;
+    treeHasFocus = true;
+    render();
+    return;
+  }
+
+  const next = out[idx + dir];
   if (!next) return;
+
   selectedId = next;
   treeHasFocus = true;
   render();
@@ -893,8 +912,12 @@ function renderSchemaView() {
   const displayRootOrdinalPath =
     window.objectFocus?.getFocusedRootOrdinalPath?.() || [];
 
-  const ul = document.createElement('ul');
-  ul.dataset.level = String(displayRoot.level);
+    const ul = document.createElement('ul');
+    ul.dataset.level = String(displayRoot.level);
+    
+    if (displayRoot.id !== root.id) {
+      ul.classList.add("focus-root");
+    }
 
   ul.appendChild(
     renderNode(displayRoot, displayRootOrdinalPath, {
@@ -1477,6 +1500,8 @@ const firstChildAnchor =
 const parentStartY = (pBox.top - liBox.top) + 12;
 
 const caps = li.querySelector(':scope > .captions');
+
+let startY;
 
 if (caps && li.classList.contains("root")) {
   const capsBox = caps.getBoundingClientRect();

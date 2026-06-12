@@ -68,33 +68,61 @@
       h.querySelectorAll(".row[data-id]").forEach(applyBgToRow);
     }
   
+    function getTargetIds() {
+      const h = host();
+      if (!h) return [];
+    
+      const multiIds = Array.from(h.querySelectorAll(".row.multi"))
+        .map((row) => row.dataset?.id)
+        .filter(Boolean);
+    
+      if (multiIds.length) return [...new Set(multiIds)];
+    
+      if (typeof selectedId !== "undefined" && selectedId) {
+        return [selectedId];
+      }
+    
+      return [];
+    }
+    
     function applyBlockBgToSelected(color) {
-      if (typeof selectedId === "undefined" || !selectedId) return;
-  
+      const ids = getTargetIds();
+      if (!ids.length) return;
+    
       const nextColor = color === "transparent" ? "" : String(color || "").trim();
-      const prevColor = window.__blockBgMap?.[selectedId] || "";
-  
-      if (prevColor === nextColor) return;
-  
+    
+      let hasChanges = false;
+    
+      for (const id of ids) {
+        const prevColor = window.__blockBgMap?.[id] || "";
+        if (prevColor !== nextColor) {
+          hasChanges = true;
+          break;
+        }
+      }
+    
+      if (!hasChanges) return;
+    
       if (typeof pushHistory === "function") {
         pushHistory();
       }
-  
+    
       if (!window.__blockBgMap) {
         window.__blockBgMap = Object.create(null);
       }
-  
-      if (nextColor) {
-        window.__blockBgMap[selectedId] = nextColor;
-      } else {
-        delete window.__blockBgMap[selectedId];
+    
+      for (const id of ids) {
+        if (nextColor) {
+          window.__blockBgMap[id] = nextColor;
+        } else {
+          delete window.__blockBgMap[id];
+        }
       }
-  
+    
       if (typeof render === "function") {
         render();
       } else {
-        const row = rowById(selectedId);
-        applyBgToRow(row);
+        ids.forEach((id) => applyBgToRow(rowById(id)));
       }
     }
   

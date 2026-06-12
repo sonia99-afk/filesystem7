@@ -63,6 +63,9 @@
     if (key === "Esc") return "Escape";
     if (key === "+") return "Plus";
 
+    if (code === "BracketLeft") return "BracketLeft";
+if (code === "BracketRight") return "BracketRight";
+
     if (key.length === 1) return key.toUpperCase();
 
     return key;
@@ -105,7 +108,7 @@
   }
 
   function prettyHotkey(v) {
-    const { primaryToken, primaryLabel } = platform();
+    const { primaryToken, primaryLabel, altLabel = "Alt" } = platform();
 
     if (typeof v !== "string") return String(v ?? "");
     if (v.trim() === "+") return "+";
@@ -133,12 +136,15 @@
 
     const mapToken = (t) => {
       if (t === primaryToken) return primaryLabel;
+      if (t === "Alt") return altLabel;
       if (t === "Plus") return "+";
       if (t === "ArrowUp") return "↑";
       if (t === "ArrowDown") return "↓";
       if (t === "ArrowLeft") return "←";
       if (t === "ArrowRight") return "→";
       if (t === "DblClick") return "DblClick";
+      if (t === "BracketLeft") return "{";
+      if (t === "BracketRight") return "}";
       return t;
     };
 
@@ -295,13 +301,6 @@ editingCell.querySelector(".hk-clear")?.remove();
           updateConflicts();
           return;
         }
-
-        // if (e.key === "Tab") {
-        //   e.preventDefault();
-        //   e.stopPropagation();
-        //   if (e.stopImmediatePropagation) e.stopImmediatePropagation();
-        //   return;
-        // }
 
         if (isMouseAction) {
           e.preventDefault();

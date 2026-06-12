@@ -4,34 +4,31 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Оргструктура — дерево (минимум)</title>
-  <link rel="stylesheet" href="hierarchy_view.css" />
-  <link rel="stylesheet" href="hierarchy_horizontal_view.css" />
-  <link rel="stylesheet" href="icicle_horizontal_view.css" />
-  <link rel="stylesheet" href="icicle_vertical_view.css" />
-  <link rel="stylesheet" href="list_view.css" />
 
-<link rel="stylesheet" href="css/base.css" />
-<link rel="stylesheet" href="css/layout.css" />
-<link rel="stylesheet" href="css/toolbar.css" />
-<link rel="stylesheet" href="css/tree-common.css" />
-<link rel="stylesheet" href="css/drag.css" />
-<link rel="stylesheet" href="css/text-formatting.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/layout.css" />
+  <link rel="stylesheet" href="css/toolbar.css" />
+  <link rel="stylesheet" href="css/tree-common.css" />
+  <link rel="stylesheet" href="css/drag.css" />
+  <link rel="stylesheet" href="css/text-formatting.css" />
 
-<link rel="stylesheet" href="css/features/colors.css" />
-<link rel="stylesheet" href="css/features/hotkeys.css" />
-<link rel="stylesheet" href="css/features/level-headers.css" />
-<link rel="stylesheet" href="css/features/marks.css" />
-<link rel="stylesheet" href="css/features/multi-select.css" />
-<link rel="stylesheet" href="css/features/mark-property.css" />
+  <link rel="stylesheet" href="css/features/colors.css" />
+  <link rel="stylesheet" href="css/features/hotkeys.css" />
+  <link rel="stylesheet" href="css/features/level-headers.css" />
+  <link rel="stylesheet" href="css/features/marks.css" />
+  <link rel="stylesheet" href="css/features/multi-select.css" />
+  <link rel="stylesheet" href="css/features/mark-property.css" />
 
-<link rel="stylesheet" href="css/views/schema.css" />
-<link rel="stylesheet" href="css/views/hierarchy_view.css" />
-<link rel="stylesheet" href="css/views/hierarchy_horizontal_view.css" />
-<link rel="stylesheet" href="css/views/icicle_horizontal_view.css" />
-<link rel="stylesheet" href="css/views/icicle_vertical_view.css" />
-<link rel="stylesheet" href="css/views/list_view.css" />
-<link rel="stylesheet" href="css/views/table_view.css" />
-<link rel="stylesheet" href="css/views/text.css">
+  <link rel="stylesheet" href="css/views/schema.css" />
+  <link rel="stylesheet" href="css/views/hierarchy_view.css" />
+  <link rel="stylesheet" href="css/views/hierarchy_horizontal_view.css" />
+  <link rel="stylesheet" href="css/views/icicle_horizontal_view.css" />
+  <link rel="stylesheet" href="css/views/icicle_vertical_view.css" />
+  <link rel="stylesheet" href="css/views/list_view.css" />
+  <link rel="stylesheet" href="css/views/table_view.css" />
+  <link rel="stylesheet" href="css/views/text.css">
+
+  <link rel="stylesheet" href="css/ui.css" />
 </head>
 <body>
 
@@ -74,7 +71,8 @@
           <button id="hierarchyHorizontalBtn" onclick="setViewOrientation('horizontal')" class="btnn">Горизонтальная</button>
           <button id="hierarchyVerticalBtn" onclick="setViewOrientation('vertical')" class="btnn">Вертикальная</button>
         </span>
-        <button id="tgCopy" class="btnn copybtnn"><img src="icons/Копировать.png" class="color-icon-bg-img copy" /></button>
+        <!-- <button id="tgCopy" class="btnn copybtnn"><img src="icons/Копировать.png" class="color-icon-bg-img copy" /></button> -->
+        <button id="tgCopy" class="btnn copybtnn icon-copy"></button>
           <div class="formatblock">
             <button id="fmtBold" class="btnn"><b>B</b></button>
             <button id="fmtItalic" class="btnn fmtItalic"><i>I</i></button>
@@ -82,12 +80,14 @@
             <button id="fmtStrike" class="btnn"><s>S</s></button>
         </div>
         <button id="toggleOrdinals" class="btnn margin">Нумерация</button>
-        <button id="toggleCaptions" class="btnn">Подписи</button>
+        <button id="toggleCaptions" class="btnn">Описание</button>
 
         <span class="mark-tools" id="markTools">
           <button id="toggleMarks" class="btnn" type="button" style="margin-right: 10px;">Отметка</button>
-          <button id="markSettingsBtn" class="btnn" type="button" style="padding-left: 5px; padding-right: 5px;"><img src="icons/rol.png" class="color-icon-bg-img" /></button>
-        
+          <!-- <button id="markSettingsBtn" class="btnn" type="button" style="padding-left: 5px; padding-right: 5px;"><img src="icons/rol.png" class="color-icon-bg-img" /></button> -->
+          <button id="markSettingsBtn" class="btnn icon-settings" type="button"></button>
+
+
           <div id="markSettingsMenu" class="mark-settings-menu" aria-hidden="true">
             <div class="mark-settings-title">Отмеченные объекты:</div>
         
@@ -106,9 +106,11 @@
         <span id="levelHeadersTools" class="level-headers-tools">
           <button id="toggleLevelHeaders" class="btnn" type="button" style="margin-right: 10px;"> Заголовок уровней </button>
         
-          <button id="levelHeadersSettingsBtn" class="btnn" type="button" disabled>
+          <!-- <button id="levelHeadersSettingsBtn" class="btnn" type="button" disabled>
             <img src="icons/rol.png" class="color-icon-bg-img" />
-          </button>
+          </button> -->
+
+          <button id="levelHeadersSettingsBtn" class="btnn icon-settings" type="button" disabled></button>
         
           <div id="levelHeadersMenu" class="level-headers-settings-menu" aria-hidden="true">
             <div class="level-headers-settings-title">В шапке:</div>
@@ -141,7 +143,8 @@
           <div class="color-group color-group-text">
             <button id="textColorBtn" class="btnn color-main-btn btnn" type="button">
               <span class="color-icon color-icon-bg">
-                <img src="icons/Vector3.png" class="color-icon-bg-img" />
+                <!-- <img src="icons/Vector3.png" class="color-icon-bg-img" /> -->
+                <span class="icon-text-color"></span>
               </span>
             </button>
         
@@ -158,13 +161,13 @@
               <button class="color-dot" type="button" data-kind="text" data-color="#478378"></button>
               <button class="color-dot" type="button" data-kind="text" data-color="#378CA7"></button>
               <!-- <button class="color-dot is-active" type="button" data-kind="text" data-color="default"></button> -->
-              <button class="color-dot is-active" type="button" data-kind="text" data-color="transparent"><img src="icons/Union (1).png" class="color-icon-bg-img" style="width: 90%; height: 90%; margin: auto"/></button>
+              <button class="color-dot is-active" type="button" data-kind="text" data-color="transparent"><span class="icon-transparent"></span></button>
 
               <div class="custom-colors-sep"></div>
               <div class="custom-colors-title">Свой цвет:</div>
               <div class="custom-colors-row" data-kind="text">
                 <div class="custom-colors-list" id="textCustomColors"></div>
-                <button class="custom-color-add" type="button" data-kind="text"><img src="icons/Полюс.png" style="width: 14px;height: 14px; margin-top: 2px"/></button>
+                <button class="custom-color-add" type="button" data-kind="text"><span class="icon-plus"></span></button>
                 <input class="custom-color-input" id="textCustomColorInput" type="color" value="#000000" />
               </div>
             </div>
@@ -173,7 +176,8 @@
           <div class="color-group color-group-bg">
             <button id="bgColorBtn" class="btnn color-main-btn" type="button">
               <span class="color-icon color-icon-bg">
-                <img src="icons/Vector2.png" class="color-icon-bg-img" />
+                <!-- <img src="icons/Vector2.png" class="color-icon-bg-img" /> -->
+                <span class="icon-highlight"></span>
               </span>
             </button>
         
@@ -189,13 +193,13 @@
               <button class="color-dot color-dot-bg" type="button" data-kind="bg" data-color="#EDF3EC"></button>
               <button class="color-dot color-dot-bg" type="button" data-kind="bg" data-color="#E8F8F5"></button>
               <button class="color-dot color-dot-bg" type="button" data-kind="bg" data-color="#E5F7FD"></button>
-              <button class="color-dot color-dot-bg is-active" type="button" data-kind="bg" data-color="transparent"><img src="icons/Union (1).png" class="color-icon-bg-img" style="width: 90%; height: 90%; margin: auto"/></button>
+              <button class="color-dot color-dot-bg is-active" type="button" data-kind="bg" data-color="transparent"><span class="icon-transparent"></span></button>
               
               <div class="custom-colors-sep"></div>
               <div class="custom-colors-title">Свой цвет:</div>
               <div class="custom-colors-row" data-kind="bg">
                 <div class="custom-colors-list" id="bgCustomColors"></div>
-                <button class="custom-color-add" type="button" data-kind="bg"><img src="icons/Полюс.png" style="width: 14px;height: 14px; margin-top: 2px"/></button>
+                <button class="custom-color-add" type="button" data-kind="bg"><span class="icon-plus"></span></button>
                 <input class="custom-color-input" id="bgCustomColorInput" type="color" value="#D9E4F7" />
               </div>
             </div>
@@ -204,7 +208,9 @@
           <div class="color-group color-group-block">
             <button id="blockBgBtn" class="btnn color-main-btn" type="button">
               <span class="color-icon color-icon-bg">
-                <img src="icons/Vector.png" class="color-icon-bg-img" />
+                <!-- <img src="icons/Vector.png" class="color-icon-bg-img" /> -->
+                 
+                <span class="icon-block-color"></span>
               </span>
             </button>
           
@@ -220,13 +226,13 @@
               <button class="color-dot color-dot-block" type="button" data-kind="block" data-color="#EDF3EC"></button>
               <button class="color-dot color-dot-block" type="button" data-kind="block" data-color="#E8F8F5"></button>
               <button class="color-dot color-dot-block" type="button" data-kind="block" data-color="#E5F7FD"></button>
-              <button class="color-dot color-dot-block is-active" type="button" data-kind="block" data-color="transparent"><img src="icons/Union (1).png" class="color-icon-bg-img" style="width: 90%; height: 90%; margin: auto"/></button>
+              <button class="color-dot color-dot-block is-active" type="button" data-kind="block" data-color="transparent"><span class="icon-transparent"></span></button>
 
               <div class="custom-colors-sep"></div>
               <div class="custom-colors-title">Свой цвет:</div>
               <div class="custom-colors-row" data-kind="block">
                 <div class="custom-colors-list" id="blockCustomColors"></div>
-                <button class="custom-color-add" type="button" data-kind="block"><img src="icons/Полюс.png" style="width: 14px;height: 14px; margin-top: 2px"/></button>
+                <button class="custom-color-add" type="button" data-kind="block"><span class="icon-plus"></span></button>
                 <input class="custom-color-input" id="blockCustomColorInput" type="color" value="#D9E4F7" />
               </div>
             </div>
@@ -235,11 +241,11 @@
       </div>
 
       <div class="object-breadcrumbs" id="objectBreadcrumbs">
-        <button type="button" class="object-breadcrumb-item">Путь</button>
+        <!-- <button type="button" class="object-breadcrumb-item">Путь</button>
         <span class="object-breadcrumb-separator">›</span>
         <button type="button" class="object-breadcrumb-item is-current">Путь</button>
         <span class="object-breadcrumb-separator">›</span>
-        <button type="button" class="object-breadcrumb-item">Путь</button>
+        <button type="button" class="object-breadcrumb-item">Путь</button> -->
       </div> 
 
       <div class="main">
@@ -306,7 +312,7 @@
 
             <!-- Работа с объектами -->
             <tr>
-              <td rowspan="37">Работа с объектами</td>
+              <td rowspan="38">Работа с объектами</td>
               <td rowspan="11">Редактирование</td>
 
               <td colspan="2">Создать на следующей ветке</td>
@@ -492,7 +498,7 @@
 
               <tr>
                 
-                <td rowspan="8">Перемещение</td>
+                <td rowspan="9">Перемещение</td>
                 <td rowspan="2">По дереву</td>
                 <td>Вверх</td>
                 <td></td>
@@ -504,6 +510,7 @@
               <tr>
                 
                 <td>Вниз</td>
+                <td></td>
                 <td data-action="moveDown">Shift+ArrowDown</td>
               </tr>
 
@@ -536,9 +543,17 @@
               </tr>
 
               <tr>
-                <td style="background-color: #FAEEC6;" colspan="2">Проволится в объект</td>
+                <td colspan="2">Проволится в объект</td>
+                <td></td>
+                <td data-action="focusIntoObject">Shift+[</td>
+                <td style="background-color: #FAEEC6;">нет, добавить позже</td>
+                <td style="background-color: #FAEEC6;">нет, добавить позже</td>
+              </tr>
+
+              <tr>
+                <td style="background-color: #FAEEC6;" colspan="2">Наверх</td>
                 <td style="background-color: #FAEEC6;"></td>
-                <td style="background-color: #FAEEC6;" >Shift+Space</td>
+                <td style="background-color: #FAEEC6;" data-action="focusOutObject">Shift+]</td>
                 <td style="background-color: #FAEEC6;">нет, добавить позже</td>
                 <td style="background-color: #FAEEC6;">нет, добавить позже</td>
               </tr>
@@ -676,13 +691,13 @@
               <td rowspan="6"></td>
               <td data-action="bgColor1">Alt+1</td>
               <td rowspan="6" style="background-color: #FAEEC6;">нет, добавить позже: ПКМ > "Заливка"</td>
-              <td rowspan="6"><img src="icons/Vector.png" class="color-icon-bg-img" /></td>
+              <td rowspan="6"><span class="icon-block-color"></span></td>
             </tr>
-            <tr><td>цвет 1</td><td data-action="bgColor2">Alt+2</td></tr>
-            <tr><td>цвет 1</td><td data-action="bgColor3">Alt+3</td></tr>
-            <tr><td>цвет 1</td><td data-action="bgColor4">Alt+4</td></tr>
-            <tr><td>цвет 1</td><td data-action="bgColor5">Alt+5</td></tr>
-            <tr><td>Цвет 6-11, и Пользововательские</td><td data-action="bgColor6">нет</td></tr>
+            <tr><td>Цвет 2</td><td data-action="bgColor2">Alt+2</td></tr>
+            <tr><td>Цвет 3</td><td data-action="bgColor3">Alt+3</td></tr>
+            <tr><td>Цвет 4</td><td data-action="bgColor4">Alt+4</td></tr>
+            <tr><td>Цвет 5</td><td data-action="bgColor5">Alt+5</td></tr>
+            <tr><td>Цвет 6-11, и Пользововательские</td><td style="color: gray;">нет</td></tr>
 
             <tr>
 
@@ -691,13 +706,13 @@
               <td rowspan="6"></td>
               <td data-action="textColor1">Ctrl/Cmd+1</td>
               <td rowspan="6" style="background-color: #FAEEC6;">нет, добавить позже: ПКМ > "Цвет Текста"</td>
-              <td rowspan="6"><img src="icons/Vector3.png" class="color-icon-bg-img" /></td>
+              <td rowspan="6"> <span class="icon-text-color"></span></td>
             </tr>
             <tr><td>Цвет 2</td><td data-action="textColor2">Ctrl/Cmd+2</td></tr>
             <tr><td>Цвет 3</td><td data-action="textColor3">Ctrl/Cmd+3</td></tr>
             <tr><td>Цвет 4</td><td data-action="textColor4">Ctrl/Cmd+4</td></tr>
             <tr><td>Цвет 5</td><td data-action="textColor5">Ctrl/Cmd+5</td></tr>
-            <tr><td>Цвет 6-11, и Пользововательские</td><td data-action="textColor6">Ctrl/Cmd+6-11</td></tr>
+            <tr><td>Цвет 6-11, и Пользововательские</td><td style="color: gray;">нет</td></tr>
             
             
 
@@ -707,7 +722,7 @@
               <td></td>
               <td style="color: gray;">нет, не нужно</td>
               <td style="background-color: #FAEEC6;">нет, добавить позже: ПКМ > "Выделение"</td>
-              <td><img src="icons/Vector2.png" class="color-icon-bg-img" /></td>
+              <td><span class="icon-highlight"></span></td>
             </tr>
           </tbody>
         </table>
@@ -716,9 +731,9 @@
           <span class="hk-btns">
             <!-- class="hkEditBtn"  class="hkSaveBtn"  class="hkDiscardBtn"  class="hotkeysResetBtn" -->
             <button id="hkEditBtn" class="btnn">Редактировать</button>
-            <button id="hkSaveBtn" class="btnn save">Сохранить</button>
-            <button id="hkDiscardBtn" class="btnn dontsave">Не сохранять</button>
-            <button id="hotkeysResetBtn" class="btnn">Сброс к исходным</button>
+            <button id="hkSaveBtn" class="btnn save"></button>
+            <button id="hkDiscardBtn" class="btnn dontsave"></button>
+            <button id="hotkeysResetBtn" class="btnn"></button>
           </span>
         </div>
       
@@ -733,6 +748,7 @@
   <script src="hotkeys_config.js"></script>
   <script src="rename.js"></script>
   <script src="app2.js"></script>
+  <script src="ui_resources.js"></script>
   <script src="hierarchy_view.js"></script>
   <script src="hierarchy_horizontal_view.js"></script>
   <script src="icicle_horizontal_view.js"></script>
@@ -748,9 +764,11 @@
   <script src="multi_move_hierarchy.js"></script>
   <script src="tg_export_mode.js"></script>
   <script src="text_formatting.js"></script>
-  <script src="color_tools_ui.js"></script>
-  <script src="text_color_formatting.js"></script>
-  <script src="block_bg_formatting.js"></script>
+
+  <script src="color_formating/color_tools_ui.js"></script>
+  <script src="color_formating/text_color_formatting.js"></script>
+  <script src="color_formating/block_bg_formatting.js"></script>
+
   <script src="drag_move.js"></script>
   <script src="clipboard_ops.js"></script>
 
@@ -763,5 +781,6 @@
   <script src="mark_property.js"></script>
   <script src="object_focus_mode.js"></script>
   <script src="level_headers.js"></script>
+  <script src="autosave.js"></script>
 </body>
 </html>

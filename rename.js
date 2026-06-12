@@ -63,8 +63,6 @@ function startRename(id) {
   ed.className = "edit edit-rich";
   ed.contentEditable = "true";
   ed.spellcheck = false;
-  ed.style.minWidth = "120px";
-  ed.style.maxWidth = "520px";
 
   ed.__seedFmt = { ...seedFmt };
   ed.__nodeId = node.id;
@@ -170,23 +168,6 @@ function startRename(id) {
     if (e.key === "Escape") {
       e.preventDefault();
       cancel();
-      return;
-    }
-
-    const isCaptionLineBreakHotkey =
-      typeof window.isHotkey === "function" &&
-      window.hotkeysMode !== "custom" &&
-      window.isHotkey(e, "addCaptionLineBreak");
-
-    if (isCaptionLineBreakHotkey) {
-      e.preventDefault();
-      document.execCommand("insertLineBreak");
-
-      requestAnimationFrame(() => {
-        autosizeCaptionEditorHeight();
-        relayoutTreeLines();
-      });
-
       return;
     }
 
@@ -345,16 +326,6 @@ function startCaptionEdit(nodeId, captionId, opts = {}) {
   ed.className = "edit edit-rich edit-caption";
   ed.contentEditable = "true";
   ed.spellcheck = false;
-  ed.style.display = "inline-block";
-  ed.style.minWidth = "220px";
-  ed.style.maxWidth = "900px";
-  ed.style.whiteSpace = "pre-wrap";
-  ed.style.overflowWrap = "break-word";
-  ed.style.wordBreak = "break-word";
-  ed.style.verticalAlign = "top";
-  ed.style.height = "auto";
-  ed.style.minHeight = "1.3em";
-  ed.style.lineHeight = "1.3em";
 
   function updateCaptionEditorTypography() {
      const html = ed.innerHTML || "";

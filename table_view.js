@@ -30,12 +30,12 @@
   
       const tbody = document.createElement("tbody");
       const displayRoot =
-  window.objectFocus?.getFocusedRootNode?.() || root;
+        window.objectFocus?.getFocusedRootNode?.() || root;
 
-const displayRootOrdinalPath =
-  window.objectFocus?.getFocusedRootOrdinalPath?.() || [];
+      const displayRootOrdinalPath =
+        window.objectFocus?.getFocusedRootOrdinalPath?.() || [];
 
-const rows = flattenTableRows(displayRoot, displayRootOrdinalPath);
+      const rows = flattenTableRows(displayRoot, displayRootOrdinalPath);
   
       rows.forEach((item) => {
         tbody.appendChild(renderTableRow(item.node, item.ordinalPath));
@@ -50,6 +50,8 @@ const rows = flattenTableRows(displayRoot, displayRootOrdinalPath);
         selectedRow?.focus({ preventScroll: true });
       }
     };
+
+    
   
     function flattenTableRows(node, ordinalPath = [], out = []) {
       out.push({ node, ordinalPath });
@@ -77,11 +79,11 @@ const rows = flattenTableRows(displayRoot, displayRootOrdinalPath);
   
       const ordTd = document.createElement("td");
       const isFocusedRoot =
-  window.objectFocus?.getFocusedRootId?.() === node.id;
+        window.objectFocus?.getFocusedRootId?.() === node.id;
 
-ordTd.textContent = isFocusedRoot
-  ? ""
-  : (ordinalPath.length ? ordinalPath.join(".") : "0");
+      ordTd.textContent = isFocusedRoot
+        ? ""
+        : (ordinalPath.length ? ordinalPath.join(".") : "0");
   
       const levelTd = document.createElement("td");
       levelTd.textContent = DEFAULT_NAME[node.level] || `Уровень ${node.level}`;

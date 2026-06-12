@@ -41,7 +41,7 @@
   }
 
   function prettyHotkey(v) {
-    const { primaryToken, primaryLabel } = platform();
+    const { primaryToken, primaryLabel, altLabel = "Alt" } = platform();
 
     if (typeof v !== "string") return String(v ?? "");
     if (v.trim() === "") return "";
@@ -66,12 +66,15 @@
 
     const mapToken = (t) => {
       if (t === primaryToken) return primaryLabel;
+      if (t === "Alt") return altLabel;
       if (t === "Plus") return "+";
       if (t === "ArrowUp") return "↑";
       if (t === "ArrowDown") return "↓";
       if (t === "ArrowLeft") return "←";
       if (t === "ArrowRight") return "→";
       if (t === "DblClick") return "DblClick";
+      if (t === "BracketLeft") return "{";
+      if (t === "BracketRight") return "}";
       return t;
     };
 
@@ -119,6 +122,10 @@
 
     // кнопку "Редактировать" больше не используем
     if (bEdit) bEdit.style.display = "none";
+
+    if (bSave) bSave.textContent = UI.labels.hotkeys.save;
+if (bDiscard) bDiscard.textContent = UI.labels.hotkeys.discard;
+if (bReset) bReset.textContent = UI.labels.hotkeys.reset;
 
     setInactive(bSave, !on);
     setInactive(bDiscard, !on);
@@ -246,18 +253,30 @@
     const modal = document.createElement("div");
     modal.className = "hk-exit-modal";
 
+    // modal.innerHTML = `
+    //   <div class="hk-exit-modal-title">Сохранить изменения перед выходом?</div>
+    //   <div class="hk-exit-modal-text">
+    //     Вы выходите из режима редактирования хоткеев.<br>
+    //     Без сохранения изменения будут потеряны.
+    //   </div>
+    //   <div class="hk-exit-modal-actions">
+    //     <button type="button" class="btnn hk-stay">Остаться</button>
+    //     <button type="button" class="btnn save hk-save">Сохранить</button>
+    //     <button type="button" class="btnn dontsave hk-discard">Не сохранять</button>
+    //   </div>
+    // `;
+
     modal.innerHTML = `
-      <div class="hk-exit-modal-title">Сохранить изменения перед выходом?</div>
-      <div class="hk-exit-modal-text">
-        Вы выходите из режима редактирования хоткеев.<br>
-        Без сохранения изменения будут потеряны.
-      </div>
-      <div class="hk-exit-modal-actions">
-        <button type="button" class="btnn hk-stay">Остаться</button>
-        <button type="button" class="btnn save hk-save">Сохранить</button>
-        <button type="button" class="btnn dontsave hk-discard">Не сохранять</button>
-      </div>
-    `;
+  <div class="hk-exit-modal-title">${UI.labels.hotkeys.exitTitle}</div>
+  <div class="hk-exit-modal-text">
+    ${UI.labels.hotkeys.exitText}
+  </div>
+  <div class="hk-exit-modal-actions">
+    <button type="button" class="btnn hk-stay">${UI.labels.hotkeys.stay}</button>
+    <button type="button" class="btnn save hk-save">${UI.labels.hotkeys.save}</button>
+    <button type="button" class="btnn dontsave hk-discard">${UI.labels.hotkeys.discard}</button>
+  </div>
+`;
 
     backdrop.appendChild(modal);
     document.body.appendChild(backdrop);

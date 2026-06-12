@@ -7,6 +7,7 @@
   let heldAction = null;
   let tStart = null;
   let tRepeat = null;
+  
 
   const downKeys = new Set();
 
@@ -51,6 +52,8 @@
     if (typeof selectedId === "undefined" || !selectedId) return false;
     return true;
   }
+
+  
 
   function runAction(action) {
     if (!canRunNow()) {
@@ -128,6 +131,7 @@
     }
 
     runAction(action);
+    
   }
 
   function startRepeat(action, code) {
@@ -207,19 +211,19 @@
       // не запускаем свой setInterval, потому что на Mac keyup иногда теряется
       // и кастомный repeat может "залипнуть".
       // Используем только реальные repeat-события браузера.
-      if (isMacPlatform() && e.metaKey) {
-        stop();
+      // if (isMacPlatform() && e.metaKey) {
+      //   stop();
 
-        e.preventDefault();
-        e.stopPropagation();
-        e.stopImmediatePropagation?.();
+      //   e.preventDefault();
+      //   e.stopPropagation();
+      //   e.stopImmediatePropagation?.();
 
-        if (e.repeat) {
-          runAction(action);
-        }
+      //   if (e.repeat) {
+      //     runAction(action);
+      //   }
 
-        return;
-      }
+      //   return;
+      // }
 
       if (e.code) downKeys.add(e.code);
 

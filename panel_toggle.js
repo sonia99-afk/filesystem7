@@ -15,6 +15,28 @@
       } catch (_) {}
       syncButtons();
     }
+
+    function getToolbarFmtForNode(node, id) {
+      if (!node) return emptyFmt();
+    
+      const stored = getFmt(id || node.id);
+    
+      const hasStored =
+        !!stored.b ||
+        !!stored.i ||
+        !!stored.u ||
+        !!stored.s;
+    
+      if (hasStored) {
+        return stored;
+      }
+    
+      if (node.nameHtml) {
+        return detectWholeNodeFmtFromHtml(node.nameHtml, node.name || "");
+      }
+    
+      return stored;
+    }
   
     function syncButtons() {
         const leftBtn = document.querySelector(".toggle-left");

@@ -1,40 +1,44 @@
-// text_color_formatting.js
 (function () {
     if (typeof window === "undefined") return;
+
+// =========================
+// Constants / actions
+// =========================
   
     const EMPTY_COLOR_FMT = { text: "", bg: "" };
   
-    const TEXT_PRESETS = {
-      textColor1: "#000000",
-      textColor2: "#6E6E6E",
-      textColor3: "#B5B5B5",
-      textColor4: "#D0021B",
-      textColor5: "#F5A623",
-      textColor6: "#F8E71C",
-      textColor7: "#7ED321",
-      textColor8: "#4A90E2",
-      textColor9: "#1E06C7",
-      textColor0: ""
-    };
-  
-    const BG_PRESETS = {
-      bgColor1: "#000000",
-      bgColor2: "#6E6E6E",
-      bgColor3: "#B5B5B5",
-      bgColor4: "#F6D6D6",
-      bgColor5: "#F8E0C2",
-      bgColor6: "#F8EDAF",
-      bgColor7: "#DDECCB",
-      bgColor8: "#D7E8F6",
-      bgColor9: "#D9E4F7",
-      bgColor0: ""
-    };
-  
-    const TEXT_ACTIONS = Object.keys(TEXT_PRESETS);
-    const BG_ACTIONS = Object.keys(BG_PRESETS);
-  
+    const TEXT_ACTIONS = [
+      "textColor1",
+      "textColor2",
+      "textColor3",
+      "textColor4",
+      "textColor5",
+      "textColor6",
+      "textColor7",
+      "textColor8",
+      "textColor9",
+      "textColor0",
+    ];
+    
+    const BLOCK_BG_ACTIONS = [
+      "bgColor1",
+      "bgColor2",
+      "bgColor3",
+      "bgColor4",
+      "bgColor5",
+      "bgColor6",
+      "bgColor7",
+      "bgColor8",
+      "bgColor9",
+      "bgColor0",
+    ];
+
     window.__colorFmtMap = window.__colorFmtMap || Object.create(null);
   
+// =========================
+// DOM / state helpers
+// =========================
+
     function host() {
       return document.getElementById("tree");
     }
@@ -74,6 +78,10 @@
       const sel = h.querySelector(".row.sel");
       return sel ? [sel] : [];
     }
+
+// =========================
+// Color format storage
+// =========================
   
     function cloneColorFmt(fmt) {
       return {
@@ -94,6 +102,10 @@
     function emptyColorFmt() {
       return { text: "", bg: "" };
     }
+
+// =========================
+// HTML sanitize / color wrappers
+// =========================
   
     function escapeHtml(s) {
       return String(s || "")
@@ -104,49 +116,9 @@
         .replace(/'/g, "&#39;");
     }
   
-    function ensureColorStyle() {
-      const id = "text-color-formatting-style";
-      if (document.getElementById(id)) return;
-  
-      const st = document.createElement("style");
-      st.id = id;
-      st.textContent = `
-        .rt-color{
-          color: var(--rt-color);
-        }
-        .rt-bg{
-          background-color: var(--rt-bg);
-          border-radius: 2px;
-          padding: 0 1px;
-        }
-      `;
-      document.head.appendChild(st);
-    }
-  
-    function wrapWholeTextWithColorFmt(text, fmt) {
-      let html = escapeHtml(text || "");
-      if (!html) return "";
-  
-      if (fmt.bg) {
-        html = `<span class="rt-bg" style="--rt-bg:${fmt.bg};">${html}</span>`;
-      }
-      if (fmt.text) {
-        html = `<span class="rt-color" style="--rt-color:${fmt.text};">${html}</span>`;
-      }
-      return html;
-    }
-  
     function unwrapColorEverywhere(rootEl, cls) {
       rootEl.querySelectorAll(`span.${cls}`).forEach((el) => {
         el.classList.remove(cls);
-    
-        const keepOtherFmt =
-          el.classList.contains("rt-b") ||
-          el.classList.contains("rt-i") ||
-          el.classList.contains("rt-u") ||
-          el.classList.contains("rt-s") ||
-          el.classList.contains("rt-color") ||
-          el.classList.contains("rt-bg");
     
         if (cls === "rt-color") {
           el.style.removeProperty("--rt-color");
@@ -310,6 +282,10 @@
         bg: collectCoverage("rt-bg", "--rt-bg"),
       };
     }
+
+// =========================
+// Whole-node color applying
+// =========================
   
     function getWholeColorFmtForNode(node) {
       if (!node) return emptyColorFmt();
@@ -335,21 +311,25 @@
       };
     
       const baseHtml =
-  window.__fmtSync?.buildRichHtmlFromNode?.(node) ||
-  node.nameHtml ||
-  "";
+        window.__fmtSync?.buildRichHtmlFromNode?.(node) ||
+        node.nameHtml ||
+        "";
 
-const nextHtml = applyColorToWholeHtmlPreservingFmt(
-  baseHtml,
-  node.name || "",
-  kind,
-  color || ""
-);
+      const nextHtml = applyColorToWholeHtmlPreservingFmt(
+        baseHtml,
+        node.name || "",
+        kind,
+        color || ""
+      );
     
       node.nameHtml = nextHtml || "";
       setColorFmt(node.id, nextFmt);
       return true;
     }
+
+// =========================
+// Editor selection helpers
+// =========================
   
     function getSelectionOffsetsInEditor(ed) {
       const sel = window.getSelection();
@@ -499,6 +479,10 @@ const nextHtml = applyColorToWholeHtmlPreservingFmt(
       if (right) frag.appendChild(document.createTextNode(right));
       textNode.parentNode.replaceChild(frag, textNode);
     }
+
+// =========================
+// Editor / target color applying
+// =========================
   
     function applyColorToSelectionInEditor(ed, kind, color) {
       const sel = getSelectionOffsetsInEditor(ed);
@@ -586,6 +570,10 @@ const nextHtml = applyColorToWholeHtmlPreservingFmt(
   
       syncToolbarFromContext();
     }
+
+// =========================
+// Toolbar sync
+// =========================
   
     function getActiveNodeColorContext() {
       const rows = getTargetRows();
@@ -594,18 +582,73 @@ const nextHtml = applyColorToWholeHtmlPreservingFmt(
       if (!id) return emptyColorFmt();
   
       const node = getNodeById(id);
+      return getToolbarColorFmtForNode(node);
+    }
+
+    function getToolbarColorFmtForNode(node) {
+      if (!node) return emptyColorFmt();
+    
+      const stored = getColorFmt(node.id);
+    
+      if (stored.text || stored.bg) {
+        return stored;
+      }
+    
       return getWholeColorFmtForNode(node);
+    }
+
+    function getCaretColorFmtInEditor(ed) {
+      const sel = window.getSelection();
+      if (!sel || sel.rangeCount === 0) return emptyColorFmt();
+    
+      const range = sel.getRangeAt(0);
+      let node = range.startContainer;
+    
+      if (!ed.contains(node)) return emptyColorFmt();
+    
+      if (node.nodeType === Node.TEXT_NODE) {
+        node = node.parentElement;
+      }
+    
+      let text = "";
+      let bg = "";
+    
+      while (node && node !== ed) {
+        if (node.nodeType === Node.ELEMENT_NODE) {
+          if (!text && node.classList?.contains("rt-color")) {
+            text = node.style.getPropertyValue("--rt-color") || "";
+          }
+    
+          if (!bg && node.classList?.contains("rt-bg")) {
+            bg = node.style.getPropertyValue("--rt-bg") || "";
+          }
+        }
+    
+        node = node.parentElement;
+      }
+    
+      return {
+        text: text.trim(),
+        bg: bg.trim(),
+      };
     }
   
     function syncToolbarFromContext() {
       const ed = activeRichEditor();
       if (ed) {
         const pending = ed.__pendingColorFmt || {};
-        const richFmt = detectWholeNodeColorFmtFromHtml(ed.innerHTML || "", ed.textContent || "");
-  
-        const text = pending.text != null && pending.text !== "" ? pending.text : (richFmt.text === "__mixed__" ? "" : richFmt.text);
-        const bg = pending.bg != null && pending.bg !== "" ? pending.bg : (richFmt.bg === "__mixed__" ? "" : richFmt.bg);
-  
+        const caretFmt = getCaretColorFmtInEditor(ed);
+      
+        const text =
+          pending.text != null && pending.text !== ""
+            ? pending.text
+            : caretFmt.text;
+      
+        const bg =
+          pending.bg != null && pending.bg !== ""
+            ? pending.bg
+            : caretFmt.bg;
+      
         window.colorToolsUI?.setTextColor?.(text || "default", false);
         window.colorToolsUI?.setBgColor?.(bg || "transparent", false);
         return;
@@ -625,7 +668,12 @@ const nextHtml = applyColorToWholeHtmlPreservingFmt(
         if (!detail.kind) return;
   
         if (detail.kind === "text") {
-          const v = detail.value === "default" ? "" : detail.value || "";
+          const v =
+            detail.value === "default" ||
+            detail.value === "transparent"
+              ? "#000000"
+              : detail.value || "#000000";
+        
           applyColorToTargets("text", v);
           return;
         }
@@ -664,6 +712,10 @@ const nextHtml = applyColorToWholeHtmlPreservingFmt(
         }
       });
     }
+
+// =========================
+// Color hotkeys
+// =========================
   
     function getColorFromSwatches(selector, index) {
       const dots = Array.from(document.querySelectorAll(selector));
@@ -680,8 +732,9 @@ const nextHtml = applyColorToWholeHtmlPreservingFmt(
     }
     
     function colorByAction(action) {
-      if (Object.prototype.hasOwnProperty.call(TEXT_PRESETS, action)) {
+      if (TEXT_ACTIONS.includes(action)) {
         const index = colorIndexFromAction(action, "textColor");
+
         return {
           kind: "text",
           color: getColorFromSwatches(
@@ -690,9 +743,10 @@ const nextHtml = applyColorToWholeHtmlPreservingFmt(
           )
         };
       }
-    
-      if (Object.prototype.hasOwnProperty.call(BG_PRESETS, action)) {
+
+      if (BLOCK_BG_ACTIONS.includes(action)) {
         const index = colorIndexFromAction(action, "bgColor");
+
         return {
           kind: "block",
           color: getColorFromSwatches(
@@ -701,7 +755,7 @@ const nextHtml = applyColorToWholeHtmlPreservingFmt(
           )
         };
       }
-    
+
       return null;
     }
   
@@ -712,7 +766,7 @@ const nextHtml = applyColorToWholeHtmlPreservingFmt(
         if (window.isHotkey(e, action)) return action;
       }
   
-      for (const action of BG_ACTIONS) {
+      for (const action of BLOCK_BG_ACTIONS) {
         if (window.isHotkey(e, action)) return action;
       }
   
@@ -745,13 +799,18 @@ const nextHtml = applyColorToWholeHtmlPreservingFmt(
   
         if (matched.kind === "text") {
           window.colorToolsUI?.setTextColor?.(matched.color || "default", true);
-        } else if (matched.kind === "block") {
+          return;
+        }
+        
+        if (matched.kind === "block") {
           window.colorToolsUI?.setBlockColor?.(matched.color || "transparent", true);
-        } else {
-          window.colorToolsUI?.setBgColor?.(matched.color || "transparent", true);
         }
       }, true);
     }
+
+// =========================
+// Render / history patches
+// =========================
   
     function patchRenderSync() {
       if (typeof window.render !== "function") return;
@@ -788,9 +847,12 @@ const nextHtml = applyColorToWholeHtmlPreservingFmt(
         return originalRestore(JSON.stringify(data));
       };
     }
+
+// =========================
+// Init / public API
+// =========================
   
     function init() {
-      ensureColorStyle();
       bindToolbarEvents();
       installConfigDrivenHotkeys();
       patchRenderSync();
@@ -824,10 +886,6 @@ const nextHtml = applyColorToWholeHtmlPreservingFmt(
       },
       syncToolbar: syncToolbarFromContext,
       matchColorHotkeyAction,
-      presets: {
-        text: { ...TEXT_PRESETS },
-        bg: { ...BG_PRESETS },
-      },
     };
   
     if (document.readyState === "loading") {

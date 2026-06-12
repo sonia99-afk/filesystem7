@@ -16,6 +16,8 @@
   // - Match: ctrlKey on Win/Linux, metaKey on macOS
   const PRIMARY = "Primary";
 
+  const STORAGE_KEY = "org_structure_hotkeys_v1";
+
   const DEFAULTS = {
     // Добавления
     addSibling: "Shift+Enter",
@@ -44,9 +46,12 @@ navRight: "",
     branchMoveLeft: "Shift+Alt+ArrowLeft",
     branchMoveRight: "Shift+Alt+ArrowRight",
 
+    focusIntoObject: "Shift+BracketLeft",
+    focusOutObject: "Shift+BracketRight",
+
     // Перемещение между уровнями
     indent: "",
-outdent: "",
+    outdent: "",
 
     // Диапазон (один уровень)
     rangeUp: "Primary+Alt+Shift+ArrowUp",
@@ -54,7 +59,7 @@ outdent: "",
     rangeClick: "Primary+Alt+Shift+Click",
 
     branchRangeLeft: "Primary+Alt+Shift+ArrowLeft",
-branchRangeRight: "Primary+Alt+Shift+ArrowRight",
+    branchRangeRight: "Primary+Alt+Shift+ArrowRight",
 
     // Глубокое выделение (ветка)
     deepUp: "Primary+ArrowUp",
@@ -86,7 +91,7 @@ branchRangeRight: "Primary+Alt+Shift+ArrowRight",
     redoClick: "",
 
     addCaption: "Alt+Enter",
-addCaptionLineBreak: "Shift+Enter",
+    addCaptionLineBreak: "Shift+Enter",
 
         // Цвет текста
         textColor1: "Primary+1",
@@ -111,11 +116,17 @@ addCaptionLineBreak: "Shift+Enter",
         bgColor8: "Alt+8",
         bgColor9: "Alt+9",
         bgColor0: "Alt+0",
+
+
   };
 
   // Display label for Primary in UI
   function primaryLabel() {
-    return "Ctrl/Cmd";
+    return isMac() ? "Cmd" : "Ctrl";
+  }
+
+  function altLabel() {
+    return isMac() ? "Opt" : "Alt";
   }
 
   function normalizeKeyName(k) {
@@ -132,11 +143,14 @@ addCaptionLineBreak: "Shift+Enter",
     if (raw === "Клик") return "Click";
     // if (raw === "Ё" || raw === "ё") return "ё";
 
-if (isMac()) {
-  if (raw === "\\" || raw === "Ё" || raw === "ё") return "\\";
-} else {
-  if (raw === "`" || raw === "Ё" || raw === "ё") return "`";
-}
+    if (isMac()) {
+      if (raw === "\\" || raw === "Ё" || raw === "ё") return "\\";
+    } else {
+      if (raw === "`" || raw === "Ё" || raw === "ё") return "`";
+    }
+
+    if (raw === "{" || raw === "[") return "BracketLeft";
+    if (raw === "}" || raw === "]") return "BracketRight";
 
     const up = raw.toUpperCase();
 
@@ -202,18 +216,58 @@ if (isMac()) {
     return normalized.join("+");
   }
 
-  let current = Object.fromEntries(
-    Object.entries(DEFAULTS).map(([action, combo]) => [action, normalizeCombo(combo)])
-  );
-
-  function reset() {
-    current = Object.fromEntries(
-      Object.entries(DEFAULTS).map(([action, combo]) => [action, normalizeCombo(combo)])
+  function buildDefaultConfig() {
+    return Object.fromEntries(
+      Object.entries(DEFAULTS).map(([action, combo]) => [
+        action,
+        normalizeCombo(combo),
+      ])
     );
   }
+  
+  function loadSavedConfig() {
+    const base = buildDefaultConfig();
+  
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return base;
+  
+      const saved = JSON.parse(raw);
+      if (!saved || typeof saved !== "object") return base;
+  
+      for (const action of Object.keys(DEFAULTS)) {
+        if (Object.prototype.hasOwnProperty.call(saved, action)) {
+          base[action] = normalizeCombo(saved[action]);
+        }
+      }
+  
+      return base;
+    } catch (_) {
+      return base;
+    }
+  }
+  
+  function saveConfig() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(current));
+    } catch (_) {}
+  }
 
+  let current = loadSavedConfig();
+
+  function reset() {
+    current = buildDefaultConfig();
+  
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch (_) {}
+  }
+  
   function set(action, combo) {
+    if (!Object.prototype.hasOwnProperty.call(DEFAULTS, action)) return;
+  
     current[action] = normalizeCombo(combo);
+    saveConfig();
   }
 
   function get(action) {
@@ -254,6 +308,7 @@ if (isMac()) {
       isMac: isMac(),
       primaryToken: PRIMARY,
       primaryLabel: primaryLabel(),
+      altLabel: altLabel(),
     };
   }
 

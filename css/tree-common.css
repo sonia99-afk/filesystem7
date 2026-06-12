@@ -99,6 +99,11 @@ body.hotkeys-edit-mode #tree .trunk{
     box-sizing: border-box;
   }
 
+  .row[data-id] {
+    scroll-margin-top: 72px;
+    scroll-margin-bottom: 72px;
+  }
+
   
   .row .label{
     min-width: 0;
@@ -152,6 +157,8 @@ body.hotkeys-edit-mode #tree .trunk{
   
   .mut{ opacity:.55; }
 
+
+
   .edit {
     font: inherit;
     border: 1px solid #000;
@@ -184,13 +191,27 @@ body.hotkeys-edit-mode #tree .trunk{
   
     max-width: 520px;
     outline: none;
+
+    min-width: 120px;
+    max-width: 520px;
   }
 
   .edit.edit-rich::-webkit-scrollbar{
     display:none;
   }
 
-
+  .edit.edit-caption {
+    display: inline-block;
+    min-width: 220px;
+    max-width: 900px;
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    vertical-align: top;
+    height: auto;
+    min-height: 1.3em;
+    line-height: 1.3em;
+  }
 
   .caption{
     color: #4d4d4d;
@@ -239,4 +260,8 @@ body.hotkeys-edit-mode #tree .trunk{
   
   .ordinal-number {
     color: #1E06C7;
+  }
+
+  ul.focus-root{
+    padding-left:0;
   }

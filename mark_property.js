@@ -12,7 +12,7 @@
   window.__markHiddenMap = window.__markHiddenMap || Object.create(null);
 
 const hideTimers = Object.create(null);
-const HIDE_DELAY_MS = 2500;
+const HIDE_DELAY_MS = 700;
 
   const DEFAULTS = {
     showMarks: false,
@@ -373,29 +373,41 @@ const isHidden = !!window.__markHiddenMap[row.dataset.id];
       const strikeItem = menu.querySelector('[data-mark-mode="strike"]');
 
       if (hideItem) {
-        hideItem.classList.toggle("is-active", state.hideMarked);
-        setItemText(hideItem, state.hideMarked ? "Показать" : "Скрыть");
+        // setItemText(hideItem, state.hideMarked ? "Показать" : "Скрыть");
+        setItemText(
+          hideItem,
+          state.hideMarked ? UI.labels.marks.show : UI.labels.marks.hide
+        );
         setItemIcon(
           hideItem,
-          state.hideMarked
-            ? '<img src="icons/Показать.png" width="14" height="14">'
-            : '<img src="icons/Скрыть.png" width="14" height="14">'
+          // state.hideMarked
+          //   ? '<img src="icons/Показать.png" width="14" height="14">'
+          //   : '<img src="icons/Скрыть.png" width="14" height="14">'
+                  state.hideMarked
+          ? UI.iconImg(UI.icons.marks.show)
+          : UI.iconImg(UI.icons.marks.hide)
         );
       }
 
-      if (strikeItem) {
-        strikeItem.classList.toggle("is-active", state.strikeMarked);
-      
-        setItemText(
-          strikeItem,
-          state.strikeMarked ? "Не зачёркивать" : "Зачеркнуть"
-        );
+      if (strikeItem) {    
+        // setItemText(
+        //   strikeItem,
+          // state.strikeMarked ? "Не зачёркивать" : "Зачеркнуть"
+          setItemText(
+            strikeItem,
+            state.strikeMarked
+              ? UI.labels.marks.unstrike
+              : UI.labels.marks.strike
+          );
       
         setItemIcon(
           strikeItem,
+          // state.strikeMarked
+          //   ? '<img class="mark-settings-img" src="icons/Текст.png" width="14" height="14">'
+          //   : '<img class="mark-settings-img" src="icons/Зачеркнутный.png" width="14" height="14">'
           state.strikeMarked
-            ? '<img class="mark-settings-img" src="icons/Текст.png" width="14" height="14">'
-            : '<img class="mark-settings-img" src="icons/Зачеркнутный.png" width="14" height="14">'
+            ? UI.iconImg(UI.icons.marks.text, "mark-settings-img")
+            : UI.iconImg(UI.icons.marks.strike, "mark-settings-img")
         );
       }
     }

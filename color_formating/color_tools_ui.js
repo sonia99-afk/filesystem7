@@ -1,4 +1,3 @@
-// color_tools_ui.js
 // Только UI-логика верхнего бара:
 // - выбор активного цвета текста
 // - выбор активного цвета подложки
@@ -99,10 +98,8 @@
 
     const menu = document.createElement("div");
     menu.className = "color-delete-menu";
-    menu.style.position = "absolute";
     menu.style.left = x + "px";
     menu.style.top = y + "px";
-    menu.style.zIndex = "9999";
 
     menu.innerHTML = `
       <button class="delete-btn" type="button">

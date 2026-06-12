@@ -214,6 +214,10 @@
     width: 20px;
     height: 20px;
   
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  
     border: 1px dashed #b5b5b5;
     border-radius: 3px;
   
@@ -222,9 +226,6 @@
   
     padding: 0;
     margin: 0;
-  
-    line-height: 19px;
-    font-size: 18px;
   
     cursor: pointer;
     box-sizing: border-box;
@@ -297,3 +298,18 @@
     align-items: center;
     gap: 6px;
   }
+
+
+   /* =========================
+   rich text colors
+   ========================= */
+
+    .rt-color {
+      color: var(--rt-color);
+      text-decoration-color: currentColor;
+    }
+
+    .rt-bg {
+      background-color: var(--rt-bg);
+      padding: 0;
+    }
