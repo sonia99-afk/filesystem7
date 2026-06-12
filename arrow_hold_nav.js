@@ -211,19 +211,16 @@
       // не запускаем свой setInterval, потому что на Mac keyup иногда теряется
       // и кастомный repeat может "залипнуть".
       // Используем только реальные repeat-события браузера.
-      // if (isMacPlatform() && e.metaKey) {
-      //   stop();
-
-      //   e.preventDefault();
-      //   e.stopPropagation();
-      //   e.stopImmediatePropagation?.();
-
-      //   if (e.repeat) {
-      //     runAction(action);
-      //   }
-
-      //   return;
-      // }
+      if (isMacPlatform() && e.metaKey) {
+        stop();
+        e.preventDefault();
+      
+        if (e.repeat) {
+          runAction(action);
+        }
+      
+        return;
+      }
 
       if (e.code) downKeys.add(e.code);
 
