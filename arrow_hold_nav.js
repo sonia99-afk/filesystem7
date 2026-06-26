@@ -202,30 +202,30 @@
     "keydown",
     (e) => {
       if (isTypingTarget(e.target)) return;
-
+  
+      const isVerticalArrow =
+        e.code === "ArrowUp" ||
+        e.code === "ArrowDown" ||
+        e.key === "ArrowUp" ||
+        e.key === "ArrowDown";
+  
+      // ВАЖНО:
+      // делаем preventDefault ДО resolveArrowActionFromEvent(),
+      // потому что на повторных keydown isHotkey() возвращает false из-за e.repeat.
+      if (isVerticalArrow && canRunNow()) {
+        e.preventDefault();
+      }
+  
       const action = resolveArrowActionFromEvent(e);
       if (!action) return;
       if (!canRunNow()) return;
-
-      // macOS + Cmd/Meta + стрелки:
-      // не запускаем свой setInterval, потому что на Mac keyup иногда теряется
-      // и кастомный repeat может "залипнуть".
-      // Используем только реальные repeat-события браузера.
-      if (isMacPlatform() && e.metaKey) {
-        stop();
-        e.preventDefault();
-      
-        if (e.repeat) {
-          runAction(action);
-        }
-      
-        return;
-      }
-
+  
+      e.preventDefault();
+  
       if (e.code) downKeys.add(e.code);
-
+  
       if (e.repeat) return;
-
+  
       startRepeat(action, e.code);
     },
     true

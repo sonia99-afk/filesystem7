@@ -17,10 +17,47 @@
     mode: MODES.HEADER_ROW,
   };
 
+  const STORAGE_KEY = "org_structure_level_headers_v1";
+
   const state = {
     enabled: DEFAULTS.enabled,
     mode: DEFAULTS.mode,
   };
+
+  function loadSavedState() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+  
+      const saved = JSON.parse(raw);
+      if (!saved || typeof saved !== "object") return;
+  
+      if (typeof saved.enabled === "boolean") {
+        state.enabled = saved.enabled;
+      }
+  
+      if (Object.values(MODES).includes(saved.mode)) {
+        state.mode = saved.mode;
+      }
+  
+      if (saved.names && typeof saved.names === "object") {
+        window.__levelHeaderNames = { ...saved.names };
+      }
+    } catch (_) {}
+  }
+  
+  function saveState() {
+    try {
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify({
+          enabled: state.enabled,
+          mode: state.mode,
+          names: window.__levelHeaderNames || {},
+        })
+      );
+    } catch (_) {}
+  }
 
   function getToggleBtn() {
     return document.getElementById("toggleLevelHeaders");
@@ -63,6 +100,7 @@
     if (!state.enabled) closeMenu();
 
     syncToolbar();
+    saveState();
 
     if (typeof render === "function") {
       render();
@@ -78,6 +116,7 @@
 
     state.mode = mode;
     syncToolbar();
+    saveState();
 
     if (typeof render === "function") {
       render();
@@ -168,7 +207,47 @@
 
   function setLevelTitle(level, title) {
     window.__levelHeaderNames ||= Object.create(null);
-    window.__levelHeaderNames[level] = String(title ?? "");
+  
+    const oldDefaultTitle =
+      window.__levelHeaderNames[level] ??
+      DEFAULT_NAME?.[level] ??
+      `Уровень ${level}`;
+  
+    const rawValue = String(title ?? "");
+  
+    const newTitle =
+      rawValue === ""
+        ? (DEFAULT_NAME?.[level] ?? `Уровень ${level}`)
+        : rawValue;
+  
+    if (rawValue === "") {
+      delete window.__levelHeaderNames[level];
+    } else {
+      window.__levelHeaderNames[level] = rawValue;
+    }
+  
+    updateDefaultNamedNodes(level, oldDefaultTitle, newTitle);
+    saveState();
+  }
+
+  function updateDefaultNamedNodes(level, oldTitle, newTitle) {
+    if (!root) return;
+  
+    (function walk(node) {
+      if (!node) return;
+  
+      if (
+        node.level === Number(level) &&
+        !node.nameHtml &&
+        (node.name === oldTitle ||
+          node.name === DEFAULT_NAME?.[level] ||
+          node.name === `Уровень ${level}`)
+      ) {
+        node.name = newTitle;
+      }
+  
+      (node.children || []).forEach(walk);
+    })(root);
   }
 
   function getLevelTitle(level) {
@@ -710,6 +789,7 @@ layout.className = "table-with-level-headers level-headers-table-mounted";
   }
 
   function init() {
+    loadSavedState();
     bindToolbar();
     patchRenderOnce();
 

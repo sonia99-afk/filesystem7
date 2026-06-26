@@ -20,6 +20,8 @@
   
       const childId = firstChildOf(selectedId);
       if (!childId) return false;
+
+      if (!window.objectFocus?.isInsideFocusedRoot?.(childId)) return;
   
       selectedId = childId;
       treeHasFocus = true;
@@ -32,6 +34,8 @@
   
       const p = parentOf(selectedId);
       if (!p) return false;
+
+      if (!window.objectFocus?.isInsideFocusedRoot?.(p)) return;
   
       selectedId = p;
       treeHasFocus = true;

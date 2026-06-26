@@ -97,16 +97,30 @@ function startRename(id) {
     done = true;
 
     const next = getNormalizedValue();
-    const nextText = (next.text || "").trim();
+
+const editorText = ed.textContent ?? "";
+const nextText = editorText === "" ? "" : (next.text || "");
     const prevText = node.name || "";
     const prevHtml = node.nameHtml || "";
 
-    if (!nextText) {
-      renamingId = null;
-      window.__renameFmtSession = null;
-      render();
-      return;
-    }
+    if (nextText === "") {
+  const fallbackName =
+    window.levelHeaders?.getLevelTitle?.(node.level) ||
+    DEFAULT_NAME?.[node.level] ||
+    `Уровень ${node.level}`;
+
+  if (node.name !== fallbackName || node.nameHtml) {
+    if (typeof pushHistory === "function") pushHistory();
+
+    node.name = fallbackName;
+    node.nameHtml = "";
+  }
+
+  renamingId = null;
+  window.__renameFmtSession = null;
+  render();
+  return;
+}
 
     const htmlChanged = (next.html || "") !== prevHtml;
     const textChanged = nextText !== prevText;

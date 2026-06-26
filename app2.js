@@ -813,27 +813,42 @@ function getMaxLevelInSubtree(node) {
 
 /* ======== Navigation ======== */
 
+// function moveSelection(dir) {
+//   const displayRoot =
+//     window.objectFocus?.getFocusedRootNode?.() || root;
+
+//   const out = [];
+
+//   (function walk(n) {
+//     out.push(n.id);
+//     for (const ch of (n.children || [])) walk(ch);
+//   })(displayRoot);
+
+//   const idx = out.indexOf(selectedId);
+//   if (idx < 0) {
+//     selectedId = displayRoot.id;
+//     treeHasFocus = true;
+//     render();
+//     return;
+//   }
+
+//   const next = out[idx + dir];
+//   if (!next) return;
+
+//   selectedId = next;
+//   treeHasFocus = true;
+//   render();
+// }
+
 function moveSelection(dir) {
-  const displayRoot =
-    window.objectFocus?.getFocusedRootNode?.() || root;
+  const flat = flatten();
+  const idx = flat.indexOf(selectedId);
+  if (idx < 0) return;
 
-  const out = [];
-
-  (function walk(n) {
-    out.push(n.id);
-    for (const ch of (n.children || [])) walk(ch);
-  })(displayRoot);
-
-  const idx = out.indexOf(selectedId);
-  if (idx < 0) {
-    selectedId = displayRoot.id;
-    treeHasFocus = true;
-    render();
-    return;
-  }
-
-  const next = out[idx + dir];
+  const next = flat[idx + dir];
   if (!next) return;
+
+  if (!window.objectFocus?.isInsideFocusedRoot?.(next)) return;
 
   selectedId = next;
   treeHasFocus = true;
@@ -843,6 +858,9 @@ function moveSelection(dir) {
 function goParent(fromId) {
   const p = parentOf(fromId);
   if (!p) return;
+
+  if (!window.objectFocus?.isInsideFocusedRoot?.(p)) return;
+
   selectedId = p;
   treeHasFocus = true;
   render();
@@ -850,14 +868,19 @@ function goParent(fromId) {
 
 function goDeeper(fromId) {
   const direct = firstChildOf(fromId);
-  if (direct) {
+
+  if (direct && window.objectFocus?.isInsideFocusedRoot?.(direct)) {
     selectedId = direct;
     treeHasFocus = true;
     render();
     return;
   }
+
   const deeper = firstDeeperAfter(fromId);
+
   if (!deeper) return;
+  if (!window.objectFocus?.isInsideFocusedRoot?.(deeper)) return;
+
   selectedId = deeper;
   treeHasFocus = true;
   render();
@@ -865,12 +888,54 @@ function goDeeper(fromId) {
 
 /* ======== Render ======== */
 
+// function focusSelectedRow() {
+//   if (!treeHasFocus) return;
+//   const host = document.getElementById('tree');
+//   const r = host.querySelector(`.row[data-id="${cssEscape(selectedId)}"]`);
+//   if (!r) return;
+//   r.focus({ preventScroll: true });
+// }
+
 function focusSelectedRow() {
   if (!treeHasFocus) return;
-  const host = document.getElementById('tree');
+
+  const host = document.getElementById("tree");
   const r = host.querySelector(`.row[data-id="${cssEscape(selectedId)}"]`);
+
   if (!r) return;
+
   r.focus({ preventScroll: true });
+}
+
+let __selectedScrollRaf = null;
+
+function scrollSelectedIntoView() {
+  if (!selectedId) return;
+
+  const tree = document.getElementById("tree");
+  if (!tree) return;
+
+  if (__selectedScrollRaf) {
+    cancelAnimationFrame(__selectedScrollRaf);
+  }
+
+  __selectedScrollRaf = requestAnimationFrame(() => {
+    __selectedScrollRaf = null;
+
+    const safeId = cssEscape(selectedId);
+
+    const el =
+      tree.querySelector(`.row[data-id="${safeId}"]`) ||
+      tree.querySelector(`[data-id="${safeId}"]`);
+
+    if (!el || !el.getClientRects().length) return;
+
+    el.scrollIntoView({
+      block: "nearest",
+      inline: "nearest",
+      behavior: "auto",
+    });
+  });
 }
 
 function syncProjectsSidebar() {
@@ -952,6 +1017,8 @@ function renderSchemaView() {
 
   applyCaptionOrdinalOffsets();
   layoutTrunks();
+  layoutCollapseColumn();
+  layoutLevelCollapseBar();
 
   requestAnimationFrame(() => {
     window.levelHeaders?.alignHeaderRowForSchema?.();
@@ -983,6 +1050,7 @@ function renderSchemaView() {
 
 function render() {
   updateDirectionButtons();
+
   if (currentView === VIEW.HIERARCHY) {
     if (viewOrientation === VIEW_ORIENTATION.HORIZONTAL) {
       window.renderHierarchyHorizontalView?.();
@@ -991,6 +1059,7 @@ function render() {
     }
 
     syncViewOrientationButtons();
+    scrollSelectedIntoView();
     return;
   }
 
@@ -1000,22 +1069,26 @@ function render() {
     } else {
       window.renderIcicleHorizontalView?.();
     }
-  
+
     syncViewOrientationButtons();
+    scrollSelectedIntoView();
     return;
   }
 
   if (currentView === VIEW.TABLE) {
     window.renderTableView?.();
+    scrollSelectedIntoView();
     return;
   }
 
   if (currentView === VIEW.LIST) {
     window.renderListView?.();
+    scrollSelectedIntoView();
     return;
   }
 
   renderSchemaView();
+  scrollSelectedIntoView();
 }
 
 function isTreeLocked() {
@@ -1205,8 +1278,6 @@ function renderNode(n, ordinalPath = [], options = {}) {
   const anchor = document.createElement('span');
   anchor.className = 'anchor';
   li.appendChild(anchor);
-
-  
 
   const row = document.createElement('span');
   row.dataset.id = n.id;
@@ -1407,7 +1478,13 @@ row.appendChild(label);
 
   renderCaptions(n, li);
 
-  if (n.children && n.children.length) {
+  const collapsed = window.collapseNodes?.isCollapsed(n.id);
+
+if (
+  n.children &&
+  n.children.length &&
+  !collapsed
+) {
     const ul = document.createElement('ul');
     ul.dataset.level = String(n.level + 1);
     n.children.forEach((ch, index) => {
@@ -1420,124 +1497,114 @@ row.appendChild(label);
 }
 
 /* ======== layout lines ======== */
+function layoutCollapseColumn() {
+  const tree = document.getElementById("tree");
+  if (!tree) return;
 
-function layoutTrunks() {
-  const uls = document.querySelectorAll('ul[data-level]');
+  tree.querySelectorAll(".collapse-col").forEach((el) => el.remove());
 
-  // 1) Вертикальные trunk-линии внутри каждого списка уровня
-  for (const ul of uls) {
-    ul.querySelectorAll(':scope > .trunk').forEach(el => el.remove());
+  const treeBox = tree.getBoundingClientRect();
+  const rows = Array.from(tree.querySelectorAll(".row[data-id]"))
+  .filter((row) => {
+    const found = findWithParent(root, row.dataset.id);
+    return !!found?.node?.children?.length;
+  });
 
-    const lvl = ul.dataset.level;
-    if (lvl === '0') continue;
+  rows.forEach((row) => {
+    const id = row.dataset.id;
+  
+    const col = document.createElement("button");
+    col.type = "button";
+    col.className = "collapse-col";
+    col.dataset.id = id;
 
-    const items = Array.from(ul.children).filter(el => el.tagName === 'LI');
-    if (items.length === 0) continue;
-
-    const first = items[0].querySelector(':scope > .anchor');
-    const last = items[items.length - 1].querySelector(':scope > .anchor');
-    if (!first || !last) continue;
-
-    const ulBox = ul.getBoundingClientRect();
-    const fBox = first.getBoundingClientRect();
-    const lBox = last.getBoundingClientRect();
-
-    const top = (fBox.top - ulBox.top);
-    const height = (lBox.top - ulBox.top) - top;
-
-    const trunk = document.createElement('div');
-    trunk.className = 'trunk';
-    trunk.style.top = top + 'px';
-    trunk.style.height = Math.max(0, height) + 'px';
-    ul.prepend(trunk);
-  }
-
-  // 2) Вертикальные plink-линии от родителя к блоку детей
-  document.querySelectorAll('.plink').forEach(el => el.remove());
-
-  const lis = document.querySelectorAll('li');
-
-  for (const li of lis) {
-    const childUl = li.querySelector(':scope > ul[data-level]');
-    if (!childUl) continue;
-
-    const parentAnchor = li.querySelector(':scope > .anchor');
-    if (!parentAnchor) continue;
-
-    // const items = Array.from(childUl.children).filter(el => el.tagName === 'LI');
-    // if (items.length === 0) continue;
-
-    // const firstChildAnchor = items[0].querySelector(':scope > .anchor');
-    const visibleChildren = Array.from(childUl.children)
-  .filter(el =>
-    el.tagName === 'LI' &&
-    !el.classList.contains('mark-hidden-object')
-  );
-
-if (visibleChildren.length === 0) {
-  continue;
-}
-
-const firstChildAnchor =
-  visibleChildren[0].querySelector(':scope > .anchor');
-
-
-
-
-    if (!firstChildAnchor) continue;
-
-    const liBox = li.getBoundingClientRect();
-    const pBox = parentAnchor.getBoundingClientRect();
-    const cBox = firstChildAnchor.getBoundingClientRect();
-    const ulBox = childUl.getBoundingClientRect();
-
-    const cs = getComputedStyle(childUl);
-    const trunkX = parseFloat(cs.getPropertyValue('--trunk-x')) || 0;
-    const shift = parseFloat(cs.getPropertyValue('--trunk-shift')) || 0;
-    const x = (ulBox.left - liBox.left) + trunkX + shift;
-
-    // 👇 ВОТ ГЛАВНОЕ
-const parentStartY = (pBox.top - liBox.top) + 12;
-
-const caps = li.querySelector(':scope > .captions');
-
-let startY;
-
-if (caps && li.classList.contains("root")) {
-  const capsBox = caps.getBoundingClientRect();
-  const capsBottomY = capsBox.bottom - liBox.top;
-
-  startY = Math.max(parentStartY, capsBottomY);
-} else if (!document.body.classList.contains("ordinals-on") && caps) {
-  const capsBox = caps.getBoundingClientRect();
-  const capsBottomY = capsBox.bottom - liBox.top;
-
-  startY = Math.max(parentStartY, capsBottomY);
-} else {
-  startY = parentStartY;
-}
-
-// конец линии как был
-const endY = cBox.top - liBox.top;
-
-    const plink = document.createElement('div');
-    plink.className = 'plink';
-    plink.style.left = x + 'px';
-
-    if (endY >= startY) { 
-      plink.style.top = startY + 'px'; 
-      plink.style.height = Math.max(0, endY - startY + 1) + 'px'; 
-    } else { 
-        plink.style.top = endY + 'px'; 
-        plink.style.height = Math.max(0, startY - endY + 1) + 'px'; 
+    row.addEventListener("mouseenter", () => {
+      col.classList.add("is-visible");
+    });
+    
+    row.addEventListener("mouseleave", () => {
+      if (!col.matches(":hover")) {
+        col.classList.remove("is-visible");
       }
+    });
+    
+    col.addEventListener("mouseleave", () => {
+      col.classList.remove("is-visible");
+    });
+  
+    col.textContent =
+      window.collapseNodes?.isCollapsed?.(id) ? "[+]" : "[-]";
+  
+    col.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+  
+      window.collapseNodes?.toggle?.(id);
+    });
+  
+    const rowBox = row.getBoundingClientRect();
+    col.style.top = `${Math.round(rowBox.top - treeBox.top)}px`;
+  
+    tree.appendChild(col);
+  });
+}
 
-      if (!visibleChildren.length) {
-        plink.style.display = 'none';
+function layoutLevelCollapseBar() {
+  const tree = document.getElementById("tree");
+  if (!tree) return;
+
+  tree.querySelector(".level-collapse-bar")?.remove();
+
+  const levels = new Set();
+
+  (function walk(node) {
+    if (!node) return;
+
+    if (node.children?.length) {
+      levels.add(node.level);
     }
 
-    li.prepend(plink);
-  }
+    (node.children || []).forEach(walk);
+  })(root);
+
+  if (!levels.size) return;
+
+  const bar = document.createElement("div");
+  bar.className = "level-collapse-bar";
+
+  [...levels].sort((a, b) => a - b).forEach((level) => {
+    const isCollapsed =
+      window.collapseNodes?.isLevelCollapsed?.(level);
+
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "level-collapse-btn";
+
+    btn.textContent = isCollapsed ? "[+]" : "[-]";
+
+    btn.title = isCollapsed
+      ? `Развернуть уровень ${level}`
+      : `Свернуть уровень ${level}`;
+
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      if (window.collapseNodes?.isLevelCollapsed?.(level)) {
+        window.collapseNodes?.expandLevel?.(level);
+      } else {
+        window.collapseNodes?.collapseLevel?.(level);
+      }
+    });
+
+    bar.appendChild(btn);
+  });
+
+  tree.prepend(bar);
+}
+
+function layoutTrunks() {
+  window.schemaLines?.layout?.();
 }
 
 /* ======== focus / global hotkeys ======== */

@@ -48,6 +48,8 @@
   
       const nextId = ids[idx + dir];
       if (!nextId) return false;
+
+      if (!window.objectFocus?.isInsideFocusedRoot?.(nextId)) return;
   
       selectedId = nextId;
       treeHasFocus = true;

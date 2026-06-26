@@ -371,6 +371,7 @@ const isHidden = !!window.__markHiddenMap[row.dataset.id];
     if (menu) {
       const hideItem = menu.querySelector('[data-mark-mode="hide"]');
       const strikeItem = menu.querySelector('[data-mark-mode="strike"]');
+      const strikeDisabled = state.hideMarked;
 
       if (hideItem) {
         // setItemText(hideItem, state.hideMarked ? "Показать" : "Скрыть");
@@ -409,6 +410,12 @@ const isHidden = !!window.__markHiddenMap[row.dataset.id];
             ? UI.iconImg(UI.icons.marks.text, "mark-settings-img")
             : UI.iconImg(UI.icons.marks.strike, "mark-settings-img")
         );
+
+        strikeItem.classList.toggle("is-disabled", strikeDisabled);
+        strikeItem.setAttribute(
+          "aria-disabled",
+          strikeDisabled ? "true" : "false"
+        );
       }
     }
   }
@@ -446,6 +453,13 @@ const isHidden = !!window.__markHiddenMap[row.dataset.id];
         if (!item) return;
 
         const action = item.dataset.markMode;
+
+        if (
+          item.classList.contains("is-disabled") ||
+          item.getAttribute("aria-disabled") === "true"
+        ) {
+          return;
+        }
 
         if (action === "hide") toggleHideMarked();
         if (action === "strike") toggleStrikeMarked();

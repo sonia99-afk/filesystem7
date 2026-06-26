@@ -161,7 +161,7 @@ td.editing {
   }
   
   #hotkeysResetBtn {
-    margin-left: 21px;
+    margin-left: 92px;
   }
 
   /* =========================
@@ -210,5 +210,6 @@ td.editing {
   }
   
   .hk-stay {
-    margin-right: 21px;
+    margin-right: 10px;
+    margin-left: 92px;
   }

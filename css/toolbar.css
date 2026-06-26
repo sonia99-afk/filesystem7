@@ -121,6 +121,7 @@
   .hierarchy-orientation-switcher {
     display: inline-flex;
     margin-left: 21px;
+    margin-right: 21px;
   }
   
   .hierarchy-orientation-switcher .btnn:first-child {
@@ -163,7 +164,7 @@
   }
   
   .formatblock > .btnn:nth-child(4) {
-    margin-right: 21px;
+    margin-right: 0px;
   }
 
 
@@ -236,16 +237,6 @@
   
 /* Что-то такое у кнопок */
 
-.save {
-    border-right: none;
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
-  }
-  
-  .dontsave {
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
-  }
 
   /* новая панесь с цветом */
 

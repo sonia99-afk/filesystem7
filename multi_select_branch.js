@@ -15,6 +15,7 @@
   const state = {
     ids: new Set(),
     anchorId: null,
+    activeId: null,
     branchKey: null,
   };
 
@@ -99,6 +100,7 @@
   function reset() {
     state.ids.clear();
     state.anchorId = null;
+    state.activeId = null;
     state.branchKey = null;
   }
 
@@ -144,63 +146,119 @@
     window.render.__multiBranchPatchedV2 = true;
   }
 
+  // function handleBranchRangeKey(dir) {
+  //   const cur = selectedRow();
+  //   if (!cur) return;
+
+  //   if (!state.anchorId) {
+  //     state.anchorId = cur.dataset.id;
+  //     state.branchKey = branchKeyForRow(cur);
+
+  //     const list = rowsInBranchChain(state.branchKey);
+  //     const idx = list.indexOf(cur);
+  //     if (idx < 0) return;
+
+  //     const next = list[idx + dir];
+  //     if (!next) return;
+
+  //     const ia = list.indexOf(cur);
+  //     const ib = list.indexOf(next);
+  //     const from = Math.min(ia, ib);
+  //     const to = Math.max(ia, ib);
+
+  //     state.ids = new Set(list.slice(from, to + 1).map((r) => r.dataset.id));
+
+  //     focusAnchor();
+  //     applyClasses();
+  //     return;
+  //   }
+
+  //   const list = rowsInBranchChain(state.branchKey);
+  //   const anchor = rowById(state.anchorId) || cur;
+  //   const anchorIndex = list.indexOf(anchor);
+
+  //   if (anchorIndex < 0) return;
+
+  //   const selectedRows = Array.from(state.ids)
+  //     .map((id) => rowById(id))
+  //     .filter(Boolean);
+
+  //   const selectedIndexes = selectedRows
+  //     .map((r) => list.indexOf(r))
+  //     .filter((i) => i >= 0);
+
+  //   if (!selectedIndexes.length) return;
+
+  //   const currentEdgeIndex =
+  //     dir > 0
+  //       ? Math.max(...selectedIndexes)
+  //       : Math.min(...selectedIndexes);
+
+  //   const nextEdge = list[currentEdgeIndex + dir];
+  //   if (!nextEdge) return;
+
+  //   const edgeIndex = list.indexOf(nextEdge);
+  //   const from = Math.min(anchorIndex, edgeIndex);
+  //   const to = Math.max(anchorIndex, edgeIndex);
+
+  //   state.ids = new Set(list.slice(from, to + 1).map((r) => r.dataset.id));
+
+  //   focusAnchor();
+  //   applyClasses();
+  // }
+
   function handleBranchRangeKey(dir) {
     const cur = selectedRow();
     if (!cur) return;
-
+  
+    const branchKey = branchKeyForRow(cur);
+    const list = rowsInBranchChain(branchKey);
+    const idx = list.indexOf(cur);
+  
+    if (idx < 0) return;
+  
     if (!state.anchorId) {
-      state.anchorId = cur.dataset.id;
-      state.branchKey = branchKeyForRow(cur);
-
-      const list = rowsInBranchChain(state.branchKey);
-      const idx = list.indexOf(cur);
-      if (idx < 0) return;
-
       const next = list[idx + dir];
       if (!next) return;
-
-      const ia = list.indexOf(cur);
-      const ib = list.indexOf(next);
-      const from = Math.min(ia, ib);
-      const to = Math.max(ia, ib);
-
-      state.ids = new Set(list.slice(from, to + 1).map((r) => r.dataset.id));
-
+  
+      state.anchorId = cur.dataset.id;
+      state.activeId = next.dataset.id;
+      state.branchKey = branchKey;
+  
+      const from = Math.min(idx, idx + dir);
+      const to = Math.max(idx, idx + dir);
+  
+      state.ids = new Set(
+        list.slice(from, to + 1).map((r) => r.dataset.id)
+      );
+  
       focusAnchor();
       applyClasses();
       return;
     }
-
-    const list = rowsInBranchChain(state.branchKey);
+  
     const anchor = rowById(state.anchorId) || cur;
+    const active = rowById(state.activeId) || anchor;
+  
     const anchorIndex = list.indexOf(anchor);
-
-    if (anchorIndex < 0) return;
-
-    const selectedRows = Array.from(state.ids)
-      .map((id) => rowById(id))
-      .filter(Boolean);
-
-    const selectedIndexes = selectedRows
-      .map((r) => list.indexOf(r))
-      .filter((i) => i >= 0);
-
-    if (!selectedIndexes.length) return;
-
-    const currentEdgeIndex =
-      dir > 0
-        ? Math.max(...selectedIndexes)
-        : Math.min(...selectedIndexes);
-
-    const nextEdge = list[currentEdgeIndex + dir];
-    if (!nextEdge) return;
-
-    const edgeIndex = list.indexOf(nextEdge);
-    const from = Math.min(anchorIndex, edgeIndex);
-    const to = Math.max(anchorIndex, edgeIndex);
-
-    state.ids = new Set(list.slice(from, to + 1).map((r) => r.dataset.id));
-
+    const activeIndex = list.indexOf(active);
+  
+    if (anchorIndex < 0 || activeIndex < 0) return;
+  
+    const nextActive = list[activeIndex + dir];
+    if (!nextActive) return;
+  
+    state.activeId = nextActive.dataset.id;
+  
+    const nextActiveIndex = list.indexOf(nextActive);
+  
+    const from = Math.min(anchorIndex, nextActiveIndex);
+    const to = Math.max(anchorIndex, nextActiveIndex);
+  
+    state.ids = new Set(
+      list.slice(from, to + 1).map((r) => r.dataset.id)
+    );
+  
     focusAnchor();
     applyClasses();
   }
@@ -299,6 +357,7 @@
       return {
         branchKey: state.branchKey,
         anchorId: state.anchorId,
+        activeId: state.activeId,
         ids: Array.from(state.ids),
       };
     },

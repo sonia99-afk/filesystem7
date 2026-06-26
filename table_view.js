@@ -44,6 +44,8 @@
       table.appendChild(tbody);
       wrap.appendChild(table);
       host.appendChild(wrap);
+
+      layoutTableCollapseColumn(host, wrap);
   
       if (treeHasFocus) {
         const selectedRow = host.querySelector(`.row[data-id="${cssEscape(selectedId)}"]`);
@@ -51,15 +53,70 @@
       }
     };
 
+
+    function layoutTableCollapseColumn(host, wrap) {
+      host.querySelectorAll(".table-collapse-col").forEach((el) => el.remove());
+    
+      const hostBox = host.getBoundingClientRect();
+    
+      wrap.querySelectorAll(".row[data-id]").forEach((row) => {
+        const id = row.dataset.id;
+        const found = findWithParent(root, id);
+    
+        if (!found?.node?.children?.length) return;
+    
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "table-collapse-col";
+        btn.dataset.id = id;
+        btn.textContent =
+          window.collapseNodes?.isCollapsed?.(id) ? "[+]" : "[-]";
+
+          row.addEventListener("mouseenter", () => {
+            btn.classList.add("is-visible");
+          });
+          
+          row.addEventListener("mouseleave", () => {
+            if (!btn.matches(":hover")) {
+              btn.classList.remove("is-visible");
+            }
+          });
+          
+          btn.addEventListener("mouseleave", () => {
+            btn.classList.remove("is-visible");
+          });
+    
+        btn.addEventListener("click", (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          selectedId = id;
+          treeHasFocus = true;
+          window.collapseNodes?.toggle?.(id);
+        });
+    
+        const rowBox = row.getBoundingClientRect();
+        btn.style.top = `${Math.round(rowBox.top - hostBox.top)}px`;
+    
+        host.appendChild(btn);
+      });
+    }
+
     
   
     function flattenTableRows(node, ordinalPath = [], out = []) {
       out.push({ node, ordinalPath });
-  
+    
+      const collapsed =
+        window.collapseNodes?.isCollapsed?.(node.id);
+    
+      if (collapsed) {
+        return out;
+      }
+    
       (node.children || []).forEach((child, index) => {
         flattenTableRows(child, ordinalPath.concat(index + 1), out);
       });
-  
+    
       return out;
     }
   

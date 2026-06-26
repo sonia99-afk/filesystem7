@@ -251,6 +251,31 @@
     });
   }
 
+  function isInsideFocusedRoot(id) {
+    if (!focusedRootId || focusedRootId === root.id) return true;
+    if (!id) return false;
+  
+    if (id === focusedRootId) return true;
+  
+    const focused = findWithParent(root, focusedRootId)?.node;
+    if (!focused) return true;
+  
+    let ok = false;
+  
+    (function walk(node) {
+      if (!node || ok) return;
+  
+      if (node.id === id) {
+        ok = true;
+        return;
+      }
+  
+      (node.children || []).forEach(walk);
+    })(focused);
+  
+    return ok;
+  }
+
   window.addEventListener(
     "keydown",
     (e) => {
@@ -297,6 +322,7 @@
   });
 
   window.objectFocus = {
+    isInsideFocusedRoot,
     getFocusedRootId,
     getFocusedRootNode,
     getFocusedRootOrdinalPath,

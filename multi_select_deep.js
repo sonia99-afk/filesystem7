@@ -19,6 +19,7 @@
   const state = {
     ids: new Set(),
     anchorId: null,
+    activeId: null,
     blockKey: null,
   };
 
@@ -107,6 +108,7 @@
   function reset() {
     state.ids.clear();
     state.anchorId = null;
+    state.activeId = null;
     state.blockKey = null;
   }
 
@@ -200,65 +202,121 @@
   }
 
   // ---- deepUp / deepDown ----
+  // function handleDeepRangeKey(dir) {
+  //   const cur = selectedRow();
+  //   if (!cur) return;
+
+  //   const bk = blockKeyForRow(cur);
+
+  //   if (!state.anchorId || state.blockKey !== bk) {
+  //     state.blockKey = bk;
+  //     state.anchorId = cur.dataset.id;
+
+  //     const list = rowsInBlock(state.blockKey);
+  //     const idx = list.indexOf(cur);
+  //     if (idx < 0) return;
+
+  //     const next = list[idx + dir];
+  //     if (!next) return;
+
+  //     const ia = list.indexOf(cur);
+  //     const ib = list.indexOf(next);
+  //     const from = Math.min(ia, ib);
+  //     const to = Math.max(ia, ib);
+
+  //     state.ids = new Set(list.slice(from, to + 1).map((r) => r.dataset.id));
+
+  //     focusAnchor();
+  //     applyClasses();
+  //     return;
+  //   }
+
+  //   const list = rowsInBlock(state.blockKey);
+  //   const anchor = rowById(state.anchorId) || cur;
+  //   const anchorIndex = list.indexOf(anchor);
+
+  //   if (anchorIndex < 0) return;
+
+  //   const selectedRows = Array.from(state.ids)
+  //     .map((id) => rowById(id))
+  //     .filter(Boolean);
+
+  //   const selectedIndexes = selectedRows
+  //     .map((r) => list.indexOf(r))
+  //     .filter((i) => i >= 0);
+
+  //   if (!selectedIndexes.length) return;
+
+  //   const currentEdgeIndex =
+  //     dir > 0
+  //       ? Math.max(...selectedIndexes)
+  //       : Math.min(...selectedIndexes);
+
+  //   const nextEdge = list[currentEdgeIndex + dir];
+  //   if (!nextEdge) return;
+
+  //   const edgeIndex = list.indexOf(nextEdge);
+  //   const from = Math.min(anchorIndex, edgeIndex);
+  //   const to = Math.max(anchorIndex, edgeIndex);
+
+  //   state.ids = new Set(list.slice(from, to + 1).map((r) => r.dataset.id));
+
+  //   focusAnchor();
+  //   applyClasses();
+  // }
+
   function handleDeepRangeKey(dir) {
     const cur = selectedRow();
     if (!cur) return;
-
+  
     const bk = blockKeyForRow(cur);
-
+    const list = rowsInBlock(bk);
+    const idx = list.indexOf(cur);
+  
+    if (idx < 0) return;
+  
     if (!state.anchorId || state.blockKey !== bk) {
-      state.blockKey = bk;
-      state.anchorId = cur.dataset.id;
-
-      const list = rowsInBlock(state.blockKey);
-      const idx = list.indexOf(cur);
-      if (idx < 0) return;
-
       const next = list[idx + dir];
       if (!next) return;
-
-      const ia = list.indexOf(cur);
-      const ib = list.indexOf(next);
-      const from = Math.min(ia, ib);
-      const to = Math.max(ia, ib);
-
-      state.ids = new Set(list.slice(from, to + 1).map((r) => r.dataset.id));
-
+  
+      state.blockKey = bk;
+      state.anchorId = cur.dataset.id;
+      state.activeId = next.dataset.id;
+  
+      const from = Math.min(idx, idx + dir);
+      const to = Math.max(idx, idx + dir);
+  
+      state.ids = new Set(
+        list.slice(from, to + 1).map((r) => r.dataset.id)
+      );
+  
       focusAnchor();
       applyClasses();
       return;
     }
-
-    const list = rowsInBlock(state.blockKey);
+  
     const anchor = rowById(state.anchorId) || cur;
+    const active = rowById(state.activeId) || anchor;
+  
     const anchorIndex = list.indexOf(anchor);
-
-    if (anchorIndex < 0) return;
-
-    const selectedRows = Array.from(state.ids)
-      .map((id) => rowById(id))
-      .filter(Boolean);
-
-    const selectedIndexes = selectedRows
-      .map((r) => list.indexOf(r))
-      .filter((i) => i >= 0);
-
-    if (!selectedIndexes.length) return;
-
-    const currentEdgeIndex =
-      dir > 0
-        ? Math.max(...selectedIndexes)
-        : Math.min(...selectedIndexes);
-
-    const nextEdge = list[currentEdgeIndex + dir];
-    if (!nextEdge) return;
-
-    const edgeIndex = list.indexOf(nextEdge);
-    const from = Math.min(anchorIndex, edgeIndex);
-    const to = Math.max(anchorIndex, edgeIndex);
-
-    state.ids = new Set(list.slice(from, to + 1).map((r) => r.dataset.id));
-
+    const activeIndex = list.indexOf(active);
+  
+    if (anchorIndex < 0 || activeIndex < 0) return;
+  
+    const nextActive = list[activeIndex + dir];
+    if (!nextActive) return;
+  
+    const nextActiveIndex = list.indexOf(nextActive);
+  
+    state.activeId = nextActive.dataset.id;
+  
+    const from = Math.min(anchorIndex, nextActiveIndex);
+    const to = Math.max(anchorIndex, nextActiveIndex);
+  
+    state.ids = new Set(
+      list.slice(from, to + 1).map((r) => r.dataset.id)
+    );
+  
     focusAnchor();
     applyClasses();
   }
@@ -309,8 +367,9 @@
   
     if (!state.blockKey || state.blockKey !== bk || !state.anchorId) {
       state.blockKey = bk;
-      state.anchorId = id;
-      state.ids = new Set([id]);
+state.anchorId = id;
+state.activeId = id;
+state.ids = new Set([id]);
   
       selectedId = state.anchorId;
       treeHasFocus = true;
@@ -327,6 +386,8 @@
     } else {
       state.ids.add(id);
     }
+
+    state.activeId = id;
   
     selectedId = state.anchorId;
     treeHasFocus = true;
@@ -430,6 +491,7 @@
 
     debug() {
       return {
+        activeId: state.activeId,
         blockKey: state.blockKey,
         anchorId: state.anchorId,
         ids: Array.from(state.ids),

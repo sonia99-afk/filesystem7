@@ -15,6 +15,7 @@
 
   const state = {
     anchorId: null,
+    activeId: null,
     contextKey: null,
     ids: new Set(),
   };
@@ -80,6 +81,7 @@
 
   function reset() {
     state.anchorId = null;
+    state.activeId = null;
     state.contextKey = null;
     state.ids.clear();
   }
@@ -122,8 +124,8 @@
 
     const from = Math.min(ia, ib);
     const to = Math.max(ia, ib);
-
     state.anchorId = anchorRow.dataset.id;
+    state.activeId = activeRow.dataset.id;
     state.contextKey = aCtx;
     state.ids = new Set(sibs.slice(from, to + 1).map((r) => r.dataset.id));
     return true;
@@ -170,6 +172,73 @@
     window.render.__multiLevelPatchedV2 = true;
   }
 
+  // function handleRangeKey(dir) {
+  //   const cur = selectedRow();
+  //   if (!cur) return;
+  
+  //   const ctx = contextKeyForRow(cur);
+  //   if (!ctx) return;
+  
+  //   const sibs = siblingRows(cur);
+  //   const idx = sibs.indexOf(cur);
+  //   if (idx < 0) return;
+  
+  //   const next = sibs[idx + dir];
+  //   if (!next) return;
+  
+  //   if (!state.anchorId || state.contextKey !== ctx) {
+  //     state.anchorId = cur.dataset.id;
+  //     state.contextKey = ctx;
+  
+  //     const ok = setRange(cur, next);
+  
+  //     if (!ok) {
+  //       state.ids = new Set([cur.dataset.id, next.dataset.id]);
+  //     }
+  
+  //     selectedId = state.anchorId;
+  //     treeHasFocus = true;
+  //     rowById(state.anchorId)?.focus?.({ preventScroll: true });
+  
+  //     applyClasses();
+  //     return;
+  //   }
+  
+  //   const anchor = rowById(state.anchorId) || cur;
+  //   const anchorIndex = sibs.indexOf(anchor);
+  
+  //   if (anchorIndex < 0) return;
+  
+  //   const selectedIds = Array.from(state.ids);
+  //   const selectedRows = selectedIds
+  //     .map((id) => rowById(id))
+  //     .filter(Boolean);
+  
+  //   const selectedIndexes = selectedRows
+  //     .map((r) => sibs.indexOf(r))
+  //     .filter((i) => i >= 0);
+  
+  //   const currentEdgeIndex =
+  //     dir > 0
+  //       ? Math.max(...selectedIndexes)
+  //       : Math.min(...selectedIndexes);
+  
+  //   const nextEdge = sibs[currentEdgeIndex + dir];
+  //   if (!nextEdge) return;
+  
+  //   const ok = setRange(anchor, nextEdge);
+  
+  //   if (!ok) {
+  //     state.ids = new Set([state.anchorId, nextEdge.dataset.id]);
+  //   }
+  
+  //   selectedId = state.anchorId;
+  //   treeHasFocus = true;
+  //   rowById(state.anchorId)?.focus?.({ preventScroll: true });
+  
+  //   applyClasses();
+  // }
+
   function handleRangeKey(dir) {
     const cur = selectedRow();
     if (!cur) return;
@@ -181,11 +250,12 @@
     const idx = sibs.indexOf(cur);
     if (idx < 0) return;
   
-    const next = sibs[idx + dir];
-    if (!next) return;
-  
     if (!state.anchorId || state.contextKey !== ctx) {
+      const next = sibs[idx + dir];
+      if (!next) return;
+  
       state.anchorId = cur.dataset.id;
+      state.activeId = next.dataset.id;
       state.contextKey = ctx;
   
       const ok = setRange(cur, next);
@@ -203,31 +273,22 @@
     }
   
     const anchor = rowById(state.anchorId) || cur;
+    const active = rowById(state.activeId) || anchor;
+  
     const anchorIndex = sibs.indexOf(anchor);
+    const activeIndex = sibs.indexOf(active);
   
-    if (anchorIndex < 0) return;
+    if (anchorIndex < 0 || activeIndex < 0) return;
   
-    const selectedIds = Array.from(state.ids);
-    const selectedRows = selectedIds
-      .map((id) => rowById(id))
-      .filter(Boolean);
+    const nextActive = sibs[activeIndex + dir];
+    if (!nextActive) return;
   
-    const selectedIndexes = selectedRows
-      .map((r) => sibs.indexOf(r))
-      .filter((i) => i >= 0);
+    state.activeId = nextActive.dataset.id;
   
-    const currentEdgeIndex =
-      dir > 0
-        ? Math.max(...selectedIndexes)
-        : Math.min(...selectedIndexes);
-  
-    const nextEdge = sibs[currentEdgeIndex + dir];
-    if (!nextEdge) return;
-  
-    const ok = setRange(anchor, nextEdge);
+    const ok = setRange(anchor, nextActive);
   
     if (!ok) {
-      state.ids = new Set([state.anchorId, nextEdge.dataset.id]);
+      state.ids = new Set([state.anchorId, state.activeId]);
     }
   
     selectedId = state.anchorId;
@@ -271,8 +332,8 @@
     if (!state.contextKey || state.contextKey !== ctxClicked || !state.anchorId) {
       state.contextKey = ctxClicked;
       state.anchorId = id;
+      state.activeId = id;
       state.ids = new Set([id]);
-  
       selectedId = state.anchorId;
       treeHasFocus = true;
       rowById(state.anchorId)?.focus?.({ preventScroll: true });
@@ -282,12 +343,14 @@
     }
   
     if (state.ids.has(id)) {
-      if (id !== state.anchorId) {
-        state.ids.delete(id);
-      }
-    } else {
-      state.ids.add(id);
-    }
+  if (id !== state.anchorId) {
+    state.ids.delete(id);
+  }
+} else {
+  state.ids.add(id);
+}
+
+state.activeId = id;
   
     selectedId = state.anchorId;
     treeHasFocus = true;
@@ -387,6 +450,7 @@
     debug() {
       return {
         anchorId: state.anchorId,
+        activeId: state.activeId,
         contextKey: state.contextKey,
         ids: Array.from(state.ids),
       };

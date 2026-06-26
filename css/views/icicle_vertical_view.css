@@ -43,7 +43,7 @@
 .icicle-vertical-main {
   display: flex;
   align-items: center;
-  /* justify-content: center; */
+  justify-content: center;
   max-width: 100%;
   min-width: 0;
 }
@@ -82,6 +82,7 @@
   max-width: 100%;
   box-sizing: border-box;
   
+  text-align: center;
 
   font-size: 11px;
   line-height: 1.1;

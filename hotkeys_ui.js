@@ -272,9 +272,9 @@ if (bReset) bReset.textContent = UI.labels.hotkeys.reset;
     ${UI.labels.hotkeys.exitText}
   </div>
   <div class="hk-exit-modal-actions">
+    <button type="button" class="btnn dontsave hk-discard">${UI.labels.hotkeys.discard}</button>
     <button type="button" class="btnn hk-stay">${UI.labels.hotkeys.stay}</button>
     <button type="button" class="btnn save hk-save">${UI.labels.hotkeys.save}</button>
-    <button type="button" class="btnn dontsave hk-discard">${UI.labels.hotkeys.discard}</button>
   </div>
 `;
 

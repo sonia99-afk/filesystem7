@@ -354,6 +354,35 @@
   function captionPlainText(cap) {
     return (cap.text || plainFromHtml(cap.textHtml) || "").trim();
   }
+
+  function transferSideData(oldId, newId) {
+    if (!oldId || !newId || oldId === newId) return;
+  
+    if (window.__markMap && window.__markMap[oldId]) {
+      window.__markMap[newId] = window.__markMap[oldId];
+      delete window.__markMap[oldId];
+    }
+  
+    if (window.__markHiddenMap && window.__markHiddenMap[oldId]) {
+      window.__markHiddenMap[newId] = window.__markHiddenMap[oldId];
+      delete window.__markHiddenMap[oldId];
+    }
+  
+    if (window.__fmtMap && window.__fmtMap[oldId]) {
+      window.__fmtMap[newId] = window.__fmtMap[oldId];
+      delete window.__fmtMap[oldId];
+    }
+  
+    if (window.__colorFmtMap && window.__colorFmtMap[oldId]) {
+      window.__colorFmtMap[newId] = window.__colorFmtMap[oldId];
+      delete window.__colorFmtMap[oldId];
+    }
+  
+    if (window.__blockBgMap && window.__blockBgMap[oldId]) {
+      window.__blockBgMap[newId] = window.__blockBgMap[oldId];
+      delete window.__blockBgMap[oldId];
+    }
+  }
   
   function mergeFormattingFromOldTree(oldNode, newNode) {
     if (!oldNode || !newNode) return;
@@ -366,6 +395,8 @@
       newNode.id = oldNode.id;
       newNode.nameHtml = oldNode.nameHtml || "";
       newNode.captionsBgColor = oldNode.captionsBgColor || "";
+    } else {
+      transferSideData(oldNode.id, newNode.id);
     }
   
     // подписи: если текст подписи не менялся — сохраняем html
@@ -389,24 +420,23 @@
     const usedOld = new Set();
   
     newChildren.forEach((newChild, index) => {
-      let oldChild = oldChildren[index];
-  
-      if (
-        oldChild &&
-        nodePlainName(oldChild) === nodePlainName(newChild)
-      ) {
+      const oldChildByPosition = oldChildren[index];
+    
+      // 1. Сначала сопоставляем по позиции.
+      // Это важно для переименования в текстовом режиме:
+      // имя изменилось, но объект остался тем же.
+      if (oldChildByPosition) {
         usedOld.add(index);
-        mergeFormattingFromOldTree(oldChild, newChild);
+        mergeFormattingFromOldTree(oldChildByPosition, newChild);
         return;
       }
-  
-      // fallback: если вставили новый элемент и индексы съехали —
-      // ищем старый элемент с таким же названием среди соседей
+    
+      // 2. Если по позиции старого объекта нет — fallback по имени.
       const foundIndex = oldChildren.findIndex((candidate, i) => {
         if (usedOld.has(i)) return false;
         return nodePlainName(candidate) === nodePlainName(newChild);
       });
-  
+    
       if (foundIndex >= 0) {
         usedOld.add(foundIndex);
         mergeFormattingFromOldTree(oldChildren[foundIndex], newChild);

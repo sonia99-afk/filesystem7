@@ -99,11 +99,6 @@ navRight: "",
         textColor3: "Primary+3",
         textColor4: "Primary+4",
         textColor5: "Primary+5",
-        textColor6: "Primary+6",
-        textColor7: "Primary+7",
-        textColor8: "Primary+8",
-        textColor9: "Primary+9",
-        textColor0: "Primary+0",
     
         // Цвет подложки
         bgColor1: "Alt+1",
@@ -111,11 +106,6 @@ navRight: "",
         bgColor3: "Alt+3",
         bgColor4: "Alt+4",
         bgColor5: "Alt+5",
-        bgColor6: "Alt+6",
-        bgColor7: "Alt+7",
-        bgColor8: "Alt+8",
-        bgColor9: "Alt+9",
-        bgColor0: "Alt+0",
 
 
   };
