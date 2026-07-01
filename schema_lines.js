@@ -178,14 +178,21 @@
           getTrunkLeftForUl(childUl);
   
           const rawStartY = getPlinkStartY(li, parentY);
-          const endY = firstChildY;
-          
-          // Сокращаем plink примерно в 2 раза:
-          // верхняя часть линии убирается, линия начинается ближе к детям.
-          const startY =
-            endY >= rawStartY
-              ? rawStartY + (endY - rawStartY) / 2
-              : rawStartY - (rawStartY - endY) / 2;
+const endY = firstChildY;
+
+// Аккуратно убираем только маленький верхний хвостик,
+// чтобы линия не залезала на кружок/отметку.
+// Важно: не режем линию пополам, иначе при скрытых объектах
+// она начинает рисоваться из середины пустого места.
+const PLINK_TOP_GAP = 10;
+
+let startY = rawStartY;
+
+if (endY >= rawStartY) {
+  startY = Math.min(rawStartY + PLINK_TOP_GAP, endY);
+} else {
+  startY = Math.max(rawStartY - PLINK_TOP_GAP, endY);
+}
           
           const plink = document.createElement("div");
           plink.className = "plink";

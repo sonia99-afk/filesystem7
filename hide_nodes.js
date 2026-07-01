@@ -9,6 +9,7 @@
 
   let hiddenIds = new Set();
   
+  
 
   function host() {
     return document.getElementById("tree");
@@ -51,6 +52,15 @@
 
   function isHidden(id) {
     return !!id && hiddenIds.has(id);
+  }
+
+  function isRootId(id) {
+    return (
+      !!id &&
+      typeof root !== "undefined" &&
+      root &&
+      id === root.id
+    );
   }
 
   function firstVisibleInSubtree(node) {
@@ -122,7 +132,7 @@
   }
 
   function hide(id, withHistory = true) {
-    if (!id || hiddenIds.has(id)) return false;
+    if (!id || hiddenIds.has(id) || isRootId(id)) return false;
 
     if (
       typeof findWithParent === "function" &&
@@ -164,6 +174,28 @@
     return true;
   }
 
+  function showMany(ids, withHistory = true) {
+    const list = Array.from(new Set(ids || []))
+      .filter((id) => id && hiddenIds.has(id));
+  
+    if (!list.length) return false;
+  
+    if (withHistory && typeof pushHistory === "function") {
+      pushHistory();
+    }
+  
+    list.forEach((id) => hiddenIds.delete(id));
+  
+    if (typeof selectedId !== "undefined") {
+      selectedId = list[0];
+      treeHasFocus = true;
+    }
+  
+    if (typeof render === "function") render();
+  
+    return true;
+  }
+
   function toggle(id) {
     if (!id) return false;
     if (isHidden(id)) return show(id, true);
@@ -171,7 +203,8 @@
   }
 
   function hideMany(ids, withHistory = true) {
-    const list = Array.from(new Set(ids || [])).filter(Boolean);
+    const list = Array.from(new Set(ids || []))
+  .filter((id) => id && !isRootId(id));
     if (!list.length) return false;
   
     const existing = list.filter((id) => !hiddenIds.has(id));
@@ -229,36 +262,67 @@
     return li?.querySelector?.(":scope > .captions") || null;
   }
 
-  function makeColumnButton(id, hidden) {
+  function makeColumnButton(idOrIds, hidden) {
+    const ids = Array.isArray(idOrIds)
+      ? idOrIds.filter(Boolean)
+      : [idOrIds].filter(Boolean);
+  
+    const id = ids[0];
+    const isGroup = hidden && ids.length > 1;
+  
     const btn = document.createElement("button");
     btn.type = "button";
-    btn.className = "object-hide-col" + (hidden ? " is-hidden-object" : "");
-    btn.dataset.id = id;
+  
+    btn.className =
+      "object-hide-col" +
+      (hidden ? " is-hidden-object" : "") +
+      (isGroup ? " is-hidden-group" : "");
+  
+    btn.dataset.id = id || "";
+  
+    if (isGroup) {
+      btn.dataset.ids = ids.join(",");
+    }
+  
     btn.textContent = hidden ? "───" : "[x]";
-    btn.title = hidden ? "Показать объект" : "Скрыть объект";
+  
+    btn.title = hidden
+      ? (isGroup ? `Показать ${ids.length} скрытых объекта` : "Показать объект")
+      : "Скрыть объект";
+  
     btn.setAttribute("aria-label", btn.title);
-
+  
     btn.addEventListener("pointerdown", (e) => {
       e.preventDefault();
       e.stopPropagation();
     });
-
+  
     btn.addEventListener("mousedown", (e) => {
       e.preventDefault();
       e.stopPropagation();
     });
-
+  
     btn.addEventListener("click", (e) => {
       e.preventDefault();
       e.stopPropagation();
       e.stopImmediatePropagation?.();
-
+  
       if (typeof isTreeLocked === "function" && isTreeLocked()) return;
       if (isEditingNow()) return;
-
-      toggle(id);
+  
+      if (hidden) {
+        if (isGroup) {
+          showMany(ids, true);
+        } else {
+          show(id, true);
+        }
+  
+        return;
+      }
+  
+      hide(id, true);
     });
-
+  
     return btn;
   }
 
@@ -346,6 +410,81 @@
     }
   }
 
+  function groupHiddenColumnItems(items) {
+    const result = [];
+    let i = 0;
+  
+    while (i < items.length) {
+      const item = items[i];
+  
+      if (!item.hidden) {
+        result.push({
+          ...item,
+          ids: [item.id],
+          groupSize: 1,
+        });
+  
+        i++;
+        continue;
+      }
+  
+      const start = i;
+      const group = [];
+  
+      while (i < items.length && items[i].hidden) {
+        group.push(items[i]);
+        i++;
+      }
+  
+      const end = i - 1;
+      const first = group[0];
+      const last = group[group.length - 1];
+  
+      let prevVisible = null;
+      for (let p = start - 1; p >= 0; p--) {
+        if (!items[p].hidden && items[p].top != null) {
+          prevVisible = items[p];
+          break;
+        }
+      }
+  
+      let nextVisible = null;
+      for (let n = end + 1; n < items.length; n++) {
+        if (!items[n].hidden && items[n].top != null) {
+          nextVisible = items[n];
+          break;
+        }
+      }
+  
+      let groupTop = first.top;
+  
+      // Главная логика:
+      // если скрытая группа находится между двумя видимыми [x],
+      // ставим один общий ─── ровно посередине между ними.
+      if (prevVisible && nextVisible) {
+        groupTop = Math.round((prevVisible.top + nextVisible.top) / 2);
+      }
+
+      // Самая первая скрытая группа:
+    // берём координату первого видимого [x] и ставим ─── на 10px выше
+    else if (!prevVisible && nextVisible) {
+      groupTop = Math.max(0, Math.round(nextVisible.top - 10));
+    }
+  
+      result.push({
+        ...first,
+        top: groupTop,
+        ids: group.map((x) => x.id),
+        target: first.target,
+        targetEnd: last.target,
+        hidden: true,
+        groupSize: group.length,
+      });
+    }
+  
+    return result;
+  }
+  
   function layoutColumn() {
     const h = host();
     if (!h || !isSchemaView()) return;
@@ -399,31 +538,38 @@
       }
 
       if (!row || !row.dataset?.id) return;
-      if (!rowIsDirectTreeRow(row)) return;
-      if (!row.getClientRects().length) return;
+if (isRootId(row.dataset.id)) return;
+if (!rowIsDirectTreeRow(row)) return;
+if (!row.getClientRects().length) return;
 
-      sequence.push({
-        id: row.dataset.id,
-        hidden: false,
-        top: visibleTopForLi(li),
-      });
+sequence.push({
+  id: row.dataset.id,
+  hidden: false,
+  top: visibleTopForLi(li),
+});
     });
 
     distributeHiddenItems(sequence, 20, 80);
 
-    for (const item of sequence) {
-      if (item.top == null) continue;
+    const buttonItems = groupHiddenColumnItems(sequence);
 
-      const btn = makeColumnButton(item.id, item.hidden);
-btn.style.top = `${item.top}px`;
-h.appendChild(btn);
+for (const item of buttonItems) {
+  if (item.top == null) continue;
 
-const targetRow = h.querySelector(
-  `.row[data-id="${cssEscapeLocal(item.id)}"]`
-);
+  const btn = makeColumnButton(
+    item.hidden ? item.ids : item.id,
+    item.hidden
+  );
 
-bindButtonHover(btn, targetRow);
-    }
+  btn.style.top = `${item.top}px`;
+  h.appendChild(btn);
+
+  const targetRow = h.querySelector(
+    `.row[data-id="${cssEscapeLocal(item.id)}"]`
+  );
+
+  bindButtonHover(btn, targetRow);
+}
   }
 
   /* =========================
@@ -517,7 +663,9 @@ bindButtonHover(btn, targetRow);
       if (!row?.dataset?.id) return;
 
       const id = row.dataset.id;
-      const hidden = hiddenIds.has(id);
+if (isRootId(id)) return;
+
+const hidden = hiddenIds.has(id);
 
       if (hidden) {
         sequence.push({
@@ -542,21 +690,27 @@ bindButtonHover(btn, targetRow);
 
     distributeHiddenItems(sequence, 20, 100);
 
-    for (const item of sequence) {
-      if (item.top == null) continue;
+    const buttonItems = groupHiddenColumnItems(sequence);
 
-      const btn = makeColumnButton(item.id, item.hidden);
-btn.classList.add("object-hide-table-col");
-btn.style.top = `${item.top}px`;
+for (const item of buttonItems) {
+  if (item.top == null) continue;
 
-h.appendChild(btn);
+  const btn = makeColumnButton(
+    item.hidden ? item.ids : item.id,
+    item.hidden
+  );
 
-const targetRow = h.querySelector(
-  `.structure-table .row[data-id="${cssEscapeLocal(item.id)}"]`
-);
+  btn.classList.add("object-hide-table-col");
+  btn.style.top = `${item.top}px`;
 
-bindButtonHover(btn, targetRow?.closest("tr") || targetRow);
-    }
+  h.appendChild(btn);
+
+  const targetRow = h.querySelector(
+    `.structure-table .row[data-id="${cssEscapeLocal(item.id)}"]`
+  );
+
+  bindButtonHover(btn, targetRow?.closest("tr") || targetRow);
+}
   }
 
   /* =========================

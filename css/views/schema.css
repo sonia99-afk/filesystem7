@@ -90,3 +90,9 @@
   .table-collapse-col:hover {
     opacity: 1;
   }
+
+  #tree .collapse-col.is-collapsed,
+#tree .table-collapse-col.is-collapsed {
+  opacity: 1;
+}
+

@@ -94,7 +94,7 @@
     border-radius:50%;
     background:transparent;
     cursor:pointer;
-    vertical-align:middle;
+    
   }
   .mark-dot.is-marked{
     background:radial-gradient(circle at center, #5e5e5e 0 52%, transparent 56% 100%);

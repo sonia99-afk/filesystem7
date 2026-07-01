@@ -303,7 +303,9 @@
         }
       
         const nodesByLevel = collectNodesByLevel();
-        const levels = Array.from(nodesByLevel.keys()).sort((a, b) => a - b);
+        const levels = Array.from(nodesByLevel.keys())
+  .sort((a, b) => a - b)
+  .filter((level) => Number(level) !== 0);
       
         if (!levels.length) {
           h.classList.remove("level-hide-active");
@@ -355,17 +357,18 @@
   }
 
   #tree .level-hide-bar {
+    padding-left: 32px;
     position: absolute;
     left: 0px;
     display: flex;
     align-items: center;
-    gap: 9px;
+    gap: 12px;
     height: 20px;
     z-index: 45;
   }
 
   #tree .level-hide-btn {
-    
+    height: 14px;
     width: auto;
     padding: 0;
     margin: 0;
@@ -374,7 +377,6 @@
     color: #6b7280;
     font: inherit;
     font-size: 12px !important;
-    line-height: 20px;
     text-align: center;
     user-select: none;
     cursor: pointer;

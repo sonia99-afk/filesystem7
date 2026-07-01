@@ -45,6 +45,14 @@ const DEFAULT_NAME = {
   20: 'Уровень 20',
 };
 
+function getDefaultNodeName(level) {
+  return (
+    window.levelHeaders?.getLevelTitle?.(level) ||
+    DEFAULT_NAME?.[level] ||
+    `Уровень ${level}`
+  );
+}
+
 const uid = () => Math.random().toString(36).slice(2, 9) + '_' + Date.now().toString(36);
 
 function syncViewButtons() {
@@ -99,7 +107,7 @@ function makeNode(level, name) {
   return {
     id: uid(),
     level,
-    name: (name || DEFAULT_NAME[level]),
+    name: name ?? getDefaultNodeName(level),
     nameHtml: "",
     captionsBgColor: "",
     captions: [],
@@ -572,7 +580,7 @@ function moveNodeRelativeToTarget(id, targetId, insertMode) {
 
   const wasDefault =
     String(movingInfo.node.name || "").trim() ===
-    String(DEFAULT_NAME[movingInfo.node.level] || "").trim();
+    String(getDefaultNodeName(movingInfo.node.level) || "").trim();
 
   pushHistory();
 
@@ -614,7 +622,7 @@ function moveNodeRelativeToTarget(id, targetId, insertMode) {
   }
 
   if (wasDefault) {
-    const def = DEFAULT_NAME[movingInfo.node.level];
+    const def = getDefaultNodeName(movingInfo.node.level);
     if (def) movingInfo.node.name = def;
   }
 
@@ -773,8 +781,8 @@ function shiftSubtreeLevel(node, delta) {
 
   if (newLevel < LEVEL.COMPANY || newLevel > LEVEL.STEP) return false;
 
-  const oldDefault = DEFAULT_NAME[oldLevel];
-  const newDefault = DEFAULT_NAME[newLevel];
+  const oldDefault = getDefaultNodeName(oldLevel);
+  const newDefault = getDefaultNodeName(newLevel);
 
   const plainName = String(node.name || "").trim();
   const htmlText = node.nameHtml ? htmlPlainText(node.nameHtml) : "";
@@ -813,42 +821,79 @@ function getMaxLevelInSubtree(node) {
 
 /* ======== Navigation ======== */
 
-// function moveSelection(dir) {
-//   const displayRoot =
-//     window.objectFocus?.getFocusedRootNode?.() || root;
+function isSelectableVisibleId(id) {
+  if (!id) return false;
 
-//   const out = [];
+  if (window.hideNodes?.isHidden?.(id)) {
+    return false;
+  }
 
-//   (function walk(n) {
-//     out.push(n.id);
-//     for (const ch of (n.children || [])) walk(ch);
-//   })(displayRoot);
+  if (window.objectFocus?.isInsideFocusedRoot?.(id) === false) {
+    return false;
+  }
 
-//   const idx = out.indexOf(selectedId);
-//   if (idx < 0) {
-//     selectedId = displayRoot.id;
-//     treeHasFocus = true;
-//     render();
-//     return;
-//   }
+  return true;
+}
 
-//   const next = out[idx + dir];
-//   if (!next) return;
+function firstVisibleDescendantOf(id) {
+  const found = findWithParent(root, id);
+  if (!found?.node) return null;
 
-//   selectedId = next;
-//   treeHasFocus = true;
-//   render();
-// }
+  let result = null;
+
+  function walk(node) {
+    if (!node || result) return;
+
+    if (node.id !== id && isSelectableVisibleId(node.id)) {
+      result = node.id;
+      return;
+    }
+
+    for (const child of node.children || []) {
+      walk(child);
+      if (result) return;
+    }
+  }
+
+  walk(found.node);
+
+  return result;
+}
+
+function nearestVisibleFromFlat(fromId, dir) {
+  const flat = flatten();
+  const idx = flat.indexOf(fromId);
+
+  if (idx < 0) {
+    return flat.find(isSelectableVisibleId) || null;
+  }
+
+  for (let i = idx + dir; i >= 0 && i < flat.length; i += dir) {
+    if (isSelectableVisibleId(flat[i])) {
+      return flat[i];
+    }
+  }
+
+  return null;
+}
 
 function moveSelection(dir) {
   const flat = flatten();
-  const idx = flat.indexOf(selectedId);
-  if (idx < 0) return;
+  const visible = flat.filter(isSelectableVisibleId);
 
-  const next = flat[idx + dir];
+  if (!visible.length) return;
+
+  const visibleIdx = visible.indexOf(selectedId);
+
+  let next = null;
+
+  if (visibleIdx >= 0) {
+    next = visible[visibleIdx + dir];
+  } else {
+    next = nearestVisibleFromFlat(selectedId, dir);
+  }
+
   if (!next) return;
-
-  if (!window.objectFocus?.isInsideFocusedRoot?.(next)) return;
 
   selectedId = next;
   treeHasFocus = true;
@@ -856,30 +901,24 @@ function moveSelection(dir) {
 }
 
 function goParent(fromId) {
-  const p = parentOf(fromId);
-  if (!p) return;
+  let p = parentOf(fromId);
 
-  if (!window.objectFocus?.isInsideFocusedRoot?.(p)) return;
+  while (p) {
+    if (isSelectableVisibleId(p)) {
+      selectedId = p;
+      treeHasFocus = true;
+      render();
+      return;
+    }
 
-  selectedId = p;
-  treeHasFocus = true;
-  render();
+    p = parentOf(p);
+  }
 }
 
 function goDeeper(fromId) {
-  const direct = firstChildOf(fromId);
-
-  if (direct && window.objectFocus?.isInsideFocusedRoot?.(direct)) {
-    selectedId = direct;
-    treeHasFocus = true;
-    render();
-    return;
-  }
-
-  const deeper = firstDeeperAfter(fromId);
+  const deeper = firstVisibleDescendantOf(fromId);
 
   if (!deeper) return;
-  if (!window.objectFocus?.isInsideFocusedRoot?.(deeper)) return;
 
   selectedId = deeper;
   treeHasFocus = true;
@@ -942,7 +981,7 @@ function syncProjectsSidebar() {
   const firstProjectItem = document.querySelector('.projects-list .project-item');
   if (!firstProjectItem) return;
 
-  const projectTitle = (root?.name || '').trim() || DEFAULT_NAME[LEVEL.COMPANY] || 'Проект';
+  const projectTitle = (root?.name || '').trim() || getDefaultNodeName(LEVEL.COMPANY) || 'Проект';
   firstProjectItem.textContent = projectTitle;
   firstProjectItem.title = projectTitle;
 }
@@ -1515,8 +1554,13 @@ function layoutCollapseColumn() {
   
     const col = document.createElement("button");
     col.type = "button";
-    col.className = "collapse-col";
-    col.dataset.id = id;
+    
+    const isCollapsed = window.collapseNodes?.isCollapsed?.(id);
+
+col.className = "collapse-col" + (isCollapsed ? " is-collapsed" : "");
+col.dataset.id = id;
+
+col.textContent = isCollapsed ? "[+]" : "[-]";
 
     row.addEventListener("mouseenter", () => {
       col.classList.add("is-visible");
@@ -1532,8 +1576,7 @@ function layoutCollapseColumn() {
       col.classList.remove("is-visible");
     });
   
-    col.textContent =
-      window.collapseNodes?.isCollapsed?.(id) ? "[+]" : "[-]";
+    
   
     col.addEventListener("click", (e) => {
       e.preventDefault();

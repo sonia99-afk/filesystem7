@@ -90,5 +90,799 @@
   }
 
   
-
+  .structure-table .table-prop-cell {
+    min-width: 110px;
+    width: 110px;
+    max-width: 110px;
+    padding: 0;
+  }
   
+  .structure-table .table-prop-input {
+    width: 100%;
+    height: 22px;
+    box-sizing: border-box;
+    border: 0;
+    outline: none;
+    background: transparent;
+    font: inherit;
+    font-size: 12px;
+    padding: 2px 4px;
+  }
+  
+  .structure-table .table-prop-input:focus {
+    background: #fff;
+    box-shadow: inset 0 0 0 1px #9ca3af;
+  }
+  
+
+  .structure-table .table-tag-control {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    width: 100%;
+  }
+  
+  /* .structure-table .table-tag-control .table-prop-select {
+    width: 140px;
+    min-width: 140px;
+  } */
+  
+  .structure-table .table-tag-action-btn {
+    height: 22px;
+    padding: 0 6px;
+    border: 1px solid #9ca3af;
+    background: #fff;
+    color: #000;
+    font: inherit;
+    font-size: 12px;
+    line-height: 20px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  
+  .structure-table .table-tag-action-btn:hover {
+    background: #f3f4f6;
+  }
+  
+  .structure-table .table-tag-action-btn:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+
+  .structure-table .table-icon-cell {
+    min-width: 90px;
+    width: 90px;
+    max-width: 90px;
+    padding: 0;
+  }
+  
+  .structure-table .table-icon-cell .table-prop-select {
+    width: 100%;
+    
+    box-sizing: border-box;
+  }
+
+  .structure-table .table-cover-cell {
+    min-width: 150px;
+    width: 150px;
+    max-width: 150px;
+    
+    vertical-align: middle;
+  }
+  
+  .structure-table .table-cover-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  
+  .structure-table .table-cover-preview-box {
+    display: flex;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  
+  .structure-table .table-cover-preview {
+    width: 90px;
+    height: 54px;
+    object-fit: cover;
+    border: 1px solid #000;
+    background: #fff;
+    display: block;
+  }
+  
+  .structure-table .table-cover-remove {
+   
+    padding: 0;
+    border: 1px solid #000;
+    background: #fff;
+    color: #000;
+    font: inherit;
+    font-size: 20px;
+    line-height: 20px;
+    cursor: pointer;
+  }
+  
+  .structure-table .table-cover-btn {
+    
+    padding: 0 8px;
+    border: 1px solid #000;
+    background: #fff;
+    color: #000;
+    font: inherit;
+    font-size: 12px;
+    cursor: pointer;
+  }
+  
+  .structure-table .table-cover-btn:hover,
+  .structure-table .table-cover-remove:hover {
+    background: #f3f4f6;
+  }
+
+  .structure-table .table-extra-image-cell {
+    min-width: 150px;
+    width: 150px;
+    max-width: 150px;
+    vertical-align: middle;
+  }
+  
+  .structure-table .table-image-control {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  
+  .structure-table .table-image-preview-box {
+    display: flex;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  
+  .structure-table .table-image-preview {
+    width: 90px;
+    height: 54px;
+    object-fit: cover;
+    border: 1px solid #000;
+    background: #fff;
+    display: block;
+  }
+  
+  .structure-table .table-image-remove {
+    
+    padding: 0;
+    border: 1px solid #000;
+    background: #fff;
+    color: #000;
+    font: inherit;
+    font-size: 20px;
+    line-height: 20px;
+    cursor: pointer;
+  }
+  
+  .structure-table .table-image-btn {
+   
+    padding: 0 8px;
+    border: 1px solid #000;
+    background: #fff;
+    color: #000;
+    font: inherit;
+    font-size: 12px;
+    cursor: pointer;
+  }
+  
+  .structure-table .table-image-btn:hover,
+  .structure-table .table-image-remove:hover {
+    background: #f3f4f6;
+  }
+
+
+
+
+  .structure-table .table-prop-cell[data-prop="tag"] {
+    min-width: 400px;
+    width: 400px;
+    max-width: 400px;
+  }
+  
+  .structure-table .table-tag-control .table-prop-select {
+    width: 220px;
+    min-width: 220px;
+  }
+
+
+
+  .structure-table .table-file-cell {
+    min-width: 170px;
+    width: 170px;
+    max-width: 170px;
+    
+    vertical-align: middle;
+  }
+  
+  .structure-table .table-file-control {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  
+  .structure-table .table-file-box {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    max-width: 150px;
+  }
+  
+  .structure-table .table-file-icon {
+    flex: 0 0 auto;
+    font-size: 14px;
+    line-height: 20px;
+  }
+  
+  .structure-table .table-file-name {
+    display: inline-block;
+    max-width: 88px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  
+  .structure-table .table-file-remove {
+    
+    padding: 0;
+    border: 1px solid #000;
+    background: #fff;
+    color: #000;
+    font: inherit;
+    font-size: 14px;
+    line-height: 18px;
+    cursor: pointer;
+  }
+  
+  .structure-table .table-file-btn {
+    
+    padding: 0 8px;
+    border: 1px solid #000;
+    background: #fff;
+    color: #000;
+    font: inherit;
+    font-size: 12px;
+    cursor: pointer;
+  }
+  
+  .structure-table .table-file-btn:hover,
+  .structure-table .table-file-remove:hover {
+    background: #f3f4f6;
+  }
+
+  .structure-table .table-time-cell {
+    min-width: 230px;
+    width: 230px;
+    max-width: 230px;
+   
+    vertical-align: top;
+    overflow: visible;
+  }
+  
+  .structure-table .table-time-counter {
+    position: relative;
+    display: inline-flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .structure-table .table-time-main {
+    display: flex;
+    align-items: center;
+    height: 22px;
+    border: 1px solid #000;
+    border-radius: 999px;
+    overflow: hidden;
+    background: #fff;
+  }
+  
+  .structure-table .table-time-btn,
+  .structure-table .table-time-value {
+    height: 28px;
+    border: 0;
+    border-right: 1px solid #e5e7eb;
+    background: #fff;
+    color: #000;
+    font: inherit;
+    font-size: 12px;
+    line-height: 28px;
+    cursor: pointer;
+  }
+  
+  .structure-table .table-time-play {
+    width: 48px;
+    background: #eef0f2;
+  }
+  
+  .structure-table .table-time-value {
+    width: 96px;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+  }
+  
+  .structure-table .table-time-reset {
+    width: 48px;
+    border-right: 0;
+    background: #eef0f2;
+  }
+  
+  .structure-table .table-time-btn:hover,
+  .structure-table .table-time-value:hover {
+    background: #f3f4f6;
+  }
+  
+  .structure-table .table-time-sessions {
+    position: absolute;
+    top: 34px;
+    left: 0;
+    width: 320px;
+    max-height: 210px;
+    overflow: auto;
+  
+    padding: 10px 12px;
+    border: 1px solid #000;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.18);
+    z-index: 80;
+  }
+  
+  .structure-table .table-time-session-empty {
+    color: #6b7280;
+    font-size: 12px;
+  }
+  
+  .structure-table .table-time-session {
+    display: grid;
+    grid-template-columns: 76px 1fr;
+    column-gap: 10px;
+    align-items: baseline;
+    padding: 4px 0;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  
+  .structure-table .table-time-session:last-child {
+    border-bottom: 0;
+  }
+  
+  .structure-table .table-time-session-duration {
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  
+  .structure-table .table-time-session-range {
+    color: #000;
+    font-size: 11px;
+    line-height: 1.25;
+    white-space: normal;
+  }
+
+  .structure-table .table-time-sessions-title {
+    margin-bottom: 6px;
+    color: #6b7280;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+
+  .structure-table .table-timer-duration-cell,
+.structure-table .table-timer-remaining-cell {
+  min-width: 230px;
+  width: 230px;
+  max-width: 230px;
+ 
+  vertical-align: top;
+  overflow: visible;
+}
+
+.structure-table .table-timer-duration,
+.structure-table .table-timer-countdown-main {
+  display: flex;
+  align-items: center;
+  
+  border: 1px solid #000;
+  border-radius: 999px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.structure-table .table-timer-countdown {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.structure-table .table-timer-btn,
+.structure-table .table-timer-duration-value,
+.structure-table .table-timer-countdown-btn,
+.structure-table .table-timer-countdown-value {
+  height: 22px;
+  border: 0;
+  border-right: 1px solid #e5e7eb;
+  background: #fff;
+  color: #000;
+  font: inherit;
+  font-size: 12px;
+  line-height: 20px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.structure-table .table-timer-btn,
+.structure-table .table-timer-countdown-btn,
+.structure-table .table-timer-countdown-value {
+  cursor: pointer;
+}
+
+.structure-table .table-timer-btn {
+  width: 54px;
+  background: #eef0f2;
+}
+
+.structure-table .table-timer-duration-value {
+  width: 116px;
+}
+
+.structure-table .table-timer-countdown-play,
+.structure-table .table-timer-countdown-reset {
+  width: 54px;
+  background: #eef0f2;
+}
+
+.structure-table .table-timer-countdown-value {
+  width: 116px;
+}
+
+.structure-table .table-timer-btn:last-child,
+.structure-table .table-timer-countdown-reset {
+  border-right: 0;
+}
+
+.structure-table .table-timer-btn:hover,
+.structure-table .table-timer-countdown-btn:hover,
+.structure-table .table-timer-countdown-value:hover {
+  background: #f3f4f6;
+}
+
+.structure-table .table-timer-countdown-btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.structure-table .table-icon-cell {
+  min-width: 70px;
+  width: 70px;
+  max-width: 70px;
+  padding: 0;
+}
+
+.structure-table .table-icon-control {
+  position: relative;
+  height: 22px;
+  width: 100%;
+}
+
+.structure-table .table-icon-view {
+  width: 100%;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #000;
+  font: inherit;
+  font-size: 14px;
+  line-height: 22px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.structure-table .table-icon-select {
+  display: none;
+  width: 100%;
+  height: 22px;
+  box-sizing: border-box;
+  font: inherit;
+  font-size: 12px;
+}
+
+.structure-table .table-icon-control.is-editing .table-icon-view {
+  display: none;
+}
+
+.structure-table .table-icon-control.is-editing .table-icon-select {
+  display: block;
+}
+
+.structure-table .table-compact-select-cell {
+  padding: 0;
+}
+
+.structure-table .table-compact-select-control {
+  position: relative;
+  min-height: 22px;
+  width: 100%;
+}
+
+.structure-table .table-compact-select-view {
+  display: block;
+  width: 100%;
+  height: 22px;
+  padding: 0 4px;
+  border: 0;
+  background: transparent;
+  color: #000;
+  font: inherit;
+  font-size: 12px;
+  line-height: 22px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.structure-table .table-compact-select {
+  display: none;
+  width: 100%;
+  height: 22px;
+  box-sizing: border-box;
+  font: inherit;
+  font-size: 12px;
+}
+
+.structure-table .table-compact-select-control.is-editing .table-compact-select-view {
+  display: none;
+}
+
+.structure-table .table-compact-select-control.is-editing .table-compact-select {
+  display: block;
+}
+
+
+.structure-table .table-tag-compact-cell {
+  padding: 0;
+  min-width: 260px;
+  width: 260px;
+  max-width: 260px;
+}
+
+.structure-table .table-tag-compact-control {
+  width: 100%;
+  min-height: 22px;
+}
+
+.structure-table .table-tag-compact-view {
+  display: block;
+  width: 100%;
+  height: 22px;
+  padding: 0 4px;
+  border: 0;
+  background: transparent;
+  color: #000;
+  font: inherit;
+  font-size: 12px;
+  line-height: 22px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.structure-table .table-tag-compact-editor {
+  display: none;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+}
+
+.structure-table .table-tag-compact-control.is-editing .table-tag-compact-view {
+  display: none;
+}
+
+.structure-table .table-tag-compact-control.is-editing .table-tag-compact-editor {
+  display: flex;
+}
+
+.structure-table .table-tag-compact-select {
+  width: 120px;
+  height: 22px;
+  box-sizing: border-box;
+  font: inherit;
+  font-size: 12px;
+}
+
+.structure-table .table-tag-compact-action {
+  height: 22px;
+  padding: 0 6px;
+  border: 1px solid #9ca3af;
+  background: #fff;
+  color: #000;
+  font: inherit;
+  font-size: 12px;
+  line-height: 20px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.structure-table .table-tag-compact-action:hover {
+  background: #f3f4f6;
+}
+
+.structure-table .table-date-range-cell {
+  min-width: 250px;
+  width: 250px;
+  max-width: 250px;
+  padding: 0;
+}
+
+.structure-table .table-time-range-cell {
+  min-width: 180px;
+  width: 180px;
+  max-width: 180px;
+  padding: 0;
+}
+
+.structure-table .table-range-control {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  padding: 0 4px;
+  box-sizing: border-box;
+}
+
+.structure-table .table-range-input {
+  min-width: 0;
+  height: 22px;
+  box-sizing: border-box;
+  border: 0;
+  background: transparent;
+  color: #000;
+  font: inherit;
+  font-size: 12px;
+}
+
+.structure-table .table-date-range-cell .table-range-input {
+  width: 108px;
+}
+
+.structure-table .table-time-range-cell .table-range-input {
+  width: 72px;
+}
+
+.structure-table .table-range-separator {
+  color: #6b7280;
+  font-size: 12px;
+  line-height: 22px;
+}
+
+.structure-table .table-range-input:focus {
+  background: #fff;
+  outline: none;
+  box-shadow: inset 0 0 0 1px #9ca3af;
+}
+
+.structure-table .table-compact-datetime-cell {
+  padding: 0;
+}
+
+.structure-table .table-compact-datetime-control {
+  width: 100%;
+  min-height: 22px;
+}
+
+.structure-table .table-compact-datetime-view {
+  display: block;
+  width: 100%;
+  height: 22px;
+  padding: 0 4px;
+  border: 0;
+  background: transparent;
+  color: #000;
+  font: inherit;
+  font-size: 12px;
+  line-height: 22px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.structure-table .table-compact-datetime-input {
+  display: none;
+  width: 100%;
+  height: 22px;
+  box-sizing: border-box;
+  border: 0;
+  background: transparent;
+  color: #000;
+  font: inherit;
+  font-size: 12px;
+  padding: 0 4px;
+}
+
+.structure-table .table-compact-datetime-control.is-editing .table-compact-datetime-view {
+  display: none;
+}
+
+.structure-table .table-compact-datetime-control.is-editing .table-compact-datetime-input {
+  display: block;
+}
+
+.structure-table .table-compact-datetime-input:focus {
+  background: #fff;
+  outline: none;
+  box-shadow: inset 0 0 0 1px #9ca3af;
+}
+
+.structure-table .table-range-control {
+  width: 100%;
+  min-height: 22px;
+}
+
+.structure-table .table-range-view {
+  display: block;
+  width: 100%;
+  height: 22px;
+  padding: 0 4px;
+  border: 0;
+  background: transparent;
+  color: #000;
+  font: inherit;
+  font-size: 12px;
+  line-height: 22px;
+  text-align: left;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.structure-table .table-range-editor {
+  display: none;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  padding: 0 4px;
+  box-sizing: border-box;
+}
+
+.structure-table .table-range-control.is-editing .table-range-view {
+  display: none;
+}
+
+.structure-table .table-range-control.is-editing .table-range-editor {
+  display: flex;
+}
+
+.structure-table .table-range-input {
+  min-width: 0;
+  height: 22px;
+  box-sizing: border-box;
+  border: 0;
+  background: transparent;
+  color: #000;
+  font: inherit;
+  font-size: 12px;
+  padding: 0 2px;
+}
+
+.structure-table .table-date-range-cell .table-range-input {
+  width: 108px;
+}
+
+.structure-table .table-time-range-cell .table-range-input {
+  width: 72px;
+}
+
+.structure-table .table-range-separator {
+  color: #6b7280;
+  font-size: 12px;
+  line-height: 22px;
+}
+
+.structure-table .table-range-input:focus {
+  background: #fff;
+  outline: none;
+  box-shadow: inset 0 0 0 1px #9ca3af;
+}
