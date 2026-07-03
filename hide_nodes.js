@@ -158,41 +158,17 @@
 
   function show(id, withHistory = true) {
     if (!id || !hiddenIds.has(id)) return false;
-
+  
     if (withHistory && typeof pushHistory === "function") {
       pushHistory();
     }
-
+  
     hiddenIds.delete(id);
-
-    if (typeof selectedId !== "undefined") {
-      selectedId = id;
-      treeHasFocus = true;
-    }
-
+  
+    // Важно:
+    // при восстановлении объекта через ─── не переносим серое выделение
+    // на восстановленный объект. Оставляем выбранным текущий видимый объект.
     if (typeof render === "function") render();
-    return true;
-  }
-
-  function showMany(ids, withHistory = true) {
-    const list = Array.from(new Set(ids || []))
-      .filter((id) => id && hiddenIds.has(id));
-  
-    if (!list.length) return false;
-  
-    if (withHistory && typeof pushHistory === "function") {
-      pushHistory();
-    }
-  
-    list.forEach((id) => hiddenIds.delete(id));
-  
-    if (typeof selectedId !== "undefined") {
-      selectedId = list[0];
-      treeHasFocus = true;
-    }
-  
-    if (typeof render === "function") render();
-  
     return true;
   }
 
@@ -241,11 +217,7 @@
   
     existing.forEach((id) => hiddenIds.delete(id));
   
-    if (existing[0] && typeof selectedId !== "undefined") {
-      selectedId = existing[0];
-      treeHasFocus = true;
-    }
-  
+    // При восстановлении группы через ─── выбранный объект не меняем.
     if (typeof render === "function") render();
     return true;
   }
