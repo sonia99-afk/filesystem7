@@ -824,16 +824,65 @@ function getMaxLevelInSubtree(node) {
 function isSelectableVisibleId(id) {
   if (!id) return false;
 
+  // скрытые через [x] объекты нельзя выбирать
   if (window.hideNodes?.isHidden?.(id)) {
     return false;
   }
 
+  if (isMarkHiddenId(id)) {
+    return false;
+  }
+
+  // объекты вне режима фокуса нельзя выбирать
   if (window.objectFocus?.isInsideFocusedRoot?.(id) === false) {
+    return false;
+  }
+
+  // дети свернутого объекта нельзя выбирать
+  if (hasCollapsedAncestor(id)) {
     return false;
   }
 
   return true;
 }
+
+function nearestVisibleAncestor(id) {
+  if (!id || typeof findWithParent !== "function") return null;
+
+  let found = findWithParent(root, id);
+  let parent = found?.parent || null;
+
+  while (parent) {
+    if (isSelectableVisibleId(parent.id)) {
+      return parent.id;
+    }
+
+    found = findWithParent(root, parent.id);
+    parent = found?.parent || null;
+  }
+
+  return null;
+}
+
+function ensureSelectedVisible() {
+  if (isSelectableVisibleId(selectedId)) return;
+
+  const ancestor = nearestVisibleAncestor(selectedId);
+
+  if (ancestor) {
+    selectedId = ancestor;
+    return;
+  }
+
+  const flat = typeof flatten === "function" ? flatten() : [];
+  const firstVisible = flat.find(isSelectableVisibleId);
+
+  if (firstVisible) {
+    selectedId = firstVisible;
+  }
+}
+
+window.ensureSelectedVisible = ensureSelectedVisible;
 
 function firstVisibleDescendantOf(id) {
   const found = findWithParent(root, id);
@@ -877,6 +926,42 @@ function nearestVisibleFromFlat(fromId, dir) {
   return null;
 }
 
+function hasCollapsedAncestor(id) {
+  if (!id || typeof findWithParent !== "function") return false;
+
+  let found = findWithParent(root, id);
+  let parent = found?.parent || null;
+
+  while (parent) {
+    if (window.collapseNodes?.isCollapsed?.(parent.id)) {
+      return true;
+    }
+
+    found = findWithParent(root, parent.id);
+    parent = found?.parent || null;
+  }
+
+  return false;
+}
+
+function isMarkHiddenId(id) {
+  if (!id) return false;
+
+  if (window.__markHiddenMap?.[id]) {
+    return true;
+  }
+
+  const h = document.getElementById("tree");
+  if (!h) return false;
+
+  const row = h.querySelector(`.row[data-id="${cssEscape(id)}"]`);
+  if (!row) return false;
+
+  const holder = row.closest("li, tr");
+
+  return !!holder?.classList.contains("mark-hidden-object");
+}
+
 function moveSelection(dir) {
   const flat = flatten();
   const visible = flat.filter(isSelectableVisibleId);
@@ -890,7 +975,7 @@ function moveSelection(dir) {
   if (visibleIdx >= 0) {
     next = visible[visibleIdx + dir];
   } else {
-    next = nearestVisibleFromFlat(selectedId, dir);
+    next = visible[0];
   }
 
   if (!next) return;
@@ -949,32 +1034,46 @@ function focusSelectedRow() {
 let __selectedScrollRaf = null;
 
 function scrollSelectedIntoView() {
-  if (!selectedId) return;
+  const id = selectedId;
+  if (!id) return;
 
-  const tree = document.getElementById("tree");
-  if (!tree) return;
+  const el =
+    document.querySelector(`.row[data-id="${cssEscape(id)}"]`) ||
+    document.querySelector(`[data-id="${cssEscape(id)}"]`);
 
-  if (__selectedScrollRaf) {
-    cancelAnimationFrame(__selectedScrollRaf);
+  if (!el) return;
+
+  // Сохраняем горизонтальный скролл,
+  // чтобы выбранный объект не тянул таблицу/схему вправо-влево.
+  const savedScrolls = [];
+  let p = el.parentElement;
+
+  while (p) {
+    if (p.scrollWidth > p.clientWidth) {
+      savedScrolls.push({
+        el: p,
+        left: p.scrollLeft,
+      });
+    }
+
+    p = p.parentElement;
   }
 
-  __selectedScrollRaf = requestAnimationFrame(() => {
-    __selectedScrollRaf = null;
+  const windowScrollX = window.scrollX;
 
-    const safeId = cssEscape(selectedId);
-
-    const el =
-      tree.querySelector(`.row[data-id="${safeId}"]`) ||
-      tree.querySelector(`[data-id="${safeId}"]`);
-
-    if (!el || !el.getClientRects().length) return;
-
-    el.scrollIntoView({
-      block: "nearest",
-      inline: "nearest",
-      behavior: "auto",
-    });
+  // Вертикально можно подтянуть выбранный объект,
+  // но горизонталь потом вернём обратно.
+  el.scrollIntoView({
+    block: "nearest",
+    inline: "nearest",
+    behavior: "auto",
   });
+
+  savedScrolls.forEach((item) => {
+    item.el.scrollLeft = item.left;
+  });
+
+  window.scrollTo(windowScrollX, window.scrollY);
 }
 
 function syncProjectsSidebar() {
@@ -1088,6 +1187,7 @@ function renderSchemaView() {
 // }
 
 function render() {
+  ensureSelectedVisible();
   updateDirectionButtons();
 
   if (currentView === VIEW.HIERARCHY) {

@@ -524,7 +524,7 @@
 }
 
 .structure-table .table-timer-btn {
-  width: 54px;
+  width: 56px;
   background: #eef0f2;
 }
 
@@ -885,4 +885,186 @@
   background: #fff;
   outline: none;
   box-shadow: inset 0 0 0 1px #9ca3af;
+}
+
+
+.structure-table .table-datetime-cell {
+  min-width: max-content;
+  width: auto;
+  max-width: none;
+  padding: 0;
+}
+
+.structure-table .table-datetime-control {
+  width: 100%;
+  min-height: 22px;
+}
+
+.structure-table .table-datetime-view {
+  display: block;
+  width: 100%;
+  height: 22px;
+  padding: 0 4px;
+  border: 0;
+  background: transparent;
+  color: #000;
+  font: inherit;
+  font-size: 12px;
+  line-height: 22px;
+  text-align: left;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.structure-table .table-datetime-editor {
+  display: none;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  padding: 0 4px;
+  box-sizing: border-box;
+}
+
+.structure-table .table-datetime-control.is-editing .table-datetime-view {
+  display: none;
+}
+
+.structure-table .table-datetime-control.is-editing .table-datetime-editor {
+  display: flex;
+}
+
+.structure-table .table-datetime-input {
+  min-width: 0;
+  height: 22px;
+  box-sizing: border-box;
+  border: 0;
+  background: transparent;
+  color: #000;
+  font: inherit;
+  font-size: 12px;
+  padding: 0 2px;
+}
+
+.structure-table .table-datetime-date {
+  width: 118px;
+}
+
+.structure-table .table-datetime-time {
+  width: 76px;
+}
+
+.structure-table .table-datetime-input:focus {
+  background: #fff;
+  outline: none;
+  box-shadow: inset 0 0 0 1px #9ca3af;
+}
+
+
+#tree .structure-table {
+  table-layout: auto;
+  width: max-content;
+  min-width: max-content;
+}
+
+#tree .structure-table th,
+#tree .structure-table td {
+  white-space: nowrap;
+}
+
+.structure-table .table-datetime-view {
+  width: max-content;
+  min-width: 100%;
+}
+
+.structure-table .table-datetime-editor {
+  width: max-content;
+}
+
+.structure-table .table-full-datetime-range-cell {
+  min-width: max-content;
+  width: auto;
+  max-width: none;
+  padding: 0;
+}
+
+.structure-table .table-full-datetime-range-control {
+  width: 100%;
+  min-height: 22px;
+}
+
+.structure-table .table-full-datetime-range-view {
+  display: block;
+  width: max-content;
+  min-width: 100%;
+  height: 22px;
+  padding: 0 4px;
+  border: 0;
+  background: transparent;
+  color: #000;
+  font: inherit;
+  font-size: 12px;
+  line-height: 22px;
+  text-align: left;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.structure-table .table-full-datetime-range-editor {
+  display: none;
+  align-items: center;
+  gap: 4px;
+  width: max-content;
+  padding: 0 4px;
+  box-sizing: border-box;
+}
+
+.structure-table .table-full-datetime-range-control.is-editing .table-full-datetime-range-view {
+  display: none;
+}
+
+.structure-table .table-full-datetime-range-control.is-editing .table-full-datetime-range-editor {
+  display: flex;
+}
+
+.structure-table .table-full-datetime-range-input {
+  min-width: 0;
+  height: 22px;
+  box-sizing: border-box;
+  border: 0;
+  background: transparent;
+  color: #000;
+  font: inherit;
+  font-size: 12px;
+  padding: 0 2px;
+}
+
+.structure-table .table-full-datetime-range-date {
+  width: 118px;
+}
+
+.structure-table .table-full-datetime-range-time {
+  width: 76px;
+}
+
+.structure-table .table-full-datetime-range-separator {
+  color: #6b7280;
+  font-size: 12px;
+  line-height: 22px;
+}
+
+.structure-table .table-full-datetime-range-input:focus {
+  background: #fff;
+  outline: none;
+  box-shadow: inset 0 0 0 1px #9ca3af;
+}
+
+#tree .structure-table td.is-active-cell {
+  background: #f3f4f6;
+  outline: 2px solid #9ca3af;
+  outline-offset: -2px;
+}
+
+#tree .structure-table td:focus {
+  outline: 2px solid #9ca3af;
+  outline-offset: -2px;
 }

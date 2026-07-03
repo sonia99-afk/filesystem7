@@ -32,7 +32,7 @@
 
     const TABLE_DATE_RANGE_COLUMN = {
       key: "dateRange",
-      title: "Дата период",
+      title: "Дата начала и дата завершения",
       inputType: "dateRange",
       startKey: "startDate",
       endKey: "endDate",
@@ -40,10 +40,36 @@
     
     const TABLE_TIME_RANGE_COLUMN = {
       key: "timeRange",
-      title: "Время период",
+      title: "Время начала и время завершения",
       inputType: "timeRange",
       startKey: "startTime",
       endKey: "endTime",
+    };
+
+    const TABLE_START_DATETIME_COLUMN = {
+      key: "startDateTime",
+      title: "Дата и время начала",
+      inputType: "dateTimePair",
+      dateKey: "startDate",
+      timeKey: "startTime",
+    };
+    
+    const TABLE_END_DATETIME_COLUMN = {
+      key: "endDateTime",
+      title: "Дата и время завершения",
+      inputType: "dateTimePair",
+      dateKey: "endDate",
+      timeKey: "endTime",
+    };
+
+    const TABLE_FULL_DATETIME_RANGE_COLUMN = {
+      key: "fullDateTimeRange",
+      title: "Дата, время начала и завершения",
+      inputType: "dateTimeRangePair",
+      startDateKey: "startDate",
+      startTimeKey: "startTime",
+      endDateKey: "endDate",
+      endTimeKey: "endTime",
     };
 
     const TABLE_TAG_ADD_VALUE = "__add_tag__";
@@ -149,8 +175,15 @@ const TABLE_TIMER_REMAINING_COLUMN = {
 function getAllTablePropertyColumns() {
   return [
     ...TABLE_PROPERTY_COLUMNS,
+
+    TABLE_START_DATETIME_COLUMN,
+    TABLE_END_DATETIME_COLUMN,
+
     TABLE_DATE_RANGE_COLUMN,
     TABLE_TIME_RANGE_COLUMN,
+
+    TABLE_FULL_DATETIME_RANGE_COLUMN,
+
     ...TABLE_SELECT_PROPERTY_COLUMNS,
     TABLE_EXTRA_IMAGE_COLUMN,
     TABLE_FILE_COLUMN,
@@ -481,6 +514,8 @@ function finishTimerAtZero(node, key) {
       ) {
         requestAnimationFrame(() => {
           syncTableRangeControlsForKey(node, key);
+          syncTableDateTimeControlsForKey(node, key);
+          syncTableFullDateTimeRangeControlsForKey(node, key);
         });
       }
     }
@@ -560,6 +595,96 @@ function finishTimerAtZero(node, key) {
           };
     
           view.textContent = getCompactDateTimeViewValue(node, fakeColumn);
+        }
+      });
+    }
+
+    function syncTableDateTimeControlsForKey(node, key) {
+      const host = document.getElementById("tree");
+      if (!host || !node?.id || !key) return;
+    
+      host.querySelectorAll(".table-datetime-control[data-id]").forEach((wrap) => {
+        if (wrap.dataset.id !== node.id) return;
+    
+        const dateKey = wrap.dataset.dateKey;
+        const timeKey = wrap.dataset.timeKey;
+    
+        if (key !== dateKey && key !== timeKey) return;
+    
+        const dateInput = wrap.querySelector('.table-datetime-input[data-role="date"]');
+        const timeInput = wrap.querySelector('.table-datetime-input[data-role="time"]');
+        const view = wrap.querySelector(".table-datetime-view");
+    
+        if (dateInput && document.activeElement !== dateInput) {
+          dateInput.value = getTableProp(node, dateKey);
+        }
+    
+        if (timeInput && document.activeElement !== timeInput) {
+          timeInput.value = getTableProp(node, timeKey);
+        }
+    
+        if (view) {
+          view.textContent = getTableDateTimeViewText(
+            node,
+            {
+              dateKey,
+              timeKey,
+            }
+          );
+        }
+      });
+    }
+
+    function syncTableFullDateTimeRangeControlsForKey(node, key) {
+      const host = document.getElementById("tree");
+      if (!host || !node?.id || !key) return;
+    
+      host.querySelectorAll(".table-full-datetime-range-control[data-id]").forEach((wrap) => {
+        if (wrap.dataset.id !== node.id) return;
+    
+        const startDateKey = wrap.dataset.startDateKey;
+        const startTimeKey = wrap.dataset.startTimeKey;
+        const endDateKey = wrap.dataset.endDateKey;
+        const endTimeKey = wrap.dataset.endTimeKey;
+    
+        if (
+          key !== startDateKey &&
+          key !== startTimeKey &&
+          key !== endDateKey &&
+          key !== endTimeKey
+        ) {
+          return;
+        }
+    
+        const startDateInput = wrap.querySelector('.table-full-datetime-range-input[data-role="start-date"]');
+        const startTimeInput = wrap.querySelector('.table-full-datetime-range-input[data-role="start-time"]');
+        const endDateInput = wrap.querySelector('.table-full-datetime-range-input[data-role="end-date"]');
+        const endTimeInput = wrap.querySelector('.table-full-datetime-range-input[data-role="end-time"]');
+        const view = wrap.querySelector(".table-full-datetime-range-view");
+    
+        if (startDateInput && document.activeElement !== startDateInput) {
+          startDateInput.value = getTableProp(node, startDateKey);
+        }
+    
+        if (startTimeInput && document.activeElement !== startTimeInput) {
+          startTimeInput.value = getTableProp(node, startTimeKey);
+        }
+    
+        if (endDateInput && document.activeElement !== endDateInput) {
+          endDateInput.value = getTableProp(node, endDateKey);
+        }
+    
+        if (endTimeInput && document.activeElement !== endTimeInput) {
+          endTimeInput.value = getTableProp(node, endTimeKey);
+        }
+    
+        if (view) {
+          view.textContent = getTableFullDateTimeRangeViewText(node, {
+            startDateKey,
+            startTimeKey,
+            endDateKey,
+            endTimeKey,
+          });
         }
       });
     }
@@ -1209,6 +1334,18 @@ function finishTimerAtZero(node, key) {
         return td;
       }
 
+      if (column.inputType === "dateTimePair") {
+        td.classList.add("table-datetime-cell");
+        td.appendChild(makeTableDateTimeControl(node, column));
+        return td;
+      }
+
+      if (column.inputType === "dateTimeRangePair") {
+        td.classList.add("table-full-datetime-range-cell");
+        td.appendChild(makeTableFullDateTimeRangeControl(node, column));
+        return td;
+      }
+
       if (column.key === "icon") {
         td.classList.add("table-icon-cell");
         td.appendChild(makeTableIconControl(node, column));
@@ -1460,6 +1597,314 @@ function finishTimerAtZero(node, key) {
       return wrap;
     }
 
+    function makeTableDateTimeControl(node, column) {
+      const wrap = document.createElement("div");
+      wrap.className = "table-datetime-control";
+      wrap.dataset.id = node.id;
+      wrap.dataset.dateKey = column.dateKey;
+      wrap.dataset.timeKey = column.timeKey;
+    
+      const view = document.createElement("button");
+      view.type = "button";
+      view.className = "table-datetime-view";
+      view.textContent = getTableDateTimeViewText(node, column);
+      view.title = column.title || "Изменить дату и время";
+    
+      const editor = document.createElement("div");
+      editor.className = "table-datetime-editor";
+    
+      const dateInput = document.createElement("input");
+      dateInput.className = "table-datetime-input table-datetime-date";
+      dateInput.type = "date";
+      dateInput.value = getTableProp(node, column.dateKey);
+      dateInput.dataset.role = "date";
+    
+      const timeInput = document.createElement("input");
+      timeInput.className = "table-datetime-input table-datetime-time";
+      timeInput.type = "time";
+      timeInput.value = getTableProp(node, column.timeKey);
+      timeInput.dataset.role = "time";
+    
+      function selectNode(e) {
+        e.stopPropagation();
+    
+        selectedId = node.id;
+        treeHasFocus = true;
+      }
+    
+      function syncView() {
+        dateInput.value = getTableProp(node, column.dateKey);
+        timeInput.value = getTableProp(node, column.timeKey);
+        view.textContent = getTableDateTimeViewText(node, column);
+      }
+    
+      function openEditor(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    
+        selectedId = node.id;
+        treeHasFocus = true;
+    
+        dateInput.value = getTableProp(node, column.dateKey);
+        timeInput.value = getTableProp(node, column.timeKey);
+    
+        wrap.classList.add("is-editing");
+    
+        requestAnimationFrame(() => {
+          dateInput.focus({ preventScroll: true });
+        });
+      }
+    
+      function closeEditor() {
+        syncView();
+        wrap.classList.remove("is-editing");
+      }
+    
+      function commit() {
+        setTableDateTimeProps(
+          node,
+          column.dateKey,
+          column.timeKey,
+          dateInput.value,
+          timeInput.value
+        );
+    
+        closeEditor();
+      }
+    
+      view.addEventListener("click", openEditor);
+    
+      wrap.addEventListener("click", (e) => {
+        if (e.target === dateInput || e.target === timeInput) return;
+        openEditor(e);
+      });
+    
+      [dateInput, timeInput].forEach((input) => {
+        input.addEventListener("click", selectNode);
+    
+        input.addEventListener("dblclick", (e) => {
+          e.stopPropagation();
+        });
+    
+        input.addEventListener("keydown", (e) => {
+          e.stopPropagation();
+    
+          if (e.key === "Enter" || e.code === "NumpadEnter") {
+            e.preventDefault();
+            commit();
+            input.blur();
+            return;
+          }
+    
+          if (e.key === "Escape") {
+            e.preventDefault();
+            closeEditor();
+            input.blur();
+            return;
+          }
+        });
+    
+        input.addEventListener("change", () => {
+          setTableDateTimeProps(
+            node,
+            column.dateKey,
+            column.timeKey,
+            dateInput.value,
+            timeInput.value
+          );
+    
+          view.textContent = getTableDateTimeViewText(node, column);
+        });
+    
+        input.addEventListener("blur", () => {
+          setTimeout(() => {
+            if (!wrap.contains(document.activeElement)) {
+              commit();
+            }
+          }, 0);
+        });
+      });
+    
+      editor.appendChild(dateInput);
+      editor.appendChild(timeInput);
+    
+      wrap.appendChild(view);
+      wrap.appendChild(editor);
+    
+      return wrap;
+    }
+
+    function makeTableFullDateTimeRangeControl(node, column) {
+      const wrap = document.createElement("div");
+      wrap.className = "table-full-datetime-range-control";
+      wrap.dataset.id = node.id;
+      wrap.dataset.startDateKey = column.startDateKey;
+      wrap.dataset.startTimeKey = column.startTimeKey;
+      wrap.dataset.endDateKey = column.endDateKey;
+      wrap.dataset.endTimeKey = column.endTimeKey;
+    
+      const view = document.createElement("button");
+      view.type = "button";
+      view.className = "table-full-datetime-range-view";
+      view.textContent = getTableFullDateTimeRangeViewText(node, column);
+      view.title = column.title || "Изменить дату и время начала/завершения";
+    
+      const editor = document.createElement("div");
+      editor.className = "table-full-datetime-range-editor";
+    
+      const startDateInput = document.createElement("input");
+      startDateInput.className = "table-full-datetime-range-input table-full-datetime-range-date";
+      startDateInput.type = "date";
+      startDateInput.value = getTableProp(node, column.startDateKey);
+      startDateInput.dataset.role = "start-date";
+    
+      const startTimeInput = document.createElement("input");
+      startTimeInput.className = "table-full-datetime-range-input table-full-datetime-range-time";
+      startTimeInput.type = "time";
+      startTimeInput.value = getTableProp(node, column.startTimeKey);
+      startTimeInput.dataset.role = "start-time";
+    
+      const separator = document.createElement("span");
+      separator.className = "table-full-datetime-range-separator";
+      separator.textContent = "→";
+    
+      const endDateInput = document.createElement("input");
+      endDateInput.className = "table-full-datetime-range-input table-full-datetime-range-date";
+      endDateInput.type = "date";
+      endDateInput.value = getTableProp(node, column.endDateKey);
+      endDateInput.dataset.role = "end-date";
+    
+      const endTimeInput = document.createElement("input");
+      endTimeInput.className = "table-full-datetime-range-input table-full-datetime-range-time";
+      endTimeInput.type = "time";
+      endTimeInput.value = getTableProp(node, column.endTimeKey);
+      endTimeInput.dataset.role = "end-time";
+    
+      function selectNode(e) {
+        e.stopPropagation();
+        selectedId = node.id;
+        treeHasFocus = true;
+      }
+    
+      function syncView() {
+        startDateInput.value = getTableProp(node, column.startDateKey);
+        startTimeInput.value = getTableProp(node, column.startTimeKey);
+        endDateInput.value = getTableProp(node, column.endDateKey);
+        endTimeInput.value = getTableProp(node, column.endTimeKey);
+    
+        view.textContent = getTableFullDateTimeRangeViewText(node, column);
+      }
+    
+      function openEditor(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    
+        selectedId = node.id;
+        treeHasFocus = true;
+    
+        syncView();
+        wrap.classList.add("is-editing");
+    
+        requestAnimationFrame(() => {
+          startDateInput.focus({ preventScroll: true });
+        });
+      }
+    
+      function closeEditor() {
+        syncView();
+        wrap.classList.remove("is-editing");
+      }
+    
+      function commit() {
+        setTableFullDateTimeRangeProps(
+          node,
+          column.startDateKey,
+          column.startTimeKey,
+          column.endDateKey,
+          column.endTimeKey,
+          startDateInput.value,
+          startTimeInput.value,
+          endDateInput.value,
+          endTimeInput.value
+        );
+    
+        closeEditor();
+      }
+    
+      view.addEventListener("click", openEditor);
+    
+      wrap.addEventListener("click", (e) => {
+        if (
+          e.target === startDateInput ||
+          e.target === startTimeInput ||
+          e.target === endDateInput ||
+          e.target === endTimeInput
+        ) {
+          return;
+        }
+    
+        openEditor(e);
+      });
+    
+      [startDateInput, startTimeInput, endDateInput, endTimeInput].forEach((input) => {
+        input.addEventListener("click", selectNode);
+        input.addEventListener("dblclick", (e) => e.stopPropagation());
+    
+        input.addEventListener("keydown", (e) => {
+          e.stopPropagation();
+    
+          if (e.key === "Enter" || e.code === "NumpadEnter") {
+            e.preventDefault();
+            commit();
+            input.blur();
+            return;
+          }
+    
+          if (e.key === "Escape") {
+            e.preventDefault();
+            closeEditor();
+            input.blur();
+            return;
+          }
+        });
+    
+        input.addEventListener("change", () => {
+          setTableFullDateTimeRangeProps(
+            node,
+            column.startDateKey,
+            column.startTimeKey,
+            column.endDateKey,
+            column.endTimeKey,
+            startDateInput.value,
+            startTimeInput.value,
+            endDateInput.value,
+            endTimeInput.value
+          );
+    
+          view.textContent = getTableFullDateTimeRangeViewText(node, column);
+        });
+    
+        input.addEventListener("blur", () => {
+          setTimeout(() => {
+            if (!wrap.contains(document.activeElement)) {
+              commit();
+            }
+          }, 0);
+        });
+      });
+    
+      editor.appendChild(startDateInput);
+      editor.appendChild(startTimeInput);
+      editor.appendChild(separator);
+      editor.appendChild(endDateInput);
+      editor.appendChild(endTimeInput);
+    
+      wrap.appendChild(view);
+      wrap.appendChild(editor);
+    
+      return wrap;
+    }
+
     function getTableIconSymbol(value) {
       switch (value) {
         case "circle":
@@ -1510,6 +1955,109 @@ function finishTimerAtZero(node, key) {
       if (!startText && endText) return `→ ${endText}`;
     
       return `${startText} → ${endText}`;
+    }
+
+    function getTableDateTimeViewText(node, column) {
+      const dateValue = getTableProp(node, column.dateKey);
+      const timeValue = getTableProp(node, column.timeKey);
+    
+      const dateText = formatTableDateCompact(dateValue);
+      const timeText = formatTableTimeCompact(timeValue);
+    
+      if (!dateText && !timeText) return "";
+      if (dateText && !timeText) return dateText;
+      if (!dateText && timeText) return timeText;
+    
+      return `${dateText} ${timeText}`;
+    }
+
+    function getTableFullDateTimeRangeViewText(node, column) {
+      const startDate = formatTableDateCompact(getTableProp(node, column.startDateKey));
+      const startTime = formatTableTimeCompact(getTableProp(node, column.startTimeKey));
+      const endDate = formatTableDateCompact(getTableProp(node, column.endDateKey));
+      const endTime = formatTableTimeCompact(getTableProp(node, column.endTimeKey));
+    
+      const startText = [startDate, startTime].filter(Boolean).join(" ");
+      const endText = [endDate, endTime].filter(Boolean).join(" ");
+    
+      if (!startText && !endText) return "";
+      if (startText && !endText) return `${startText} →`;
+      if (!startText && endText) return `→ ${endText}`;
+    
+      return `${startText} → ${endText}`;
+    }
+
+    function setTableFullDateTimeRangeProps(
+      node,
+      startDateKey,
+      startTimeKey,
+      endDateKey,
+      endTimeKey,
+      startDateValue,
+      startTimeValue,
+      endDateValue,
+      endTimeValue
+    ) {
+      const props = ensureTableProps(node);
+    
+      const oldStartDate = props[startDateKey] || "";
+      const oldStartTime = props[startTimeKey] || "";
+      const oldEndDate = props[endDateKey] || "";
+      const oldEndTime = props[endTimeKey] || "";
+    
+      if (
+        oldStartDate === startDateValue &&
+        oldStartTime === startTimeValue &&
+        oldEndDate === endDateValue &&
+        oldEndTime === endTimeValue
+      ) {
+        return;
+      }
+    
+      if (typeof pushHistory === "function" && typeof snapshot === "function") {
+        pushHistory(snapshot());
+      }
+    
+      props[startDateKey] = startDateValue;
+      props[startTimeKey] = startTimeValue;
+      props[endDateKey] = endDateValue;
+      props[endTimeKey] = endTimeValue;
+    
+      requestAnimationFrame(() => {
+        [startDateKey, startTimeKey, endDateKey, endTimeKey].forEach((key) => {
+          syncTableSingleInputsForKey(node, key);
+          syncTableRangeControlsForKey(node, key);
+          syncTableDateTimeControlsForKey?.(node, key);
+          syncTableFullDateTimeRangeControlsForKey?.(node, key);
+        });
+      });
+    }
+    
+    function setTableDateTimeProps(node, dateKey, timeKey, dateValue, timeValue) {
+      const props = ensureTableProps(node);
+    
+      const oldDate = props[dateKey] || "";
+      const oldTime = props[timeKey] || "";
+    
+      if (oldDate === dateValue && oldTime === timeValue) return;
+    
+      if (typeof pushHistory === "function" && typeof snapshot === "function") {
+        pushHistory(snapshot());
+      }
+    
+      props[dateKey] = dateValue;
+      props[timeKey] = timeValue;
+    
+      requestAnimationFrame(() => {
+        syncTableSingleInputsForKey(node, dateKey);
+        syncTableSingleInputsForKey(node, timeKey);
+    
+        syncTableRangeControlsForKey(node, dateKey);
+        syncTableRangeControlsForKey(node, timeKey);
+    
+        syncTableDateTimeControlsForKey(node, dateKey);
+        syncTableDateTimeControlsForKey(node, timeKey);
+      });
     }
     
     function formatTableTimeCompact(value) {

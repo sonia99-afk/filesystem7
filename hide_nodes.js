@@ -344,9 +344,7 @@
   
     function hideBtnSoon() {
       clearTimeout(hideTimer);
-      hideTimer = setTimeout(() => {
-        btn.classList.remove("is-hover-visible");
-      }, 120);
+      btn.classList.remove("is-hover-visible");
     }
   
     targetEl.addEventListener("mouseenter", showBtn);
@@ -631,9 +629,7 @@ for (const item of buttonItems) {
   
       function hideBtnSoon() {
         clearTimeout(hideTimer);
-        hideTimer = setTimeout(() => {
-          btn.classList.remove("is-visible");
-        }, 120);
+        btn.classList.remove("is-visible");
       }
   
       tr.addEventListener("mouseenter", showBtn);
@@ -901,7 +897,7 @@ for (const item of buttonItems) {
   z-index: 35;
 
   opacity: 0;
-  transition: opacity 0.08s ease;
+  transition: none;
 }
 
 #tree .object-hide-col.is-hover-visible,
@@ -945,7 +941,7 @@ for (const item of buttonItems) {
       .table-collapse-col {
       color: #6b7280;
   opacity: 0;
-  transition: opacity 0.18s ease;
+  transition: none;
 }
 
 .table-collapse-col:hover {
