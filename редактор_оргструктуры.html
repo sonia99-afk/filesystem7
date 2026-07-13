@@ -20,16 +20,7 @@
   <link rel="stylesheet" href="css/features/mark-property.css" />
 
   <link rel="stylesheet" href="css/views/schema.css" />
-  <link rel="stylesheet" href="css/views/hierarchy_view.css" />
-  <link rel="stylesheet" href="css/views/hierarchy_horizontal_view.css" />
-  <link rel="stylesheet" href="css/views/icicle_horizontal_view.css" />
-  <link rel="stylesheet" href="css/views/icicle_vertical_view.css" />
-  <link rel="stylesheet" href="css/views/list_view.css" />
-  <link rel="stylesheet" href="css/views/table_view.css" />
-  <link rel="stylesheet" href="css/views/text.css">
-
   
-
   <link rel="stylesheet" href="css/ui.css" />
 </head>
 <body>
@@ -171,12 +162,12 @@
         </div>
 
         <span class="view-switcher">
-          <button id="modeStd" onclick="setCurrentView('schema')" class="btnn">Структура</button>
-          <button id="modeHierarchy" onclick="setCurrentView('hierarchy')" class="btnn">Иерархия</button>
-          <button id="modeAicycle" onclick="setCurrentView('aicycle')" class="btnn">Айсикл</button>
-          <button id="modeTable" onclick="setCurrentView('table')" class="btnn">Таблица</button>
-          <button id="modeList" onclick="setCurrentView('list')" class="btnn">Лист</button>
-          <button id="modeText" onclick="setCurrentView('text')" class="btnn">Текст</button>
+          <button id="modeStd" onclick="window.appRouter?.open('schema')" class="btnn">Структура</button>
+          <button id="modeHierarchy" onclick="window.appRouter?.open('hierarchy')" class="btnn">Иерархия</button>
+          <button id="modeAicycle" onclick="window.appRouter?.open('aicycle')" class="btnn">Айсикл</button>
+          <button id="modeTable" onclick="window.appRouter?.open('table')" class="btnn">Таблица</button>
+          <button id="modeList" onclick="window.appRouter?.open('list')" class="btnn">Лист</button>
+          <button id="modeText" onclick="window.appRouter?.open('text')" class="btnn">Текст</button>
         </span>
         <span class="hierarchy-orientation-switcher">
           <button id="hierarchyHorizontalBtn" onclick="setViewOrientation('horizontal')" class="btnn">Горизонтальная</button>
@@ -353,7 +344,7 @@
             </tr>
 
             <tr>
-              <td colspan="2">Редактировать название</td>
+              <td colspan="2" style="background-color: red;">Редактировать название/взаимодействие с ячейкой</td>
               <td></td>
               <td data-action="rename">ё</td>
               <td data-action="renameClick">DblClick</td>
@@ -754,16 +745,12 @@
   </div>
 
   <script src="hotkeys_config.js"></script>
-  <script src="rename.js"></script>
-  <script src="app2.js"></script>
-  <script src="schema_lines.js"></script>
-  <script src="ui_resources.js"></script>
-  <script src="hierarchy_view.js"></script>
-  <script src="hierarchy_horizontal_view.js"></script>
-  <script src="icicle_horizontal_view.js"></script>
-  <script src="icicle_vertical_view.js"></script>
-  <script src="table_view.js"></script>
-  <script src="list_view.js"></script>
+<script src="ui_resources.js"></script>
+<script src="app_core.js"></script>
+<script src="rename.js"></script>
+<script src="app2.js"></script>
+<script src="schema_lines.js"></script>
+  
   <script src="hotkeys_editor.js"></script>
   
   <script src="hotkeys_ui.js"></script> 
@@ -771,7 +758,7 @@
   <script src="multi_select_patch.js"></script>
   <script src="multi_select_deep.js"></script>
   <script src="multi_move_hierarchy.js"></script>
-  <script src="tg_export_mode.js"></script>
+
   <script src="text_formatting.js"></script>
 
   <script src="color_formating/color_tools_ui.js"></script>
@@ -794,5 +781,7 @@
   <script src="collapse_nodes.js"></script>
   <script src="hide_nodes.js"></script>
   <script src="hide_levels.js"></script>
+  <script src="spa_router.js"></script>
+  <script src="table_hotkeys_table_mode_hint.js">  </script>
 </body>
 </html>

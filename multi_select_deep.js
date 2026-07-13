@@ -159,14 +159,14 @@
   }
 
   function focusAnchor() {
-    if (!state.anchorId) return;
+  if (!state.anchorId) return;
 
-    selectedId = state.anchorId;
-    treeHasFocus = true;
+  selectedId = state.anchorId;
+  treeHasFocus = true;
 
-    const anchorRow = rowById(state.anchorId);
-    anchorRow?.focus?.({ preventScroll: true });
-  }
+  const anchorRow = rowById(state.anchorId);
+  anchorRow?.focus?.({ preventScroll: true });
+}
 
   function clickRow(row) {
     if (!row) return;
@@ -327,6 +327,7 @@
       if (window.hotkeysMode === "custom") return;
       if (isEditingNow()) return;
       if (typeof isHotkey !== "function") return;
+      if (window.currentView === window.VIEW?.TABLE) return;
 
       if (isHotkey(e, "selectAll")) {
         e.preventDefault();
@@ -371,9 +372,11 @@ state.anchorId = id;
 state.activeId = id;
 state.ids = new Set([id]);
   
-      selectedId = state.anchorId;
-      treeHasFocus = true;
-      rowById(state.anchorId)?.focus?.({ preventScroll: true });
+     
+  selectedId = state.anchorId;
+  treeHasFocus = true;
+  rowById(state.anchorId)?.focus?.({ preventScroll: true });
+
   
       applyClasses();
       return;
@@ -389,9 +392,11 @@ state.ids = new Set([id]);
 
     state.activeId = id;
   
-    selectedId = state.anchorId;
-    treeHasFocus = true;
-    rowById(state.anchorId)?.focus?.({ preventScroll: true });
+    
+  selectedId = state.anchorId;
+  treeHasFocus = true;
+  rowById(state.anchorId)?.focus?.({ preventScroll: true });
+
   
     applyClasses();
   }

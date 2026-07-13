@@ -204,17 +204,17 @@
       if (isTypingTarget(e.target)) return;
   
       const isVerticalArrow =
-        e.code === "ArrowUp" ||
-        e.code === "ArrowDown" ||
-        e.key === "ArrowUp" ||
-        e.key === "ArrowDown";
-  
-      // ВАЖНО:
-      // делаем preventDefault ДО resolveArrowActionFromEvent(),
-      // потому что на повторных keydown isHotkey() возвращает false из-за e.repeat.
-      if (isVerticalArrow && canRunNow()) {
-        e.preventDefault();
-      }
+  e.code === "ArrowUp" ||
+  e.code === "ArrowDown" ||
+  e.key === "ArrowUp" ||
+  e.key === "ArrowDown";
+
+// ВАЖНО:
+// делаем preventDefault ДО resolveArrowActionFromEvent(),
+// потому что на повторных keydown isHotkey() возвращает false из-за e.repeat.
+if (isVerticalArrow && canRunNow()) {
+  e.preventDefault();
+}
   
       const action = resolveArrowActionFromEvent(e);
       if (!action) return;

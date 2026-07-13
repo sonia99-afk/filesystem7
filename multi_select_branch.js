@@ -128,14 +128,13 @@
   }
 
   function focusAnchor() {
-    if (!state.anchorId) return;
+  if (!state.anchorId) return;
+  selectedId = state.anchorId;
+  treeHasFocus = true;
 
-    selectedId = state.anchorId;
-    treeHasFocus = true;
-
-    const anchorRow = rowById(state.anchorId);
-    anchorRow?.focus?.({ preventScroll: true });
-  }
+  const anchorRow = rowById(state.anchorId);
+  anchorRow?.focus?.({ preventScroll: true });
+}
 
   if (typeof window.render === "function" && !window.render.__multiBranchPatchedV2) {
     const _render = window.render;
@@ -269,6 +268,7 @@
       if (window.hotkeysMode === "custom") return;
       if (isEditingNow()) return;
       if (typeof isHotkey !== "function") return;
+      if (window.currentView === window.VIEW?.TABLE) return;
 
       if (isHotkey(e, "branchRangeLeft")) {
         e.preventDefault();

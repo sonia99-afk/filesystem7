@@ -1,168 +1,67 @@
 #tree {
-    position: relative;
-  }
-  
-  #tree .collapse-col {
-    font-size: 12px !important;
-    position: absolute;
-    left: -55px;
-  
-    width: 28px;
-    height: 20px;
-  
-    padding: 0;
-    margin: 0;
-    border: 0;
-    background: transparent;
-  
-    color: #6b7280;
-    font: inherit;
-    line-height: 20px;
-    text-align: right;
-  
-    user-select: none;
-    cursor: pointer;
-    z-index: 30;
-  }
+  position: relative;
+}
 
-  #tree .collapse-col:hover {
-    color: black;
-  }
+#tree .collapse-col {
+  font-size: 12px !important;
+  position: absolute;
+  left: -55px;
 
-  #tree .collapse-col {
-   
-    opacity: 0;
-  }
-  
-  #tree .collapse-col.is-visible,
-  #tree .collapse-col:hover {
-    opacity: 1;
-  }
+  width: 28px;
+  height: 20px;
 
+  padding: 0;
+  margin: 0;
+  border: 0;
+  background: transparent;
 
-  .level-collapse-bar {
-    position: relative;
-    display: flex;
-    top: -10px;
-    gap: 12px;
-    margin-bottom: 6px;
+  color: #6b7280;
+  font: inherit;
+  line-height: 20px;
+  text-align: right;
 
-  }
+  user-select: none;
+  cursor: pointer;
+  z-index: 30;
+}
 
-  .level-collapse-btn:hover {
-    color: black;
-  }
-  
-  .level-collapse-btn {
-    font-size: 12px !important;
-    border: 0;
-    background: transparent;
-    padding: 0;
-    margin: 0;
-  
-    font: inherit;
-    color: #6b7280;
-    cursor: pointer;
-  }
-  
+#tree .collapse-col:hover {
+  color: black;
+}
 
-  #tree {
-    position: relative;
-  }
-  
-  .table-collapse-col {
-    position: absolute;
-    font-size: 12px !important;
-    left: -55px;
-    width: 32px;
-    height: 20px;
-    border: 0;
-    background: transparent;
-    font: inherit;
-    cursor: pointer;
-  }
+#tree .collapse-col {
+  opacity: 0;
+}
 
-  .table-collapse-col {
-    opacity: 0;
-  }
-  
-  .table-collapse-col.is-visible,
-  .table-collapse-col:hover {
-    opacity: 1;
-  }
-
-  #tree .collapse-col.is-collapsed,
-#tree .table-collapse-col.is-collapsed {
+#tree .collapse-col.is-visible,
+#tree .collapse-col:hover {
   opacity: 1;
 }
 
-.structure-table .table-datetime-cell {
-  min-width: 220px;
-  width: 220px;
-  max-width: 220px;
-  padding: 0;
+#tree .collapse-col.is-collapsed {
+  opacity: 1;
 }
 
-.structure-table .table-datetime-control {
-  width: 100%;
-  min-height: 22px;
-}
-
-.structure-table .table-datetime-view {
-  display: block;
-  width: 100%;
-  height: 22px;
-  padding: 0 4px;
-  border: 0;
-  background: transparent;
-  color: #000;
-  font: inherit;
-  font-size: 12px;
-  line-height: 22px;
-  text-align: left;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-.structure-table .table-datetime-editor {
-  display: none;
-  align-items: center;
-  gap: 4px;
-  width: 100%;
-  padding: 0 4px;
-  box-sizing: border-box;
-}
-
-.structure-table .table-datetime-control.is-editing .table-datetime-view {
-  display: none;
-}
-
-.structure-table .table-datetime-control.is-editing .table-datetime-editor {
+.level-collapse-bar {
+  position: relative;
   display: flex;
+  top: -10px;
+  gap: 12px;
+  margin-bottom: 6px;
 }
 
-.structure-table .table-datetime-input {
-  min-width: 0;
-  height: 22px;
-  box-sizing: border-box;
+.level-collapse-btn:hover {
+  color: black;
+}
+
+.level-collapse-btn {
+  font-size: 12px !important;
   border: 0;
   background: transparent;
-  color: #000;
+  padding: 0;
+  margin: 0;
+
   font: inherit;
-  font-size: 12px;
-  padding: 0 2px;
-}
-
-.structure-table .table-datetime-date {
-  width: 118px;
-}
-
-.structure-table .table-datetime-time {
-  width: 76px;
-}
-
-.structure-table .table-datetime-input:focus {
-  background: #fff;
-  outline: none;
-  box-shadow: inset 0 0 0 1px #9ca3af;
+  color: #6b7280;
+  cursor: pointer;
 }

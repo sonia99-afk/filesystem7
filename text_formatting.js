@@ -124,20 +124,38 @@
   }
 
   function getTargetRows() {
-    const h = host();
-    if (!h) return [];
+  const h = host();
+  if (!h) return [];
 
-    const multi = Array.from(h.querySelectorAll(".row.multi"));
-    if (multi.length) return multi;
+  const multi = Array.from(h.querySelectorAll(".row.multi"));
+  if (multi.length) return multi;
 
-    const sel = h.querySelector(".row.sel");
-    return sel ? [sel] : [];
+  // Табличный режим: выбрана именно ячейка с названием.
+  const tableNameCell = h.querySelector(
+    "td.table-cell-selected.table-name-cell.row[data-id]"
+  );
+
+  if (tableNameCell) {
+    return [tableNameCell];
   }
+
+  // Старый режим дерева.
+  const sel = h.querySelector(".row.sel");
+  return sel ? [sel] : [];
+}
 
   function isTreeActive() {
-    const h = host();
-    return !!h?.querySelector(".row.sel");
-  }
+  const h = host();
+  if (!h) return false;
+
+  return !!h.querySelector(
+    [
+      ".row.sel",
+      ".row.multi",
+      "td.table-cell-selected.table-name-cell.row[data-id]",
+    ].join(",")
+  );
+}
 
   function isEditingNow() {
     const ae = document.activeElement;
@@ -1066,14 +1084,15 @@
     const rows = getTargetRows();
     const row = rows[0];
     const id = row?.dataset?.id;
-    const fmt = id ? getFmt(id) : emptyFmt();
+    const node = id ? getNodeById(id) : null;
+    const fmt = id ? getVisualWholeFmtForNode(node, id) : emptyFmt();
 
     for (const [btnId, key] of ids) {
       const btn = document.getElementById(btnId);
       if (!btn) continue;
       btn.classList.toggle("active", !!fmt[key]);
     }
-  }
+      }
 
   function applyInlineFmt(key) {
     const ed = activeRichEditor();

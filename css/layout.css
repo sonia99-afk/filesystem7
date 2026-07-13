@@ -344,3 +344,42 @@ body.left-collapsed .grid-container {
   top: 31px;
   left: 25px;
 }
+
+.project-row {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 4px;
+}
+
+.project-row .project-item {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.project-delete-btn {
+  flex: 0 0 auto;
+
+  width: 20px;
+  height: 20px;
+
+  padding: 0;
+  border: 0;
+  background: transparent;
+
+  color: #6b7280;
+  font: inherit;
+  font-size: 16px;
+  line-height: 18px;
+
+  cursor: pointer;
+  opacity: 0;
+}
+
+.project-row:hover .project-delete-btn {
+  opacity: 1;
+}
+
+.project-delete-btn:hover {
+  color: #000;
+}

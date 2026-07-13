@@ -264,9 +264,11 @@
         state.ids = new Set([cur.dataset.id, next.dataset.id]);
       }
   
-      selectedId = state.anchorId;
-      treeHasFocus = true;
-      rowById(state.anchorId)?.focus?.({ preventScroll: true });
+     
+  selectedId = state.anchorId;
+  treeHasFocus = true;
+  rowById(state.anchorId)?.focus?.({ preventScroll: true });
+
   
       applyClasses();
       return;
@@ -291,9 +293,11 @@
       state.ids = new Set([state.anchorId, state.activeId]);
     }
   
-    selectedId = state.anchorId;
-    treeHasFocus = true;
-    rowById(state.anchorId)?.focus?.({ preventScroll: true });
+   
+  selectedId = state.anchorId;
+  treeHasFocus = true;
+  rowById(state.anchorId)?.focus?.({ preventScroll: true });
+
   
     applyClasses();
   }
@@ -304,6 +308,7 @@
       if (window.hotkeysMode === "custom") return;
       if (isEditingNow()) return;
       if (typeof isHotkey !== "function") return;
+      if (window.currentView === window.VIEW?.TABLE) return;
 
       if (isHotkey(e, "rangeUp")) {
         e.preventDefault();
@@ -334,9 +339,11 @@
       state.anchorId = id;
       state.activeId = id;
       state.ids = new Set([id]);
-      selectedId = state.anchorId;
-      treeHasFocus = true;
-      rowById(state.anchorId)?.focus?.({ preventScroll: true });
+     
+  selectedId = state.anchorId;
+  treeHasFocus = true;
+  rowById(state.anchorId)?.focus?.({ preventScroll: true });
+
   
       applyClasses();
       return;
@@ -352,9 +359,9 @@
 
 state.activeId = id;
   
-    selectedId = state.anchorId;
-    treeHasFocus = true;
-    rowById(state.anchorId)?.focus?.({ preventScroll: true });
+  selectedId = state.anchorId;
+  treeHasFocus = true;
+  rowById(state.anchorId)?.focus?.({ preventScroll: true });
   
     applyClasses();
   }

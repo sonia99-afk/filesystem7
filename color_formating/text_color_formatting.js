@@ -69,15 +69,25 @@
     }
   
     function getTargetRows() {
-      const h = host();
-      if (!h) return [];
-  
-      const multi = Array.from(h.querySelectorAll(".row.multi"));
-      if (multi.length) return multi;
-  
-      const sel = h.querySelector(".row.sel");
-      return sel ? [sel] : [];
-    }
+  const h = host();
+  if (!h) return [];
+
+  const multi = Array.from(h.querySelectorAll(".row.multi"));
+  if (multi.length) return multi;
+
+  // Табличный режим: выбрана именно ячейка с названием.
+  const tableNameCell = h.querySelector(
+    "td.table-cell-selected.table-name-cell.row[data-id]"
+  );
+
+  if (tableNameCell) {
+    return [tableNameCell];
+  }
+
+  // Старый режим дерева.
+  const sel = h.querySelector(".row.sel");
+  return sel ? [sel] : [];
+}
 
 // =========================
 // Color format storage
