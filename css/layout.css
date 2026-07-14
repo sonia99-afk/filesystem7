@@ -29,8 +29,10 @@
     padding: 31px;
     box-sizing: border-box;
   
-    overflow: auto;
+   
     position: relative;
+  z-index: 200;
+  background-color: white;
   }
   
   .main {

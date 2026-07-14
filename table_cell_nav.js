@@ -279,38 +279,64 @@ function isCellActivateHotkey(e) {
   return !!window.isHotkey?.(e, "rename");
 }
 
+function clearTableMultiSelection() {
+  window.tableMultiSelectTree?.clear?.();
+  window.tableMultiSelectDeep?.clear?.();
+  window.tableMultiSelectBranch?.clear?.();
+}
+
    function handleCellKeydown(e) {
   if (!isTableViewActive()) return;
 
   const td = e.target.closest?.("td." + CELL_CLASS);
   if (!td) return;
 
-  // В таблице временно запрещаем старые механики дерева.
+  if (e.repeat) {
+  e.preventDefault();
   e.stopPropagation();
+  e.stopImmediatePropagation?.();
+  return;
+}
 
-  if (e.key === "ArrowUp") {
-    e.preventDefault();
-    moveCell(td, -1, 0);
-    return;
-  }
+if (window.isHotkey?.(e, "navUp")) {
+  e.preventDefault();
+  e.stopPropagation();
+  e.stopImmediatePropagation?.();
 
-  if (e.key === "ArrowDown") {
-    e.preventDefault();
-    moveCell(td, 1, 0);
-    return;
-  }
+  clearTableMultiSelection();
+  moveCell(td, -1, 0);
+  return;
+}
 
-  if (e.key === "ArrowLeft") {
-    e.preventDefault();
-    moveCell(td, 0, -1);
-    return;
-  }
+if (window.isHotkey?.(e, "navDown")) {
+  e.preventDefault();
+  e.stopPropagation();
+  e.stopImmediatePropagation?.();
 
-  if (e.key === "ArrowRight") {
-    e.preventDefault();
-    moveCell(td, 0, 1);
-    return;
-  }
+  clearTableMultiSelection();
+  moveCell(td, 1, 0);
+  return;
+}
+
+if (window.isHotkey?.(e, "navLeft")) {
+  e.preventDefault();
+  e.stopPropagation();
+  e.stopImmediatePropagation?.();
+
+  clearTableMultiSelection();
+  moveCell(td, 0, -1);
+  return;
+}
+
+if (window.isHotkey?.(e, "navRight")) {
+  e.preventDefault();
+  e.stopPropagation();
+  e.stopImmediatePropagation?.();
+
+  clearTableMultiSelection();
+  moveCell(td, 0, 1);
+  return;
+}
 
   if (isCellActivateHotkey(e)) {
     e.preventDefault();
@@ -412,8 +438,34 @@ function isCellActivateHotkey(e) {
         });
       }
     }
+
+function moveSelectedCellBy(rowDelta, colDelta) {
+  const td = getSelectedCell();
+
+  if (!td) return false;
+
+  clearTableMultiSelection();
+  moveCell(td, rowDelta, colDelta);
+  return true;
+}
+
+function moveSelectedCellUp() {
+  return moveSelectedCellBy(-1, 0);
+}
+
+function moveSelectedCellDown() {
+  return moveSelectedCellBy(1, 0);
+}
+
+function moveSelectedCellLeft() {
+  return moveSelectedCellBy(0, -1);
+}
+
+function moveSelectedCellRight() {
+  return moveSelectedCellBy(0, 1);
+}
   
-    window.tableCellNav = {
+window.tableCellNav = {
   init,
   prepareTableCells,
   selectCell,
@@ -422,6 +474,12 @@ function isCellActivateHotkey(e) {
   activateCell,
   activateSelectedCell,
   isCellActivateHotkey,
+
+  moveBy: moveSelectedCellBy,
+  moveUp: moveSelectedCellUp,
+  moveDown: moveSelectedCellDown,
+  moveLeft: moveSelectedCellLeft,
+  moveRight: moveSelectedCellRight,
 
   // старое имя оставляем для совместимости
   startEditCell,

@@ -27,44 +27,44 @@
     addChildClick: "",
 
     // Навигация
-    navUp: "ArrowUp",
-    navDown: "ArrowDown",
-    navLeft: "",
-navRight: "",
+    navUp: "Alt+ArrowUp",
+    navDown: "Alt+ArrowDown",
+    navLeft: "Alt+ArrowLeft",
+    navRight: "Alt+ArrowRight",
     navClick: "Click",
 
     // Перемещение внутри уровня
-    moveUp: "Shift+ArrowUp",
-    moveDown: "Shift+ArrowDown",
+    moveUp: "Primary+Alt+ArrowUp",
+    moveDown: "Primary+Alt+ArrowDown",
 
-    levelNavUp: "Alt+ArrowUp",
-    levelNavDown: "Alt+ArrowDown",
-    branchNavLeft: "Alt+ArrowLeft",
-    branchNavRight: "Alt+ArrowRight",
-    levelMoveUp: "Shift+Alt+ArrowUp",
-    levelMoveDown: "Shift+Alt+ArrowDown",
-    branchMoveLeft: "Shift+Alt+ArrowLeft",
-    branchMoveRight: "Shift+Alt+ArrowRight",
+    levelNavUp: "ArrowUp",
+    levelNavDown: "ArrowDown",
+    branchNavLeft: "ArrowLeft",
+    branchNavRight: "ArrowRight",
+    levelMoveUp: "Primary+ArrowUp",
+    levelMoveDown: "Primary+ArrowDown",
+    branchMoveLeft: "Primary+ArrowLeft",
+    branchMoveRight: "Primary+ArrowRight",
 
-    focusIntoObject: "Shift+BracketLeft",
-    focusOutObject: "Shift+BracketRight",
+    focusIntoObject: "Shift+BracketRight",
+    focusOutObject: "Shift+BracketLeft",
 
     // Перемещение между уровнями
     indent: "",
     outdent: "",
 
     // Диапазон (один уровень)
-    rangeUp: "Primary+Alt+Shift+ArrowUp",
-    rangeDown: "Primary+Alt+Shift+ArrowDown",
-    rangeClick: "Primary+Alt+Shift+Click",
+    rangeUp: "Shift+ArrowUp",
+    rangeDown: "Shift+ArrowDown",
+    rangeClick: "Shift+Click",
 
-    branchRangeLeft: "Primary+Alt+Shift+ArrowLeft",
-    branchRangeRight: "Primary+Alt+Shift+ArrowRight",
+    branchRangeLeft: "Shift+ArrowLeft",
+    branchRangeRight: "Shift+ArrowRight",
 
     // Глубокое выделение (ветка)
-    deepUp: "Primary+ArrowUp",
-    deepDown: "Primary+ArrowDown",
-    deepClick: "Primary+Shift+Click",
+    deepUp: "Shift+Alt+ArrowUp",
+    deepDown: "Shift+Alt+ArrowDown",
+    deepClick: "Alt+Shift+Click",
 
     // Прочее
     rename: "Enter",
@@ -101,11 +101,11 @@ navRight: "",
         textColor5: "Primary+5",
     
         // Цвет подложки
-        bgColor1: "Alt+1",
-        bgColor2: "Alt+2",
-        bgColor3: "Alt+3",
-        bgColor4: "Alt+4",
-        bgColor5: "Alt+5",
+        bgColor1: "Primary+6",
+        bgColor2: "Primary+7",
+        bgColor3: "Primary+8",
+        bgColor4: "Primary+9",
+        bgColor5: "Primary+0",
 
 
   };

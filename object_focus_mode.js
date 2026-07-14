@@ -298,21 +298,29 @@
       }
 
       if (isHotkey(e, "focusOutObject")) {
-        e.preventDefault();
-        e.stopPropagation();
-        e.stopImmediatePropagation?.();
+  /*
+    Выход из объекта работает только если мы уже находимся
+    внутри режима фокуса. Если focusedRootId нет — ничего не делаем.
+  */
+  if (!focusedRootId || focusedRootId === root.id) {
+    return;
+  }
 
-        const path = findPathToNode(focusedRootId || selectedId);
+  e.preventDefault();
+  e.stopPropagation();
+  e.stopImmediatePropagation?.();
 
-        if (path.length >= 2) {
-          const parent = path[path.length - 2];
-          focusOutTo(parent.id);
-        } else {
-          focusOutTo(null);
-        }
+  const path = findPathToNode(focusedRootId);
 
-        return;
-      }
+  if (path.length >= 2) {
+    const parent = path[path.length - 2];
+    focusOutTo(parent.id);
+  } else {
+    focusOutTo(null);
+  }
+
+  return;
+}
     },
     true
   );

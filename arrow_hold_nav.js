@@ -17,6 +17,10 @@
     return tag === "input" || tag === "textarea" || el.isContentEditable;
   }
 
+  function isTableViewActive() {
+  return window.currentView === window.VIEW?.TABLE;
+}
+
   function isModifierKey(e) {
     return (
       e.key === "Shift" ||
@@ -199,9 +203,10 @@
   }
 
   window.addEventListener(
-    "keydown",
-    (e) => {
-      if (isTypingTarget(e.target)) return;
+  "keydown",
+  (e) => {
+    if (isTableViewActive()) return;
+    if (isTypingTarget(e.target)) return;
   
       const isVerticalArrow =
   e.code === "ArrowUp" ||

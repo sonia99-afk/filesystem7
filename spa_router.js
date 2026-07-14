@@ -14,10 +14,18 @@
         js: [],
       },
   
-      table: {
-        css: ["css/views/table_view.css"],
-        js: ["table_view.js", "table_cell_nav.js", "table_hotkeys.js"],
-      },
+table: {
+  css: ["css/views/table_view.css"],
+  js: [
+    "table_view.js",
+    "table_cell_nav.js",
+    "table_hotkeys.js",
+    "table_drag_drop.js",
+    "table_multi_select_tree.js",
+    "table_multi_select_deep.js",
+    "table_multi_select_branch.js"
+  ],
+},
   
       list: {
         css: ["css/views/list_view.css"],

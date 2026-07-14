@@ -2605,16 +2605,47 @@ btn.textContent = isCollapsed ? "[+]" : "[-]";
       });
     }
 
-    let tableDescendantHighlightObserver = null;
+let tableDescendantHighlightObserver = null;
+let tableDescendantHighlightRaf = null;
 
 function ensureTableDescendantHighlightWatcher() {
   const host = document.getElementById("tree");
   if (!host || tableDescendantHighlightObserver) return;
 
-  tableDescendantHighlightObserver = new MutationObserver(() => {
-    requestAnimationFrame(() => {
+  function scheduleTableDescendantHighlightUpdate() {
+    if (tableDescendantHighlightRaf) return;
+
+    tableDescendantHighlightRaf = requestAnimationFrame(() => {
+      tableDescendantHighlightRaf = null;
       updateTableDescendantRowHighlights();
     });
+  }
+
+  tableDescendantHighlightObserver = new MutationObserver((mutations) => {
+    const shouldUpdate = mutations.some((mutation) => {
+      const el = mutation.target;
+
+      if (el?.classList?.contains("table-collapse-col")) {
+  return false;
+}
+
+      // Не реагируем на смену активной ячейки.
+      // Иначе table-cell-selected запускает лишние пересчёты.
+      if (el?.classList?.contains("table-cell")) {
+        return false;
+      }
+
+      // Не реагируем на класс, который мы сами ставим для розовой подсветки.
+      if (el?.classList?.contains("table-selected-descendant-row")) {
+        return false;
+      }
+
+      return true;
+    });
+
+    if (!shouldUpdate) return;
+
+    scheduleTableDescendantHighlightUpdate();
   });
 
   tableDescendantHighlightObserver.observe(host, {
@@ -2623,17 +2654,21 @@ function ensureTableDescendantHighlightWatcher() {
     attributeFilter: ["class"],
   });
 
-  host.addEventListener("click", () => {
-    requestAnimationFrame(() => {
-      updateTableDescendantRowHighlights();
-    });
-  }, true);
+  host.addEventListener(
+    "click",
+    () => {
+      scheduleTableDescendantHighlightUpdate();
+    },
+    true
+  );
 
-  host.addEventListener("keyup", () => {
-    requestAnimationFrame(() => {
-      updateTableDescendantRowHighlights();
-    });
-  }, true);
+  host.addEventListener(
+    "keyup",
+    () => {
+      scheduleTableDescendantHighlightUpdate();
+    },
+    true
+  );
 }
     
 
@@ -2683,6 +2718,61 @@ function ensureTableDescendantHighlightWatcher() {
    - Файл
 ========================================================= */
 
+function selectUploadTableCellFromEvent(e, node) {
+  e.stopPropagation();
+
+  selectedId = node.id;
+  treeHasFocus = true;
+
+  const td = e.currentTarget?.closest?.("td");
+
+  if (td) {
+    window.tableCellNav?.selectCell?.(td, {
+      focus: true,
+      scroll: false,
+    });
+  }
+}
+
+function bindUploadTableCellSelection(td, node) {
+  if (!td || !node) return td;
+  if (td.__uploadCellSelectionBound) return td;
+
+  td.__uploadCellSelectionBound = true;
+
+  function selectThisCell() {
+    selectedId = node.id;
+    treeHasFocus = true;
+
+    window.tableCellNav?.selectCell?.(td, {
+      focus: true,
+      scroll: false,
+    });
+  }
+
+  td.addEventListener(
+    "click",
+    () => {
+      selectThisCell();
+    },
+    true
+  );
+
+  td.addEventListener(
+    "dblclick",
+    (e) => {
+      e.preventDefault();
+
+      selectThisCell();
+
+      window.tableCellNav?.activateCell?.(td);
+    },
+    true
+  );
+
+  return td;
+}
+
 function markTableUploadCell(td, type) {
   if (!td) return td;
 
@@ -2728,24 +2818,19 @@ function makeTableFileControl(node, key) {
   uploadBtn.textContent = "загрузить файл";
 
   function selectNode(e) {
-    e.stopPropagation();
-
-    selectedId = node.id;
-    treeHasFocus = true;
-  }
+  selectUploadTableCellFromEvent(e, node);
+}
 
   wrap.addEventListener("click", selectNode);
   wrap.addEventListener("dblclick", (e) => e.stopPropagation());
 
   uploadBtn.addEventListener("click", (e) => {
-    e.preventDefault();
-    e.stopPropagation();
+  e.preventDefault();
 
-    selectedId = node.id;
-    treeHasFocus = true;
+  selectUploadTableCellFromEvent(e, node);
 
-    fileInput.click();
-  });
+  fileInput.click();
+});
 
   fileInput.addEventListener("click", (e) => {
     e.stopPropagation();
@@ -2956,11 +3041,8 @@ markTableUploadCell(td, "cover");
   fileInput.hidden = true;
 
   function selectNode(e) {
-    e.stopPropagation();
-
-    selectedId = node.id;
-    treeHasFocus = true;
-  }
+  selectUploadTableCellFromEvent(e, node);
+}
 
   td.addEventListener("click", selectNode);
   td.addEventListener("dblclick", (e) => e.stopPropagation());
@@ -3933,20 +4015,22 @@ markTableUploadCell(td, "cover");
       }
     
       if (column.inputType === "image") {
-        td.classList.add("table-extra-image-cell");
-        markTableUploadCell(td, "image");
-      
-        td.appendChild(makeTableImageControl(node, column.key));
-        return td;
-      }
+  td.classList.add("table-extra-image-cell");
+  markTableUploadCell(td, "image");
+  bindUploadTableCellSelection(td, node);
+
+  td.appendChild(makeTableImageControl(node, column.key));
+  return td;
+}
 
       if (column.inputType === "file") {
-        td.classList.add("table-file-cell");
-        markTableUploadCell(td, "file");
-      
-        td.appendChild(makeTableFileControl(node, column.key));
-        return td;
-      }
+  td.classList.add("table-file-cell");
+  markTableUploadCell(td, "file");
+  bindUploadTableCellSelection(td, node);
+
+  td.appendChild(makeTableFileControl(node, column.key));
+  return td;
+}
 
       if (column.inputType === "timeCounter") {
         td.classList.add("table-time-cell");
