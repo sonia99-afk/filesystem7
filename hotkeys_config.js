@@ -21,7 +21,7 @@
   const DEFAULTS = {
     // Добавления
     addSibling: "Shift+Enter",
-    addChild: "Primary+Enter",
+    addChild: "Enter",
 
     addSiblingClick: "",
     addChildClick: "",
@@ -67,7 +67,7 @@
     deepClick: "Alt+Shift+Click",
 
     // Прочее
-    rename: "Enter",
+    rename: "Primary+Enter",
     renameClick: "DblClick",
     delete: "Primary+Backspace",
     deleteClick: "",
